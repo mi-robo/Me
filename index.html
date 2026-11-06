@@ -111,7 +111,8 @@ textarea.field{resize:vertical;line-height:1.5}
 .hchip{display:flex;align-items:center;gap:8px;border:2px solid var(--ink);background:var(--paper);padding:6px 10px 6px 6px;font-size:14px;text-align:left}
 .hchip .sq{flex:none;width:20px;height:20px;border:2px solid var(--ink);background:var(--empty)}
 .hchip.on .sq{background:var(--c)}
-.hchip.on{box-shadow:3px 3px 0 var(--c)}
+.hchip.on{box-shadow:3px 3px 0 var(--c);background:color-mix(in srgb,var(--c) 22%,var(--paper));text-decoration:line-through;text-decoration-thickness:2px;text-decoration-color:var(--ink)}
+.hchip.on .st{text-decoration:none}
 .hchip .st{font-family:var(--pixel);font-size:12px;color:var(--muted)}
 
 .moodrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -317,12 +318,12 @@ nav.tabs button.on svg .f{fill:var(--accent)}
 .prayers{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
 .pray{border:2px solid var(--ink);background:var(--paper);padding:12px 2px 8px;text-align:center;font-family:var(--pixel);font-size:14px;display:flex;flex-direction:column;align-items:center;gap:8px}
 .pray i{width:26px;height:26px;border:2px solid var(--ink);background:var(--empty)}
-.pray.on{box-shadow:3px 3px 0 var(--ink)}
+.pray.on{box-shadow:3px 3px 0 var(--ink);background:color-mix(in srgb,var(--teal) 25%,var(--paper));text-decoration:line-through;text-decoration-thickness:2px}
 .pray.on i{background:var(--teal)}
 .pray.miss i{background:repeating-linear-gradient(45deg,var(--empty) 0 3px,var(--line) 3px 6px)}
 .minipray{display:flex;gap:6px;flex-wrap:wrap}
 .minipray button{border:2px solid var(--ink);background:var(--paper);padding:4px 8px;font-family:var(--pixel);font-size:13px}
-.minipray button.on{background:var(--teal);color:#1E2440;box-shadow:2px 2px 0 var(--ink)}
+.minipray button.on{background:var(--teal);color:#1E2440;box-shadow:2px 2px 0 var(--ink);text-decoration:line-through;text-decoration-thickness:2px}
 .streakbig{display:flex;gap:22px;align-items:flex-end;flex-wrap:wrap}
 .streakbig b{font-family:var(--pixel);font-size:44px;line-height:1;display:block}
 .sgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
