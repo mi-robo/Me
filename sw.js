@@ -1,6 +1,6 @@
 // Mi Robo Me service worker: works offline, updates in the background.
-const CACHE = 'mirobome-v6';
-const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png'];
+const CACHE = 'mirobome-v7';
+const SHELL = ['./', './index.html', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -19,6 +19,7 @@ self.addEventListener('fetch', e => {
     return;
   }
   // Fonts and app files: cache first
+  if (url.pathname.endsWith('.webmanifest')) return;
   if (url.origin === location.origin || url.hostname.endsWith('fonts.googleapis.com') || url.hostname.endsWith('fonts.gstatic.com')){
     e.respondWith(caches.match(req).then(hit => hit || fetch(req).then(res => {
       if (res.ok || res.type === 'opaque'){ const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); }

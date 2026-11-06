@@ -1,9 +1,9 @@
 {
-  "id": "./",
+  "id": "./?app=mirobome",
   "name": "Mi Robo Me",
   "short_name": "Mi Robo Me",
   "description": "My tasks, habits, journals and everything me.",
-  "start_url": "./",
+  "start_url": "./?source=app",
   "scope": "./",
   "display": "standalone",
   "background_color": "#E9ECF5",
