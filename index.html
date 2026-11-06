@@ -1,0 +1,1174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mi Robo Me</title>
+<meta name="theme-color" content="#E9ECF5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141729" media="(prefers-color-scheme: dark)">
+<meta name="description" content="Mi Robo Me: my tasks, habits, journals and everything me.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mi Robo Me">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Lexend:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E9ECF5; --dot:#C7CCE0; --paper:#FBFBFE; --ink:#1E2440; --muted:#646B8F;
+  --line:#D3D8E8; --empty:#E3E6F1; --accent:#5A55D2; --accent-ink:#FFFFFF; --danger:#C2415B; --sea:#D8E2F6;
+  --pink:#F49CBB; --yellow:#FFCF6B; --mint:#7FD3BB; --blue:#8FB0F5; --lilac:#BC9CF0; --peach:#FFAA80;
+  --cherry:#F2727F; --lime:#A9D86E; --teal:#5EC6D6; --sand:#E3C79A; --orchid:#E08FD8; --slate:#A3ABC9;
+  --pixel:'Pixelify Sans','Courier New',monospace;
+  --body:'Lexend',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:light; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141729; --dot:#252A4C; --paper:#1C2036; --ink:#E7E9F7; --muted:#9BA1C6;
+    --line:#2E3354; --empty:#272C49; --accent:#8E89FF; --accent-ink:#141729; --danger:#FF7A93; --sea:#1F2A4A;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141729; --dot:#252A4C; --paper:#1C2036; --ink:#E7E9F7; --muted:#9BA1C6;
+  --line:#2E3354; --empty:#272C49; --accent:#8E89FF; --accent-ink:#141729; --danger:#FF7A93; --sea:#1F2A4A;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;background-color:var(--bg);
+  background-image:radial-gradient(var(--dot) 1px,transparent 1.4px);background-size:18px 18px;-webkit-tap-highlight-color:transparent}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:560px;margin:0 auto;padding:14px 16px 110px}
+
+.top{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.logo{width:34px;height:auto;color:var(--ink);display:block}
+.logo .eyes{transform-box:fill-box;transform-origin:center;animation:blink 6s infinite}
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.15)}}
+@media (prefers-reduced-motion:reduce){.logo .eyes{animation:none}}
+.brand{font-family:var(--pixel);font-weight:700;font-size:22px;letter-spacing:.5px}
+
+.paper{background:var(--paper);border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:14px;margin-bottom:18px}
+h2{font-family:var(--pixel);font-weight:600;font-size:19px;margin:0 0 10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+h2 small{font-family:var(--body);font-weight:400;font-size:13px;color:var(--muted)}
+.muted{color:var(--muted);font-size:13px}
+.link{font-family:var(--body);font-size:13px;font-weight:500;color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+
+.hello{margin:4px 0 18px}
+.hgreet{font-family:var(--pixel);font-size:32px;font-weight:700;line-height:1.1}
+.dayhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px}
+.dayhead .mid{text-align:center;flex:1}
+.dname{font-family:var(--pixel);font-size:32px;font-weight:700;line-height:1.05}
+.ddate{color:var(--muted);font-size:14px}
+.rel{display:inline-block;margin-top:4px;font-family:var(--pixel);font-size:13px;background:var(--accent);color:var(--accent-ink);padding:1px 8px}
+.rel.go{background:transparent;color:var(--accent);border:2px solid var(--accent)}
+.arrow{flex:none;width:42px;height:42px;border:2px solid var(--ink);background:var(--paper);box-shadow:3px 3px 0 var(--ink);font-family:var(--pixel);font-size:22px;line-height:1}
+.arrow:active,.pbtn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+
+.bar{display:flex;flex-wrap:wrap;gap:3px}
+.bar i{width:14px;height:14px;background:var(--empty);border:1.5px solid var(--line)}
+.bar i.on{background:var(--c,var(--mint));border-color:var(--ink)}
+.strip .srow{display:grid;grid-template-columns:62px 1fr auto;align-items:center;gap:10px;padding:4px 0}
+.sl{font-family:var(--pixel);font-size:15px}
+.sn{font-family:var(--pixel);font-size:15px;color:var(--muted)}
+
+.list{list-style:none;margin:0;padding:0}
+.task{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1.5px dashed var(--line)}
+.task:last-child{border-bottom:0}
+.box{flex:none;width:22px;height:22px;border:2px solid var(--ink);background:var(--paper);display:grid;place-items:center}
+.box.on{background:var(--mint)}
+.box.on::after{content:'';width:8px;height:8px;background:var(--ink)}
+.ttext{flex:1;min-width:0;word-break:break-word}
+.task.done .ttext{text-decoration:line-through;color:var(--muted)}
+.task.ghost .ttext{color:var(--muted)}
+.tag{font-size:11px;font-family:var(--pixel);color:var(--muted);border:1.5px solid var(--line);padding:0 6px;white-space:nowrap}
+.x{flex:none;width:28px;height:28px;color:var(--muted);font-size:18px}
+.x:hover{color:var(--danger)}
+.addrow{display:flex;gap:8px;margin-top:10px}
+.field{flex:1;min-width:0;border:2px solid var(--ink);background:var(--paper);padding:9px 10px;border-radius:0;width:100%}
+textarea.field{resize:vertical;line-height:1.5}
+.pbtn{border:2px solid var(--ink);background:var(--accent);color:var(--accent-ink);box-shadow:3px 3px 0 var(--ink);padding:8px 14px;font-family:var(--pixel);font-weight:600;font-size:15px;white-space:nowrap;display:inline-block;text-align:center}
+.pbtn.ghost{background:var(--paper);color:var(--ink)}
+.pbtn.small{padding:4px 10px;font-size:13px;box-shadow:2px 2px 0 var(--ink)}
+.pbtn.danger{background:var(--danger);color:#fff}
+.pbtn.wide{width:100%}
+.carry{flex:none;font-family:var(--pixel);font-size:13px;color:var(--accent);border:2px solid var(--accent);padding:1px 8px;white-space:nowrap}
+.left{background:color-mix(in srgb,var(--yellow) 22%,var(--paper))}
+.banner{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:color-mix(in srgb,var(--yellow) 30%,var(--paper));border:2px dashed var(--ink);padding:6px 10px;margin-bottom:8px;font-size:14px}
+.banner span{flex:1}
+
+.hchips{display:flex;flex-wrap:wrap;gap:8px}
+.hchip{display:flex;align-items:center;gap:8px;border:2px solid var(--ink);background:var(--paper);padding:6px 10px 6px 6px;font-size:14px;text-align:left}
+.hchip .sq{flex:none;width:20px;height:20px;border:2px solid var(--ink);background:var(--empty)}
+.hchip.on .sq{background:var(--c)}
+.hchip.on{box-shadow:3px 3px 0 var(--c)}
+.hchip .st{font-family:var(--pixel);font-size:12px;color:var(--muted)}
+
+.moodrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.moodrow .q{font-family:var(--pixel);font-size:17px}
+.mini{display:flex;gap:6px}
+.mini button{width:30px;height:30px;border:2px solid var(--ink);background:var(--mc);opacity:.35}
+.mini button.on{opacity:1;box-shadow:2px 2px 0 var(--ink)}
+.moodname{font-size:12px;color:var(--muted);text-align:right;margin-top:-10px;margin-bottom:14px}
+
+.ev{display:flex;gap:10px;align-items:center;padding:7px 0;border-bottom:1.5px dashed var(--line)}
+.ev:last-child{border-bottom:0}
+.when{flex:none;font-family:var(--pixel);font-size:13px;background:var(--blue);color:#1E2440;border:2px solid var(--ink);padding:1px 6px;min-width:62px;text-align:center}
+.empty{color:var(--muted);font-size:14px;padding:4px 0}
+
+.little{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:18px}
+.lt{background:var(--paper);border:2px solid var(--ink);box-shadow:3px 3px 0 var(--c,var(--ink));padding:10px 12px;text-align:left;display:flex;flex-direction:column;gap:4px;min-height:96px}
+.lt b{font-family:var(--pixel);font-weight:600;font-size:15px;display:flex;align-items:center;gap:6px}
+.lt b i{width:10px;height:10px;background:var(--c);border:1.5px solid var(--ink)}
+.lt span{font-size:13px;color:var(--muted);overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+
+.monthnav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.monthnav .mid{font-family:var(--pixel);font-size:24px;font-weight:700;text-align:center;flex:1}
+.seg{display:flex;border:2px solid var(--ink);margin-bottom:16px;background:var(--paper)}
+.seg button{flex:1;padding:7px 4px;font-family:var(--pixel);font-size:15px}
+.seg button.on{background:var(--ink);color:var(--paper)}
+.hcard{margin-bottom:16px}
+.hname{display:flex;align-items:center;gap:8px;font-family:var(--pixel);font-size:18px;font-weight:600;text-align:left}
+.hname .dotc{width:14px;height:14px;background:var(--c);border:2px solid var(--ink)}
+.hmeta{display:flex;gap:12px;font-size:12px;color:var(--muted);margin:2px 0 10px}
+.grid16{display:grid;grid-template-columns:repeat(16,minmax(0,1fr));border-top:2px solid var(--ink);border-left:2px solid var(--ink)}
+.cell{aspect-ratio:1;min-width:0;border-right:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink);font-size:10px;display:grid;place-items:center;background:var(--paper);color:var(--muted);font-family:var(--pixel)}
+.cell.on{background:var(--c);color:#1E2440}
+.cell.today{outline:2px solid var(--accent);outline-offset:-3px}
+.cell.future{opacity:.35;cursor:default}
+.cell.pad{background:var(--empty)}
+.yearpick{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.yp{border:2px solid var(--ink);background:var(--paper);padding:3px 10px;font-size:13px}
+.yp.on{background:var(--ink);color:var(--paper)}
+.ygrid{display:grid;grid-template-columns:30px repeat(31,minmax(0,1fr));gap:1px;width:100%}
+.ygrid .ml{font-family:var(--pixel);font-size:11px;color:var(--muted);display:flex;align-items:center;min-width:0}
+.ygrid .dl{font-size:8px;color:var(--muted);text-align:center;font-family:var(--pixel);min-width:0;overflow:hidden}
+.yc{display:block;aspect-ratio:1;min-width:0;width:100%;padding:0;background:var(--empty);border:1px solid var(--line)}
+.yc.on{background:var(--c);border-color:var(--ink)}
+.yc.no{visibility:hidden}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:12px;height:12px;border:1.5px solid var(--ink);display:inline-block}
+
+.veil{position:fixed;inset:0;background:rgba(10,12,30,.45);display:none;align-items:flex-end;justify-content:center;z-index:50}
+.veil.open{display:flex}
+.sheet{width:100%;max-width:560px;background:var(--paper);border:2px solid var(--ink);border-bottom:0;padding:16px 16px calc(18px + env(safe-area-inset-bottom,0px));max-height:88vh;overflow:auto}
+.sheet h3{font-family:var(--pixel);font-size:21px;margin:0 0 8px}
+.sheet label,.lbl{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
+.colors{display:flex;flex-wrap:wrap;gap:8px}
+.sw{width:32px;height:32px;border:2px solid var(--ink);background:var(--c)}
+.sw.on{outline:2px solid var(--ink);outline-offset:2px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1.5px solid var(--ink);padding:3px 9px;font-size:13px;background:var(--bg)}
+.chip.on{background:var(--ink);color:var(--paper)}
+.row{display:flex;gap:8px;margin-top:16px}
+.row .pbtn{flex:1}
+textarea.mono{min-height:120px;font-size:12px;font-family:monospace}
+
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--paper);border-top:2px solid var(--ink);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.tabs .in{max-width:560px;margin:0 auto;display:flex}
+nav.tabs button{flex:1;min-width:0;padding:9px 2px 8px;font-family:var(--pixel);font-size:13px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px}
+nav.tabs button svg{width:22px;height:22px}
+nav.tabs button.on{color:var(--ink)}
+nav.tabs button.on svg .f{fill:var(--accent)}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:6px 14px;font-family:var(--pixel);z-index:60;display:none}
+
+.roomhead{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.roomhead .t{font-family:var(--pixel);font-size:26px;font-weight:700;line-height:1.1}
+.rooms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.room{background:var(--paper);border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:14px;text-align:left;display:flex;flex-direction:column;gap:8px;min-height:120px}
+.room .ico{display:grid;grid-template-columns:repeat(3,10px);gap:2px}
+.room .ico i{width:10px;height:10px;background:var(--c);border:1.5px solid var(--ink)}
+.room .ico i.o{background:transparent;border-color:transparent}
+.room b{font-family:var(--pixel);font-size:18px;font-weight:600}
+.room span{font-size:12px;color:var(--muted)}
+
+.inline{border:0;border-bottom:2px dashed var(--line);background:transparent;padding:4px 0;width:100%;border-radius:0}
+.inline:focus{outline:none;border-bottom-color:var(--accent)}
+.kv{display:grid;grid-template-columns:minmax(0,38%) minmax(0,1fr) 28px;gap:8px;align-items:center;padding:2px 0}
+.kv .k{color:var(--cherry);font-weight:500}
+.ratebar{display:flex;gap:4px;flex-wrap:wrap}
+.ratebar button,.ratebar i{width:22px;height:22px;border:2px solid var(--ink);background:var(--empty);font-family:var(--pixel);font-size:11px;display:grid;place-items:center;color:var(--muted)}
+.ratebar .on{background:var(--rc,var(--cherry));color:#1E2440}
+.ratebar.sm i{width:12px;height:12px;border-width:1.5px}
+
+.gp{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1.5px dashed var(--line);width:100%;text-align:left}
+.gp:last-child{border-bottom:0}
+.rnd{flex:none;font-family:var(--pixel);font-size:13px;background:var(--cherry);color:#1E2440;border:2px solid var(--ink);width:40px;text-align:center}
+.gpn{flex:1;min-width:0}
+.gpn b{display:block;font-weight:500}
+.status{font-size:11px;font-family:var(--pixel);padding:0 6px;border:1.5px solid var(--ink)}
+.status.Missed{background:var(--empty);color:var(--muted);border-color:var(--line)}
+.status.live{background:var(--lime);color:#1E2440}
+.status.later{background:var(--yellow);color:#1E2440}
+.gptitle{font-family:var(--pixel);font-size:30px;font-weight:700;line-height:1.05}
+.podium{display:flex;align-items:flex-end;gap:6px;margin-top:6px}
+.pod{flex:1;text-align:center;font-size:13px;min-width:0}
+.pod .nm{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:4px}
+.pod b{display:grid;place-items:center;border:2px solid var(--ink);font-family:var(--pixel);font-size:20px;color:#1E2440}
+.pod.p1 b{height:62px;background:var(--yellow)}
+.pod.p2 b{height:46px;background:var(--slate)}
+.pod.p3 b{height:34px;background:var(--peach)}
+.facts{display:grid;gap:10px}
+.fact .lbl{margin:0 0 2px}
+.fact p{margin:0;white-space:pre-wrap;word-break:break-word}
+.photos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.photos img{width:100%;aspect-ratio:1;object-fit:cover;border:2px solid var(--ink);display:block;background:var(--empty)}
+.photos button{padding:0}
+.bigimg{width:100%;border:2px solid var(--ink);display:block}
+.lastyear{background:color-mix(in srgb,var(--cherry) 14%,var(--paper))}
+
+.notes{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
+.note{background:var(--c);color:#1E2440;border:2px solid var(--ink);padding:10px;min-height:96px;font-size:14px;transform:rotate(var(--r));display:flex;flex-direction:column;justify-content:space-between;gap:8px;box-shadow:2px 3px 0 rgba(0,0,0,.25)}
+.note .nt{text-align:left;word-break:break-word;color:inherit}
+.note .mv{display:flex;justify-content:space-between}
+.note .mv button{width:28px;height:24px;border:1.5px solid #1E2440;font-family:var(--pixel);color:#1E2440;background:rgba(255,255,255,.35)}
+.note .mv button:disabled{opacity:.25}
+.colhead{font-family:var(--pixel);font-size:20px;font-weight:700;margin:0 0 10px;display:flex;align-items:center;gap:10px}
+.colhead i{font-style:normal;font-size:13px;color:var(--muted);font-family:var(--body)}
+
+.circles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.circ{aspect-ratio:1;border-radius:50%;border:2px solid var(--ink);display:grid;place-items:center;font-family:var(--pixel);font-size:15px;background:var(--paper)}
+.circ.on{background:var(--mint);color:#1E2440;text-decoration:line-through}
+
+.jar{width:150px;margin:6px auto 14px;border:3px solid var(--ink);border-top-width:10px;padding:8px;min-height:150px;display:flex;flex-wrap:wrap;align-content:flex-end;gap:3px;background:color-mix(in srgb,var(--blue) 10%,var(--paper))}
+.jar i{width:14px;height:12px;border:1.5px solid var(--ink);background:var(--c)}
+.opened{background:var(--c);color:#1E2440;border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:22px 18px;margin-bottom:18px;font-size:18px;white-space:pre-wrap;line-height:1.5}
+.opened small{display:block;font-size:12px;margin-bottom:8px;font-family:var(--pixel)}
+
+.mapgrid{display:grid;grid-template-columns:repeat(18,minmax(0,1fr));border:2px solid var(--ink);background:var(--sea)}
+.tile{aspect-ratio:1;min-width:0;padding:0;border:0}
+.tile.sea{background:var(--sea);background-image:radial-gradient(color-mix(in srgb,var(--blue) 50%,transparent) 1px,transparent 1.5px);background-size:6px 6px;cursor:default}
+.tile.land{background:var(--paper);box-shadow:inset 0 0 0 .5px var(--line)}
+.tile.own{background:var(--c);box-shadow:inset 0 0 0 .5px rgba(0,0,0,.25)}
+.fac{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1.5px dashed var(--line)}
+.fac:last-child{border-bottom:0}
+.fac .sw{flex:none;width:22px;height:22px}
+.listcard{text-align:left;width:100%;display:block}
+.listcard b{font-family:var(--pixel);font-size:17px;font-weight:600;display:block}
+.listcard span{font-size:13px;color:var(--muted);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lock{font-family:var(--pixel);font-size:42px;text-align:center;margin:4px 0}
+.tag.board{background:var(--yellow);color:#1E2440;border-color:var(--ink)}
+.qa{border-left:3px solid var(--lilac);padding:2px 0 2px 10px;margin:12px 0}
+.qa .qrow{display:flex;gap:8px;align-items:center}
+.qa .qrow .inline{font-weight:500}
+.olist{list-style:none;counter-reset:n;margin:0;padding:0}
+.olist li{display:flex;gap:8px;align-items:center;counter-increment:n;padding:2px 0}
+.olist li::before{content:counter(n) '.';font-family:var(--pixel);min-width:26px;color:var(--muted)}
+.sec{font-family:var(--pixel);font-size:13px;color:var(--muted);margin:16px 0 6px}
+.bigmoney{font-family:var(--pixel);font-size:44px;font-weight:700;line-height:1}
+.bigmoney.neg{color:var(--danger)}
+.mbar{display:grid;grid-template-columns:repeat(20,minmax(0,1fr));gap:3px;margin:12px 0 4px}
+.mbar i{aspect-ratio:1;background:var(--mint);border:1.5px solid var(--ink)}
+.mbar i.sp{background:var(--empty);border-color:var(--line)}
+.mbar i.over{background:var(--danger);border-color:var(--ink)}
+.amt{flex:none;font-family:var(--pixel);font-size:16px;white-space:nowrap}
+.amt.in{color:var(--accent)}
+.mday{font-family:var(--pixel);font-size:13px;color:var(--muted);margin:14px 0 2px;display:flex;justify-content:space-between}
+.catrow{display:grid;grid-template-columns:90px 1fr auto;gap:10px;align-items:center;font-size:13px;padding:3px 0}
+.catrow .cb{height:12px;background:var(--empty);border:1.5px solid var(--line)}
+.catrow .cb i{display:block;height:100%;background:var(--peach)}
+.done-on{font-size:11px;font-family:var(--pixel);opacity:.75}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <svg class="logo" viewBox="0 0 12 11" shape-rendering="crispEdges" aria-hidden="true">
+      <rect x="5" y="0" width="2" height="1" fill="currentColor"/><rect x="5.5" y="1" width="1" height="1" fill="currentColor"/>
+      <rect x="1" y="2" width="10" height="8" fill="currentColor"/><rect x="0" y="4" width="1" height="3" fill="currentColor"/><rect x="11" y="4" width="1" height="3" fill="currentColor"/>
+      <rect x="2" y="3" width="8" height="6" fill="var(--paper)"/>
+      <g class="eyes"><rect x="3" y="4" width="2" height="3" fill="var(--accent)"/><rect x="7" y="4" width="2" height="3" fill="var(--accent)"/></g>
+    </svg>
+    <div class="brand">Mi Robo Me</div>
+  </header>
+  <main id="main"></main>
+</div>
+
+<nav class="tabs"><div class="in">
+  <button data-act="go" data-tab="home"><svg viewBox="0 0 8 8" shape-rendering="crispEdges"><rect x="3" y="0" width="2" height="1" fill="currentColor"/><rect x="2" y="1" width="4" height="1" fill="currentColor"/><rect x="1" y="2" width="6" height="1" fill="currentColor"/><rect x="0" y="3" width="8" height="1" fill="currentColor"/><rect x="1" y="4" width="6" height="4" fill="currentColor"/><rect class="f" x="3" y="5" width="2" height="3" fill="var(--paper)"/></svg>Home</button>
+  <button data-act="go" data-tab="days"><svg viewBox="0 0 8 8" shape-rendering="crispEdges"><rect x="0" y="1" width="8" height="7" fill="currentColor"/><rect x="1" y="3" width="6" height="4" fill="var(--paper)"/><rect class="f" x="2" y="4" width="2" height="2" fill="currentColor"/><rect x="1" y="0" width="1" height="2" fill="currentColor"/><rect x="6" y="0" width="1" height="2" fill="currentColor"/></svg>Days</button>
+  <button data-act="go" data-tab="habits"><svg viewBox="0 0 8 8" shape-rendering="crispEdges"><rect x="0" y="0" width="2" height="2" fill="currentColor"/><rect class="f" x="3" y="0" width="2" height="2" fill="currentColor"/><rect x="6" y="0" width="2" height="2" fill="currentColor"/><rect class="f" x="0" y="3" width="2" height="2" fill="currentColor"/><rect x="3" y="3" width="2" height="2" fill="currentColor"/><rect class="f" x="6" y="3" width="2" height="2" fill="currentColor"/><rect x="0" y="6" width="2" height="2" fill="currentColor"/><rect class="f" x="3" y="6" width="2" height="2" fill="currentColor"/><rect x="6" y="6" width="2" height="2" fill="currentColor"/></svg>Habits</button>
+  <button data-act="go" data-tab="journal"><svg viewBox="0 0 8 8" shape-rendering="crispEdges"><rect x="1" y="0" width="6" height="8" fill="currentColor"/><rect x="2" y="1" width="4" height="6" fill="var(--paper)"/><rect class="f" x="3" y="2" width="2" height="1" fill="currentColor"/><rect x="3" y="4" width="2" height="1" fill="currentColor"/><rect x="0" y="1" width="1" height="1" fill="currentColor"/><rect x="0" y="3" width="1" height="1" fill="currentColor"/><rect x="0" y="5" width="1" height="1" fill="currentColor"/></svg>Journal</button>
+  <button data-act="go" data-tab="more"><svg viewBox="0 0 8 8" shape-rendering="crispEdges"><rect x="0" y="0" width="3" height="3" fill="currentColor"/><rect class="f" x="5" y="0" width="3" height="3" fill="currentColor"/><rect class="f" x="0" y="5" width="3" height="3" fill="currentColor"/><rect x="5" y="5" width="3" height="3" fill="currentColor"/></svg>Rooms</button>
+</div></nav>
+
+<div class="veil" id="veil"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= data ================= */
+const KEY = 'mirobome.v1';
+const COLORS = ['pink','yellow','mint','blue','lilac','peach','cherry','lime','teal','sand','orchid','slate'];
+const MOODS = [{n:'Awful',c:'#7C83A8'},{n:'Low',c:'#9DB4EE'},{n:'Okay',c:'#B5E2D2'},{n:'Good',c:'#FFD37A'},{n:'Great',c:'#F49CBB'}];
+const JAR = [
+  {k:'happy',n:'Happy',c:'#7FD3BB'},{k:'sad',n:'Sad or upset',c:'#F49CBB'},{k:'worried',n:'Worried or anxious',c:'#FFCF6B'},
+  {k:'angry',n:'Mad or angry',c:'#FFAA80'},{k:'look',n:'Unhappy with how I look',c:'#BC9CF0'},{k:'alone',n:'Alone',c:'#8FB0F5'},{k:'bored',n:'Bored',c:'#D5D9E6'}
+];
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const LIST_IDEAS = ['Things I am / things I am not','Questions I want answered','Songs that remind me of childhood','Side characters I liked more than the main one','Favourite movie quotes','Things to do with a friend','Cool names','Current obsessions','Random things I learned'];
+const PAGE_IDEAS = ['Letter to future me','My dream life','My dream room','A day I want to remember','What I believe in','Who I was a year ago'];
+const PERSONA_Q = ['How they talk','What makes them laugh','What gets on their nerves','What they care about','What I think of them now','What I admire about them','What I’d never copy from them','Something I learned from them','Little things only an observer notices','Things they like'];
+const FAV_KEYS = ['Animal','Colour','Season','Food','Drink','Movie','Show','Book','Song','Game','App','City','Dream trip','YouTuber','Snack','Subject'];
+const PROMPTS = ['What was the best part of today?','What is one thing you learned today?','How do you want to show up tomorrow?','What are three things you are grateful for?','Rate today and explain the rating.','What would make tomorrow great?'];
+const GP_STATUS = ['Watched live','Watched later','Missed'];
+const MCATS = ['Food','Transport','Recharge','Study','Fun','Gift','Other'];
+const MAP_W = 18, MAP_H = 24;
+
+function blank(){ return {
+  profile:{name:'',birthday:'',from:'',quote:''}, favs:[], tops:[],
+  tasks:{}, events:[], habits:[], checks:{}, mood:{},
+  daily:{}, wish:[], lists:[], persona:null,
+  f1:{seasons:{}, gps:[]}, jar:[], savings:[], money:{sessions:[]}, board:[], map:{factions:[], tiles:{}},
+  theme:'auto'
+};}
+function load(){
+  try{ const r = localStorage.getItem(KEY); if (r){ const d = Object.assign(blank(), JSON.parse(r)); d.profile = Object.assign(blank().profile, d.profile); d.f1 = Object.assign({seasons:{},gps:[]}, d.f1); d.map = Object.assign({factions:[],tiles:{}}, d.map); d.money = Object.assign({sessions:[]}, d.money);
+    d.lists.forEach(l => { if (!l.type){ l.type = 'list'; l.items = (l.body||'').split('\n').filter(x => x.trim()).map(t => ({id:Math.random().toString(36).slice(2,10), t})); delete l.body; } });
+    return d; } }catch(e){}
+  return blank();
+}
+let S = load();
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ toast('Storage is full'); } }
+let saveT; function saveSoon(){ clearTimeout(saveT); saveT = setTimeout(save, 350); }
+
+/* ================= helpers ================= */
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2,'0');
+const keyOf = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parse = k => { const [y,m,d] = k.split('-').map(Number); return new Date(y,m-1,d); };
+const addDays = (k,n) => { const d = parse(k); d.setDate(d.getDate()+n); return keyOf(d); };
+const todayKey = () => keyOf(new Date());
+const uid = () => Math.random().toString(36).slice(2,10);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const dayDiff = (a,b) => Math.round((parse(a)-parse(b))/864e5);
+const shortDay = k => { const d = parse(k); return d.getDate()+' '+MONTHS[d.getMonth()]; };
+const hash = s => { let h = 0; for (const c of String(s)) h = (h*31 + c.charCodeAt(0))|0; return Math.abs(h); };
+const pick = (arr, seed) => arr[hash(seed) % arr.length];
+const taka = n => '৳'+Number(n).toLocaleString('en-IN');
+
+function relLabel(k){
+  const d = dayDiff(k, todayKey());
+  if (d === 0) return 'Today'; if (d === -1) return 'Yesterday'; if (d === 1) return 'Tomorrow';
+  return d < 0 ? (-d)+' days ago' : 'In '+d+' days';
+}
+function fmtTime(t){ if (!t) return 'All day'; const [h,m] = t.split(':').map(Number); return ((h%12)||12)+':'+pad(m)+(h<12?' am':' pm'); }
+function streak(h){ const c = S.checks[h.id]||{}; let k = todayKey(); if (!c[k]) k = addDays(k,-1); let n = 0; while (c[k]){ n++; k = addDays(k,-1); } return n; }
+function leftovers(){
+  const t = todayKey(), out = [];
+  for (let i = 1; i <= 14; i++){ const k = addDays(t,-i); (S.tasks[k]||[]).forEach(x => { if (!x.done && !x.moved && !x.skipped) out.push({k,x}); }); }
+  return out;
+}
+function copyTask(k,id){
+  const x = (S.tasks[k]||[]).find(y => y.id === id); if (!x) return;
+  x.moved = true; const t = todayKey();
+  (S.tasks[t] = S.tasks[t]||[]).push({id:uid(), text:x.text, done:false});
+}
+function setPath(path, val, root){
+  const segs = path.split('.'); let o = root || S;
+  for (let i = 0; i < segs.length-1; i++){
+    const s = segs[i];
+    if (s[0] === '#'){ o = o.find(x => x.id === s.slice(1)); if (!o) return; }
+    else { if (o[s] == null) o[s] = {}; o = o[s]; }
+  }
+  o[segs[segs.length-1]] = val;
+}
+function dayHead(k, actPrev, actNext, actToday){
+  const date = parse(k), isToday = k === todayKey();
+  return `<section class="dayhead">
+    <button class="arrow" data-act="${actPrev}" aria-label="Previous day">&lsaquo;</button>
+    <div class="mid"><div class="dname">${date.toLocaleDateString('en-GB',{weekday:'long'})}</div>
+      <div class="ddate">${date.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</div>
+      ${isToday ? `<span class="rel">Today</span>` : `<button class="rel go" data-act="${actToday}">${relLabel(k)}, back to today</button>`}</div>
+    <button class="arrow" data-act="${actNext}" aria-label="Next day">&rsaquo;</button></section>`;
+}
+function roomHead(title, back){
+  return `<div class="roomhead"><button class="arrow" data-act="${back||'roomBack'}" aria-label="Back">&lsaquo;</button><div class="t">${esc(title)}</div></div>`;
+}
+
+/* ================= images (IndexedDB) ================= */
+const IMG = {
+  db:null,
+  open(){ return this.db ? Promise.resolve(this.db) : new Promise((res,rej) => { const r = indexedDB.open('mirobome-img',1); r.onupgradeneeded = () => r.result.createObjectStore('img'); r.onsuccess = () => { this.db = r.result; res(this.db); }; r.onerror = () => rej(r.error); }); },
+  async tx(mode, fn){ const db = await this.open(); return new Promise((res,rej) => { const t = db.transaction('img',mode); const st = t.objectStore('img'); const r = fn(st); t.oncomplete = () => res(r && r.result); t.onerror = () => rej(t.error); }); },
+  put(id,data){ return this.tx('readwrite', st => st.put(data,id)); },
+  get(id){ return this.tx('readonly', st => st.get(id)); },
+  del(id){ return this.tx('readwrite', st => st.delete(id)); }
+};
+function fillImgs(){ document.querySelectorAll('img[data-img]').forEach(im => { IMG.get(im.dataset.img).then(d => { if (d) im.src = d; }).catch(()=>{}); }); }
+function compress(file){
+  return new Promise((res,rej) => { const fr = new FileReader(); fr.onload = () => { const im = new Image(); im.onload = () => {
+    const s = Math.min(1, 1000/Math.max(im.width, im.height)); const c = document.createElement('canvas');
+    c.width = Math.round(im.width*s); c.height = Math.round(im.height*s); c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+    res(c.toDataURL('image/jpeg',.78)); }; im.onerror = rej; im.src = fr.result; }; fr.onerror = rej; fr.readAsDataURL(file); });
+}
+
+/* ================= Persona encryption ================= */
+let P = {key:null, list:null};
+const b64 = u => { let s = ''; for (let i = 0; i < u.length; i++) s += String.fromCharCode(u[i]); return btoa(s); };
+const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function deriveKey(pass, salt){
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2', salt, iterations:200000, hash:'SHA-256'}, base, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
+}
+async function pSave(){
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({name:'AES-GCM', iv}, P.key, new TextEncoder().encode(JSON.stringify(P.list)));
+  S.persona.iv = b64(iv); S.persona.data = b64(new Uint8Array(ct)); save();
+}
+let pT = null;
+function pSaveSoon(ms){ clearTimeout(pT); pT = setTimeout(() => { pT = null; if (P.key) pSave(); }, ms == null ? 600 : ms); }
+function pLock(){ if (pT){ clearTimeout(pT); pT = null; if (P.key) pSave(); } P.key = null; P.list = null; if (typeof view !== 'undefined') view.personId = null; }
+
+/* ================= view state ================= */
+let view = { tab:'home', room:null, day:todayKey(), month:todayKey().slice(0,7), mode:'month', yearOf:null,
+  j:'daily', jday:todayKey(), listId:null, season:String(new Date().getFullYear()), gpId:null, jarOpen:null, paint:null };
+let lastToday = todayKey();
+
+/* ================= HOME ================= */
+const boardPending = () => S.board.filter(n => n.col === 1);
+function taskList(k, home){
+  const tasks = S.tasks[k]||[], past = k < todayKey();
+  const shown = home ? tasks.filter(x => !x.skipped && !x.moved) : tasks;
+  const pend = k === todayKey() ? boardPending() : [];
+  if (!shown.length && !pend.length) return `<ul class="list"><li class="empty">${home ? 'No tasks yet. Add your first one.' : 'Nothing planned for this day.'}</li></ul>`;
+  return `<ul class="list">${pend.map(n => `<li class="task"><button class="box" data-act="boardDone" data-id="${n.id}" aria-label="Done"></button><span class="ttext">${esc(n.text)}</span><span class="tag board">Board</span></li>`).join('')}${shown.map(x => {
+    if (x.moved) return `<li class="task ghost"><span class="tag">copied</span><span class="ttext">${esc(x.text)}</span></li>`;
+    if (x.skipped) return `<li class="task ghost done"><span class="tag">let go</span><span class="ttext">${esc(x.text)}</span></li>`;
+    return `<li class="task ${x.done?'done':''}"><button class="box ${x.done?'on':''}" data-act="toggleTask" data-k="${k}" data-id="${x.id}" aria-label="Done"></button>
+      <span class="ttext">${esc(x.text)}</span>${x.board ? '<span class="tag board">Board</span>' : ''}
+      ${past && !x.done ? `<button class="carry" data-act="copy" data-k="${k}" data-id="${x.id}">Copy to today</button>` : ''}
+      <button class="x" data-act="delTask" data-k="${k}" data-id="${x.id}" aria-label="Delete">×</button></li>`;
+  }).join('')}</ul>`;
+}
+const addTaskRow = k => `<div class="addrow"><input class="field" id="taskIn" data-k="${k}" placeholder="Add a task" maxlength="200" enterkeyhint="done"><button class="pbtn" data-act="addTask">Add</button></div>`;
+function evRow(e, showDate){
+  return `<div class="ev"><span class="when">${showDate ? shortDay(e.date) : fmtTime(e.time)}</span>
+    <span class="ttext">${esc(e.title)}${showDate && e.time ? ` <span class="muted">${fmtTime(e.time)}</span>` : ''}</span>
+    <button class="x" data-act="delEvent" data-id="${e.id}" aria-label="Delete">×</button></div>`;
+}
+function habitChips(k, showStreak){
+  if (!S.habits.length) return `<div class="empty">No habits yet. <button class="link" data-act="go" data-tab="habits">Set them up</button></div>`;
+  return `<div class="hchips">${S.habits.map(x => { const on = (S.checks[x.id]||{})[k], st = streak(x);
+    return `<button class="hchip ${on?'on':''}" style="--c:var(--${x.color})" data-act="check" data-id="${x.id}" data-k="${k}"><span class="sq"></span>${esc(x.name)}${showStreak && st ? `<span class="st">${st}d</span>` : ''}</button>`; }).join('')}</div>`;
+}
+function renderHome(){
+  const t = todayKey(), hr = new Date().getHours();
+  const greet = hr<5 ? 'Up late' : hr<12 ? 'Good morning' : hr<17 ? 'Good afternoon' : hr<21 ? 'Good evening' : 'Good night';
+  const name = S.profile.name.trim();
+  const tasks = (S.tasks[t]||[]).filter(x => !x.skipped && !x.moved).concat(boardPending().map(() => ({done:false}))), done = tasks.filter(x => x.done).length;
+  const hDone = S.habits.filter(x => (S.checks[x.id]||{})[t]).length;
+  const lo = leftovers(), mv = S.mood[t]||0;
+
+  let h = `<section class="hello"><div class="hgreet">${greet}${name ? ', '+esc(name) : ''}</div>
+    <div class="ddate">${parse(t).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}</div></section>`;
+
+  h += `<section class="paper strip">
+    <div class="srow"><span class="sl">Tasks</span><div class="bar">${tasks.length ? tasks.map(x=>`<i class="${x.done?'on':''}"></i>`).join('') : '<i></i>'}</div><span class="sn">${done}/${tasks.length}</span></div>
+    <div class="srow"><span class="sl">Habits</span><div class="bar">${S.habits.length ? S.habits.map(x=>`<i class="${(S.checks[x.id]||{})[t]?'on':''}" style="--c:var(--${x.color})"></i>`).join('') : '<i></i>'}</div><span class="sn">${hDone}/${S.habits.length}</span></div>
+  </section>`;
+
+  h += `<section class="paper"><h2>Today’s tasks <button class="link" data-act="go" data-tab="days">Open day</button></h2>`;
+  if (lo.length) h += `<div class="banner"><span>${lo.length} unfinished from before</span><button class="carry" data-act="copyAll">Copy all</button><button class="carry" data-act="go" data-tab="days">Pick</button></div>`;
+  h += taskList(t, true) + addTaskRow(t) + `</section>`;
+
+  const evs = S.events.filter(e => e.date === t).sort((a,b) => (a.time||'').localeCompare(b.time||''));
+  const soon = S.events.filter(e => e.date > t).sort((a,b) => (a.date+(a.time||'')).localeCompare(b.date+(b.time||''))).slice(0,3);
+  h += `<section class="paper"><h2>Plans <button class="pbtn small ghost" data-act="newEvent" data-k="${t}">+ Plan</button></h2>
+    ${evs.length ? evs.map(e => evRow(e)).join('') : `<div class="empty">Nothing planned today.</div>`}
+    ${soon.length ? `<div class="muted" style="margin:12px 0 2px">Next up</div>${soon.map(e => evRow(e,true)).join('')}` : ''}</section>`;
+
+  h += `<section class="paper"><h2>Habits</h2>${habitChips(t, true)}</section>`;
+
+  h += `<section class="paper moodrow"><span class="q">How’s today?</span><div class="mini">${MOODS.map((m,i) => `<button class="${mv===i+1?'on':''}" style="--mc:${m.c}" data-act="mood" data-v="${i+1}" aria-label="${m.n}" title="${m.n}"></button>`).join('')}</div></section>
+    ${mv ? `<div class="moodname">Feeling ${MOODS[mv-1].n.toLowerCase()}</div>` : ''}`;
+
+  const tiles = [];
+  const jd = S.daily[t]||{}, wrote = Object.values(jd).some(v => String(v).trim());
+  tiles.push(`<button class="lt" style="--c:var(--lilac)" data-act="go" data-tab="journal" data-j="daily"><b><i></i>Journal</b><span>${wrote ? 'Written today. Nice.' : esc(pick(PROMPTS, t))}</span></button>`);
+  const wl = S.wish.filter(w => !w.done);
+  if (wl.length) tiles.push(`<button class="lt" style="--c:var(--peach)" data-act="go" data-tab="journal" data-j="wish"><b><i></i>Someday</b><span>${esc(pick(wl, t).text)}</span></button>`);
+  const cur = S.board.filter(n => n.col === 1);
+  if (cur.length) tiles.push(`<button class="lt" style="--c:var(--yellow)" data-act="go" data-tab="more" data-room="board"><b><i></i>Working on</b><span>${esc(cur.map(n=>n.text).join(', '))}</span></button>`);
+  const ms = activeSession();
+  if (ms) tiles.push(`<button class="lt" style="--c:var(--lime)" data-act="go" data-tab="more" data-room="money"><b><i></i>Money</b><span>${taka(moneyLeft(ms))} left${ms.title ? ' in '+esc(ms.title) : ''}</span></button>`);
+  const sv = S.savings.find(s => s.filled.some(f=>!f));
+  if (sv){ const got = sv.amounts.reduce((a,v,i)=>a+(sv.filled[i]?v:0),0);
+    tiles.push(`<button class="lt" style="--c:var(--mint)" data-act="go" data-tab="more" data-room="save"><b><i></i>Savings</b><span>${taka(got)} of ${taka(sv.target)} in ${esc(sv.title)}</span></button>`); }
+  const lastGp = S.f1.gps.filter(g => g.date && g.date <= t).sort((a,b)=>b.date.localeCompare(a.date))[0];
+  if (lastGp) tiles.push(`<button class="lt" style="--c:var(--cherry)" data-act="openGp" data-id="${lastGp.id}"><b><i></i>Last GP</b><span>${esc(lastGp.name)}${lastGp.rating ? ', '+lastGp.rating+'/10' : ''}</span></button>`);
+  if (S.jar.length) tiles.push(`<button class="lt" style="--c:var(--blue)" data-act="go" data-tab="more" data-room="jar"><b><i></i>Mood jar</b><span>${S.jar.length} note${S.jar.length>1?'s':''} waiting for you</span></button>`);
+  h += `<div class="little">${tiles.slice(0,4).join('')}</div>`;
+  return h;
+}
+
+/* ================= DAYS ================= */
+function renderDays(){
+  const d = view.day, t = todayKey(), isToday = d === t;
+  const tasks = S.tasks[d]||[], active = tasks.filter(x => !x.moved && !x.skipped).concat(isToday ? boardPending().map(() => ({done:false})) : []), done = active.filter(x => x.done).length;
+  let h = dayHead(d, 'prev', 'next', 'goToday');
+  if (isToday){
+    const lo = leftovers();
+    if (lo.length) h += `<section class="paper left"><h2>Left from before <button class="pbtn small" data-act="copyAll">Copy all</button></h2>
+      <ul class="list">${lo.map(({k,x}) => `<li class="task"><span class="tag">${relLabel(k)==='Yesterday'?'Yesterday':shortDay(k)}</span><span class="ttext">${esc(x.text)}</span>
+        <button class="carry" data-act="copy" data-k="${k}" data-id="${x.id}">Copy</button>
+        <button class="x" data-act="dismiss" data-k="${k}" data-id="${x.id}" aria-label="Let it go">×</button></li>`).join('')}</ul></section>`;
+  }
+  const unfinishedPast = d < t && tasks.some(x => !x.done && !x.moved && !x.skipped);
+  h += `<section class="paper"><h2>Tasks <small>${active.length ? done+' of '+active.length+' done' : ''}</small></h2>
+    ${active.length ? `<div class="bar" style="margin-bottom:10px">${active.map(x=>`<i class="${x.done?'on':''}"></i>`).join('')}</div>` : ''}
+    ${taskList(d, false)}
+    ${unfinishedPast ? `<button class="pbtn ghost small" style="margin-top:10px" data-act="copyDay" data-k="${d}">Copy all unfinished to today</button>` : ''}
+    ${addTaskRow(d)}</section>`;
+  const evs = S.events.filter(e => e.date === d).sort((a,b) => (a.time||'').localeCompare(b.time||''));
+  h += `<section class="paper"><h2>Plans <button class="pbtn small ghost" data-act="newEvent" data-k="${d}">+ Plan</button></h2>
+    ${evs.length ? evs.map(e => evRow(e)).join('') : `<div class="empty">No plans on this day.</div>`}`;
+  if (isToday){
+    const soon = S.events.filter(e => e.date > d && dayDiff(e.date,d) <= 30).sort((a,b) => (a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));
+    if (soon.length) h += `<div class="muted" style="margin:14px 0 2px">Coming up</div>${soon.map(e => evRow(e,true)).join('')}`;
+  }
+  return h + `</section>`;
+}
+
+/* ================= HABITS ================= */
+function renderHabits(){
+  const [y,m] = view.month.split('-').map(Number), t = todayKey();
+  let h = `<section class="monthnav"><button class="arrow" data-act="mprev" aria-label="Previous">&lsaquo;</button>
+    <div class="mid">${view.mode==='month' ? new Date(y,m-1,1).toLocaleDateString('en-GB',{month:'long',year:'numeric'}) : y}</div>
+    <button class="arrow" data-act="mnext" aria-label="Next">&rsaquo;</button></section>
+    <div class="seg"><button class="${view.mode==='month'?'on':''}" data-act="mode" data-v="month">Month</button><button class="${view.mode==='year'?'on':''}" data-act="mode" data-v="year">Year in pixels</button></div>`;
+  if (view.mode === 'month'){
+    const dim = new Date(y,m,0).getDate();
+    if (!S.habits.length) h += `<section class="paper"><h2>No habits yet</h2><p class="muted" style="margin:0">Add one, then fill a pixel every day you do it. Habits stay every day, so you only set them up once.</p></section>`;
+    S.habits.forEach(x => {
+      const c = S.checks[x.id]||{}; let cnt = 0, cells = '';
+      for (let i = 1; i <= 32; i++){
+        if (i > dim){ cells += `<span class="cell pad"></span>`; continue; }
+        const k = y+'-'+pad(m)+'-'+pad(i), on = !!c[k], fut = k > t; if (on) cnt++;
+        cells += `<button class="cell ${on?'on':''} ${k===t?'today':''} ${fut?'future':''}" ${fut?'disabled':''} data-act="check" data-id="${x.id}" data-k="${k}" aria-label="Day ${i}">${i}</button>`;
+      }
+      h += `<section class="paper hcard" style="--c:var(--${x.color})"><button class="hname" data-act="editHabit" data-id="${x.id}"><span class="dotc"></span>${esc(x.name)}</button>
+        <div class="hmeta"><span>${cnt} of ${dim} days</span><span>Streak ${streak(x)}</span></div><div class="grid16">${cells}</div></section>`;
+    });
+    h += `<button class="pbtn wide" data-act="newHabit">+ Add habit</button>`;
+  } else {
+    const opts = [{id:'mood',name:'Mood'}].concat(S.habits);
+    if (!view.yearOf || !opts.find(o => o.id === view.yearOf)) view.yearOf = S.habits[0] ? S.habits[0].id : 'mood';
+    const sel = opts.find(o => o.id === view.yearOf);
+    h += `<div class="yearpick">${opts.map(o => `<button class="yp ${o.id===view.yearOf?'on':''}" data-act="yearOf" data-id="${o.id}">${esc(o.name)}</button>`).join('')}</div>`;
+    let g = `<span></span>`;
+    for (let dd = 1; dd <= 31; dd++) g += `<span class="dl">${dd===1||dd%5===0?dd:''}</span>`;
+    for (let mo = 1; mo <= 12; mo++){
+      const dim = new Date(y,mo,0).getDate();
+      g += `<span class="ml">${MONTHS[mo-1]}</span>`;
+      for (let dd = 1; dd <= 31; dd++){
+        if (dd > dim){ g += `<span class="yc no"></span>`; continue; }
+        const k = y+'-'+pad(mo)+'-'+pad(dd);
+        if (sel.id === 'mood'){ const v = S.mood[k]; g += `<span class="yc ${v?'on':''}" ${v?`style="--c:${MOODS[v-1].c}"`:''}></span>`; }
+        else { const on = (S.checks[sel.id]||{})[k];
+          g += k > t ? `<span class="yc" style="opacity:.4"></span>` : `<button class="yc ${on?'on':''}" style="--c:var(--${sel.color})" data-act="check" data-id="${sel.id}" data-k="${k}" aria-label="${k}"></button>`; }
+      }
+    }
+    h += `<section class="paper"><div class="ygrid">${g}</div>`;
+    h += sel.id === 'mood' ? `<div class="legend">${MOODS.map(m => `<span><i style="background:${m.c}"></i>${m.n}</span>`).join('')}</div>`
+      : `<div class="legend"><span>${Object.keys(S.checks[sel.id]||{}).filter(k => k.startsWith(String(y))).length} days in ${y}</span><span>Streak ${streak(sel)}</span></div>`;
+    h += `</section>`;
+  }
+  return h;
+}
+
+/* ================= JOURNAL ================= */
+function renderJournal(){
+  const tabs = [['daily','Daily'],['persona','Persona'],['wish','Wishlist'],['lists','Notebook']];
+  let h = `<div class="seg">${tabs.map(([k,n]) => `<button class="${view.j===k?'on':''}" data-act="jtab" data-v="${k}">${n}</button>`).join('')}</div>`;
+  if (view.j === 'daily') h += renderDaily();
+  else if (view.j === 'persona') h += renderPersona();
+  else if (view.j === 'wish') h += renderWish();
+  else h += renderLists();
+  return h;
+}
+function bindArea(path, val, ph, rows){ return `<textarea class="field" data-b="${path}" rows="${rows||3}" placeholder="${esc(ph)}">${esc(val)}</textarea>`; }
+function renderDaily(){
+  const d = view.jday, e = S.daily[d]||{}, base = 'daily.'+d+'.';
+  let h = dayHead(d, 'jprev', 'jnext', 'jToday');
+  h += `<section class="paper"><h2>Morning</h2>
+    <span class="lbl">Quote of the day</span><input class="field" data-b="${base}quote" value="${esc(e.quote)}" placeholder="Something that stuck with you">
+    <span class="lbl">Three things I’m grateful for</span>${bindArea(base+'grateful', e.grateful, '1.\n2.\n3.', 3)}
+    <span class="lbl">Three goals for today</span>${bindArea(base+'goals', e.goals, '1.\n2.\n3.', 3)}</section>`;
+  const r = +e.rate||0;
+  h += `<section class="paper"><h2>Night</h2>
+    <span class="lbl">Rate the day</span><div class="ratebar" style="--rc:var(--lilac)">${[1,2,3,4,5,6,7,8,9,10].map(n => `<button class="${n<=r?'on':''}" data-act="jrate" data-v="${n}">${n}</button>`).join('')}</div>
+    <span class="lbl">Best part of the day</span>${bindArea(base+'best', e.best, '', 2)}
+    <span class="lbl">One thing I learned</span>${bindArea(base+'learned', e.learned, '', 2)}
+    <span class="lbl">How do I want to show up tomorrow?</span>${bindArea(base+'tomorrow', e.tomorrow, '', 2)}</section>`;
+  h += `<section class="paper"><h2>Free write</h2>${bindArea(base+'free', e.free, 'Anything on your mind', 6)}</section>`;
+  return h;
+}
+function renderPersona(){
+  if (!window.crypto || !crypto.subtle) return `<section class="paper"><h2>Persona</h2><p class="muted" style="margin:0">Persona needs the app opened over https to lock entries.</p></section>`;
+  if (!S.persona) return `<section class="paper"><div class="lock">[ ]</div><h2>Lock Persona first</h2>
+    <p class="muted" style="margin:0">Pick a password. Entries get encrypted on this device, so not even your backup text can be read without it. If you forget it, the entries can’t be recovered.</p>
+    <label class="lbl" for="pp1">Password</label><input class="field" type="password" id="pp1" autocomplete="new-password">
+    <label class="lbl" for="pp2">Type it again</label><input class="field" type="password" id="pp2" autocomplete="new-password">
+    <div class="row"><button class="pbtn" data-act="pSetup">Lock Persona</button></div></section>`;
+  if (!P.list) return `<section class="paper"><div class="lock">[x]</div><h2 style="justify-content:center">Persona is locked</h2>
+    <input class="field" type="password" id="ppu" placeholder="Password" autocomplete="current-password">
+    <div class="row"><button class="pbtn" data-act="pUnlock">Unlock</button></div></section>`;
+  if (view.personId){ const p = P.list.find(x => x.id === view.personId); if (p) return renderPerson(p); view.personId = null; }
+  const list = P.list.slice().sort((a,b) => (b.updated||'').localeCompare(a.updated||''));
+  return `<section class="paper"><h2>People <span style="display:flex;gap:8px"><button class="pbtn small ghost" data-act="pLock">Lock</button><button class="pbtn small" data-act="pNew">+ Person</button></span></h2>
+    ${list.length ? list.map(p => `<button class="gp" data-act="pOpen" data-id="${p.id}"><span class="gpn"><b>${esc(p.name)}</b><span class="muted">${esc(p.oneline || p.where || '')}</span></span><span class="muted">&rsaquo;</span></button>`).join('')
+      : `<div class="empty">No one here yet. Write about someone interesting you met.</div>`}</section>
+    <p class="muted" style="text-align:center">Locks again when you leave this page or close the app.</p>`;
+}
+function renderPerson(p){
+  const inp = (k, label, ph) => `<span class="lbl">${label}</span><input class="inline" data-pb="${k}" value="${esc(p[k])}" placeholder="${esc(ph||'')}">`;
+  const area = (k, label, ph, rows) => `<span class="lbl">${label}</span><textarea class="field" data-pb="${k}" rows="${rows||3}" placeholder="${esc(ph||'')}">${esc(p[k])}</textarea>`;
+  const usedQ = (p.qa||[]).map(q => q.q);
+  return `${roomHead(p.name || 'New person', 'pBack')}
+  <section class="paper"><input class="field" style="font-family:var(--pixel);font-size:20px;font-weight:600" data-pb="name" value="${esc(p.name)}" placeholder="Name">
+    ${inp('where','Where I know them from','School, online, a friend’s friend')}
+    ${inp('since','Since when','e.g. 2023, Class 9')}
+    ${inp('connection','How we’re connected','Friend, classmate, someone I watch from afar')}
+    <span class="lbl">Do they know me?</span><div class="chips">${['Yes','Barely','No'].map(o => `<button class="chip ${p.knows===o?'on':''}" data-act="pPick" data-v="${o}">${o}</button>`).join('')}</div></section>
+  <section class="paper"><h2>Them</h2>
+    ${area('first','First impression','',3)}${inp('oneline','What they’re like in one line','')}
+    ${area('why','Why they caught my attention','',3)}${area('moment','A moment I remember with or about them','',3)}</section>
+  <section class="paper"><h2>More questions</h2>
+    ${(p.qa||[]).map(q => `<div class="qa"><div class="qrow"><input class="inline" data-pb="qa.#${q.id}.q" value="${esc(q.q)}" placeholder="Your question"><button class="x" data-act="pQDel" data-id="${q.id}" aria-label="Remove">×</button></div>
+      <textarea class="field" data-pb="qa.#${q.id}.a" rows="3" placeholder="Answer">${esc(q.a)}</textarea></div>`).join('')}
+    <span class="lbl">Add a question</span><div class="chips">${PERSONA_Q.filter(q => !usedQ.includes(q)).map(q => `<button class="chip" data-act="pQAdd" data-v="${esc(q)}">${esc(q)}</button>`).join('')}<button class="chip" data-act="pQAdd" data-v="">+ My own question</button></div></section>
+  <section class="paper"><h2>Extra notes</h2>${area('extra','','Anything else', 6)}</section>
+  <div class="row" style="margin-bottom:18px"><button class="pbtn danger" data-act="pDel">Delete person</button></div>`;
+}
+function renderWish(){
+  const done = S.wish.filter(w => w.done).length;
+  return `<section class="paper"><h2>Before I die <small>${S.wish.length ? done+' of '+S.wish.length+' done' : ''}</small></h2>
+    ${S.wish.length ? `<div class="bar" style="margin-bottom:10px">${S.wish.map(w => `<i class="${w.done?'on':''}" style="--c:var(--peach)"></i>`).join('')}</div>` : ''}
+    <ul class="list">${S.wish.length ? S.wish.map(w => `<li class="task ${w.done?'done':''}"><button class="box ${w.done?'on':''}" data-act="wishToggle" data-id="${w.id}" aria-label="Done"></button>
+      <span class="ttext">${esc(w.text)}${w.done && w.doneOn ? ` <span class="tag">${shortDay(w.doneOn)} ${w.doneOn.slice(0,4)}</span>` : ''}</span>
+      <button class="x" data-act="wishDel" data-id="${w.id}" aria-label="Delete">×</button></li>`).join('') : `<li class="empty">Things you want to do someday.</li>`}</ul>
+    <div class="addrow"><input class="field" id="wishIn" placeholder="Add a dream" maxlength="200"><button class="pbtn" data-act="wishAdd">Add</button></div></section>`;
+}
+function renderLists(){
+  if (view.listId){
+    const l = S.lists.find(x => x.id === view.listId);
+    if (l && l.type === 'list') return `${roomHead('List', 'listBack')}<section class="paper">
+      <input class="field" style="font-family:var(--pixel);font-size:20px;font-weight:600" data-b="lists.#${l.id}.title" value="${esc(l.title)}" placeholder="Title">
+      <ol class="olist" style="margin-top:12px">${(l.items||[]).map(it => `<li><input class="inline" data-b="lists.#${l.id}.items.#${it.id}.t" value="${esc(it.t)}"><button class="x" data-act="itemDel" data-id="${it.id}" aria-label="Remove">×</button></li>`).join('')}</ol>
+      <div class="addrow"><input class="field" id="itemIn" placeholder="Add an item" maxlength="300"><button class="pbtn" data-act="itemAdd">Add</button></div>
+      <div class="row"><button class="pbtn danger" data-act="listDel" data-id="${l.id}">Delete list</button></div></section>`;
+    if (l) return `${roomHead('Page', 'listBack')}<section class="paper">
+      <input class="field" style="font-family:var(--pixel);font-size:20px;font-weight:600" data-b="lists.#${l.id}.title" value="${esc(l.title)}" placeholder="Title">
+      <div style="margin-top:12px">${bindArea('lists.#'+l.id+'.body', l.body, 'Write freely', 16)}</div>
+      <div class="row"><button class="pbtn danger" data-act="listDel" data-id="${l.id}">Delete page</button></div></section>`;
+    view.listId = null;
+  }
+  const used = S.lists.map(l => l.title);
+  const card = l => { const prev = l.type === 'list' ? (l.items||[]).map(i => i.t).filter(Boolean).slice(0,3).join(', ') : (l.body||'').trim().split('\n')[0];
+    return `<button class="gp listcard" data-act="listOpen" data-id="${l.id}"><b>${esc(l.title||'Untitled')}</b><span>${prev ? esc(prev) : 'Empty'}</span></button>`; };
+  const lists = S.lists.filter(l => l.type === 'list'), pages = S.lists.filter(l => l.type === 'page');
+  return `<section class="paper"><h2>Lists <button class="pbtn small" data-act="listNew" data-v="list">+ List</button></h2>
+    ${lists.length ? lists.map(card).join('') : `<div class="empty">Numbered lists of anything.</div>`}
+    <div class="sec">Ideas</div><div class="chips">${LIST_IDEAS.filter(i => !used.includes(i)).map(i => `<button class="chip" data-act="listIdea" data-type="list" data-v="${esc(i)}">${esc(i)}</button>`).join('')}</div></section>
+  <section class="paper"><h2>Pages <button class="pbtn small" data-act="listNew" data-v="page">+ Page</button></h2>
+    ${pages.length ? pages.map(card).join('') : `<div class="empty">Essay style writing, no numbers.</div>`}
+    <div class="sec">Ideas</div><div class="chips">${PAGE_IDEAS.filter(i => !used.includes(i)).map(i => `<button class="chip" data-act="listIdea" data-type="page" data-v="${esc(i)}">${esc(i)}</button>`).join('')}</div></section>`;
+}
+
+/* ================= ROOMS ================= */
+function roomTile(room, name, sub, colors){
+  const pat = [1,0,1,1,1,1,0,1,0];
+  return `<button class="room" data-act="go" data-tab="more" data-room="${room}"><span class="ico">${pat.map((p,i) => `<i class="${p?'':'o'}" style="--c:var(--${colors[i%colors.length]})"></i>`).join('')}</span><b>${name}</b><span>${sub}</span></button>`;
+}
+function renderMore(){
+  if (view.room === 'f1') return renderF1();
+  if (view.room === 'about') return renderAbout();
+  if (view.room === 'jar') return renderJar();
+  if (view.room === 'save') return renderSave();
+  if (view.room === 'money') return renderMoney();
+  if (view.room === 'board') return renderBoard();
+  if (view.room === 'settings') return renderSettings();
+  const gps = S.f1.gps.filter(g => g.season === view.season).length;
+  const cur = S.board.filter(n => n.col === 1).length;
+  return `<div class="rooms">
+    ${roomTile('f1','F1 Journal', gps ? gps+' races in '+view.season : view.season+' season', ['cherry','sand'])}
+    ${roomTile('about','About Me', S.profile.name ? esc(S.profile.name) : 'Your page', ['lilac','pink'])}
+    ${roomTile('jar','Mood Jar', S.jar.length+' notes', ['blue','mint','yellow'])}
+    ${roomTile('money','Money', (() => { const m = activeSession(); return m ? taka(moneyLeft(m))+' left' : 'Track a session'; })(), ['lime','mint','yellow'])}
+    ${roomTile('save','Savings', S.savings.length ? S.savings.length+' challenge'+(S.savings.length>1?'s':'') : 'Save in circles', ['mint','lime'])}
+    ${roomTile('board','Task Board', cur ? cur+' in progress' : 'Big long tasks', ['yellow','peach','lime'])}
+    ${roomTile('settings','Settings', 'Theme, backup', ['slate'])}
+  </div><p class="muted" style="text-align:center;margin-top:22px">Built by Mi Robo</p>`;
+}
+
+/* ---- F1 ---- */
+function statusCls(s){ return s === 'Missed' ? 'Missed' : s === 'Watched later' ? 'later' : 'live'; }
+function rateMini(n){ return n ? `<span class="ratebar sm">${[1,2,3,4,5,6,7,8,9,10].map(i => `<i class="${i<=n?'on':''}"></i>`).join('')}</span>` : ''; }
+function renderF1(){
+  if (view.gpId){ const g = S.f1.gps.find(x => x.id === view.gpId); if (g) return renderGp(g); view.gpId = null; }
+  const yr = view.season, s = S.f1.seasons[yr]||{}, base = 'f1.seasons.'+yr+'.';
+  const gps = S.f1.gps.filter(g => g.season === yr).sort((a,b) => (+a.round||99)-(+b.round||99) || (a.date||'').localeCompare(b.date||''));
+  const watched = gps.filter(g => g.status !== 'Missed').length, missed = gps.length - watched;
+  const best = gps.filter(g => g.rating).sort((a,b) => b.rating - a.rating)[0];
+  let h = roomHead('F1 Journal');
+  h += `<section class="monthnav"><button class="arrow" data-act="sprev" aria-label="Previous season">&lsaquo;</button><div class="mid">${yr} season</div><button class="arrow" data-act="snext" aria-label="Next season">&rsaquo;</button></section>`;
+  h += `<section class="paper"><h2>My season</h2>
+    <span class="lbl">Rooting for</span><input class="inline" data-b="${base}driver" value="${esc(s.driver)}" placeholder="Driver">
+    <span class="lbl">Favourite team</span><input class="inline" data-b="${base}team" value="${esc(s.team)}" placeholder="Team">
+    <span class="lbl">Drivers’ Champion</span><input class="inline" data-b="${base}champ" value="${esc(s.champ)}" placeholder="Decided at season end">
+    <span class="lbl">Constructors’ Champion</span><input class="inline" data-b="${base}cchamp" value="${esc(s.cchamp)}" placeholder="Team">
+    <span class="lbl">Season thoughts</span>${bindArea(base+'notes', s.notes, 'How this season felt', 3)}
+    ${gps.length ? `<p class="muted" style="margin:12px 0 0">${gps.length} logged, ${watched} watched, ${missed} missed${best ? '. Favourite so far: '+esc(best.name)+' ('+best.rating+'/10)' : ''}</p>` : ''}</section>`;
+  h += `<section class="paper"><h2>Grand Prix <button class="pbtn small" data-act="gpNew">+ GP</button></h2>
+    ${gps.length ? gps.map(g => `<button class="gp" data-act="openGp" data-id="${g.id}"><span class="rnd">R${esc(g.round||'?')}</span>
+      <span class="gpn"><b>${esc(g.name)}</b>${rateMini(+g.rating)}</span><span class="status ${statusCls(g.status)}">${g.status==='Missed'?'Missed':'Watched'}</span></button>`).join('')
+      : `<div class="empty">Log your first race of ${yr}.</div>`}</section>`;
+  return h;
+}
+function renderGp(g){
+  const prev = S.f1.gps.filter(x => x.id !== g.id && x.name.trim().toLowerCase() === g.name.trim().toLowerCase() && x.season < g.season).sort((a,b) => b.season.localeCompare(a.season))[0];
+  const fact = (l, v) => v ? `<div class="fact"><span class="lbl">${l}</span><p>${esc(v)}</p></div>` : '';
+  let h = roomHead(g.season+' season', 'gpBack');
+  h += `<section class="paper"><div class="gptitle">${esc(g.name)}</div>
+    <div class="muted" style="margin:4px 0 10px">Round ${esc(g.round||'?')}${g.date ? ', '+parse(g.date).toLocaleDateString('en-GB',{day:'numeric',month:'long'}) : ''} <span class="status ${statusCls(g.status)}">${esc(g.status)}</span></div>
+    <span class="lbl">My race rating</span><div class="ratebar">${[1,2,3,4,5,6,7,8,9,10].map(n => `<button class="${n<=(+g.rating||0)?'on':''}" data-act="gpRate" data-v="${n}">${n}</button>`).join('')}</div>
+    ${g.p1||g.p2||g.p3 ? `<span class="lbl" style="margin-top:14px">Podium</span><div class="podium">
+      <div class="pod p2"><span class="nm">${esc(g.p2)}</span><b>2</b></div><div class="pod p1"><span class="nm">${esc(g.p1)}</span><b>1</b></div><div class="pod p3"><span class="nm">${esc(g.p3)}</span><b>3</b></div></div>` : ''}
+  </section>`;
+  h += `<section class="paper"><h2>My take <button class="pbtn small ghost" data-act="gpEdit">Edit</button></h2><div class="facts">
+    ${fact('Rooted for', g.rooted)}${fact('My Driver of the Day vote', g.dotd)}${fact('Loved', g.loved)}${fact('Hated', g.hated)}${fact('Notes', g.notes)}
+    ${!(g.rooted||g.dotd||g.loved||g.hated||g.notes) ? `<div class="empty">Tap Edit to add who you rooted for, what you loved and hated.</div>` : ''}</div></section>`;
+  h += `<section class="paper"><h2>Photos <label class="pbtn small">+ Photo<input type="file" accept="image/*" hidden data-up="gp" data-id="${g.id}"></label></h2>
+    ${(g.photos||[]).length ? `<div class="photos">${g.photos.map(p => `<button data-act="photo" data-id="${p}"><img data-img="${p}" alt="Race memory"></button>`).join('')}</div>` : `<div class="empty">Screenshots, memes, moments.</div>`}</section>`;
+  if (prev) h += `<section class="paper lastyear"><h2>Last time here <small>${prev.season}</small></h2>
+    <p style="margin:0 0 6px">${prev.rating ? 'You rated it '+prev.rating+'/10. ' : ''}${prev.rooted ? 'Rooted for '+esc(prev.rooted)+'. ' : ''}${prev.status==='Missed' ? 'You missed it.' : ''}</p>
+    ${prev.loved ? `<p class="muted" style="margin:0">Loved: ${esc(prev.loved)}</p>` : ''}${prev.hated ? `<p class="muted" style="margin:0">Hated: ${esc(prev.hated)}</p>` : ''}
+    <button class="link" data-act="openGp" data-id="${prev.id}">Open ${prev.season}</button></section>`;
+  return h;
+}
+
+/* ---- About Me ---- */
+function renderAbout(){
+  const p = S.profile;
+  let h = roomHead('About Me');
+  h += `<section class="paper"><h2>Profile</h2>
+    <span class="lbl">Name</span><input class="inline" data-b="profile.name" value="${esc(p.name)}" placeholder="Your name">
+    <span class="lbl">Birthday</span><input class="inline" data-b="profile.birthday" value="${esc(p.birthday)}" placeholder="Day month">
+    <span class="lbl">From</span><input class="inline" data-b="profile.from" value="${esc(p.from)}" placeholder="Hometown">
+    <span class="lbl">A line I live by</span><input class="inline" data-b="profile.quote" value="${esc(p.quote)}" placeholder="Everything you lose is a step you take"></section>`;
+  const usedK = S.favs.map(f => f.k);
+  h += `<section class="paper"><h2>My favourites</h2>
+    ${S.favs.map(f => `<div class="kv"><input class="inline k" data-b="favs.#${f.id}.k" value="${esc(f.k)}"><input class="inline" data-b="favs.#${f.id}.v" value="${esc(f.v)}" placeholder="..."><button class="x" data-act="favDel" data-id="${f.id}" aria-label="Remove">×</button></div>`).join('')}
+    <span class="lbl">Add</span><div class="chips">${FAV_KEYS.filter(k => !usedK.includes(k)).map(k => `<button class="chip" data-act="favAdd" data-v="${k}">${k}</button>`).join('')}<button class="chip" data-act="favAdd" data-v="">Custom</button></div></section>`;
+  h += `<section class="paper"><h2>Top 3s <button class="pbtn small" data-act="topNew">+ Top 3</button></h2>
+    ${S.tops.length ? S.tops.map(t => `<div style="margin-bottom:14px"><div style="display:flex;gap:8px;align-items:center"><input class="inline" style="font-family:var(--pixel);font-size:17px;font-weight:600" data-b="tops.#${t.id}.title" value="${esc(t.title)}"><button class="x" data-act="topDel" data-id="${t.id}" aria-label="Remove">×</button></div>
+      ${[0,1,2].map(i => `<div style="display:flex;gap:8px;align-items:center"><span class="tag">${i+1}</span><input class="inline" data-b="tops.#${t.id}.items.${i}" value="${esc((t.items||[])[i])}"></div>`).join('')}</div>`).join('')
+      : `<div class="empty">Subjects, foods, places, musicians, anything.</div>`}</section>`;
+  return h;
+}
+
+/* ---- Mood Jar ---- */
+function renderJar(){
+  let h = roomHead('Mood Jar');
+  if (view.jarOpen){
+    const n = S.jar.find(x => x.id === view.jarOpen), m = n && JAR.find(j => j.k === n.mood);
+    if (n) h += `<div class="opened" style="--c:${m.c}"><small>For when you feel ${m.n.toLowerCase()}</small>${esc(n.text)}</div>
+      <div class="row" style="margin:-4px 0 18px"><button class="pbtn ghost" data-act="jarDraw" data-v="${n.mood}">Open another</button><button class="pbtn" data-act="jarClose">Fold it back</button></div>
+      <p style="text-align:center;margin:-8px 0 18px"><button class="link" data-act="jarDel" data-id="${n.id}">Throw this note away</button></p>`;
+  }
+  h += `<div class="jar">${S.jar.map(n => `<i style="--c:${(JAR.find(j=>j.k===n.mood)||JAR[0]).c}"></i>`).join('')}</div>`;
+  const has = JAR.filter(j => S.jar.some(n => n.mood === j.k));
+  h += `<section class="paper"><h2>I feel...</h2>${has.length ? `<div class="chips">${has.map(j => `<button class="chip" style="background:${j.c};color:#1E2440" data-act="jarDraw" data-v="${j.k}">${j.n} <b>${S.jar.filter(n => n.mood === j.k).length}</b></button>`).join('')}</div>`
+    : `<div class="empty">Write notes to future you first. Open one when you need it.</div>`}</section>`;
+  h += `<button class="pbtn wide" data-act="jarNew" style="margin-bottom:18px">+ Write a note</button>`;
+  return h;
+}
+
+/* ---- Savings ---- */
+function makeAmounts(target, days){
+  let step = target >= days*100 ? 50 : target >= days*20 ? 10 : 1;
+  let units = Math.floor(target/step);
+  const a = new Array(days).fill(1); let rest = units - days;
+  while (rest > 0){ const i = Math.floor(Math.random()*days), add = Math.min(rest, 1+Math.floor(Math.random()*3)); a[i] += add; rest -= add; }
+  const out = a.map(u => u*step); out[Math.floor(Math.random()*days)] += target - units*step;
+  return out;
+}
+function renderSave(){
+  let h = roomHead('Savings');
+  h += S.savings.map(s => { const got = s.amounts.reduce((a,v,i) => a+(s.filled[i]?v:0), 0), pct = Math.round(got/s.target*100);
+    return `<section class="paper"><h2>${esc(s.title)} <button class="x" data-act="saveDel" data-id="${s.id}" aria-label="Delete">×</button></h2>
+      <p style="margin:0 0 8px"><b style="font-family:var(--pixel);font-size:22px">${taka(got)}</b> <span class="muted">of ${taka(s.target)}, ${pct}%</span></p>
+      <div class="bar" style="margin-bottom:12px">${s.amounts.map((v,i) => `<i class="${s.filled[i]?'on':''}"></i>`).join('')}</div>
+      <div class="circles">${s.amounts.map((v,i) => `<button class="circ ${s.filled[i]?'on':''}" data-act="saveFill" data-id="${s.id}" data-v="${i}">${v}</button>`).join('')}</div>
+      <p class="muted" style="margin:10px 0 0">Tap a circle when you put that amount aside.</p></section>`; }).join('');
+  h += `<button class="pbtn wide" data-act="saveNew">+ New challenge</button>`;
+  return h;
+}
+
+/* ---- Task Board ---- */
+function renderBoard(){
+  const cols = [[1,'Current'],[0,'To do'],[2,'Done']];
+  let h = roomHead('Task Board') + `<p class="muted" style="margin:-6px 0 14px">Current tasks show up in your daily list until you finish them.</p><button class="pbtn wide" data-act="noteNew" style="margin-bottom:18px">+ Sticky note</button>`;
+  cols.forEach(([c,n]) => { const ns = S.board.filter(x => x.col === c);
+    h += `<section style="margin-bottom:24px"><div class="colhead">${n}<i>${ns.length}</i></div>
+      ${ns.length ? `<div class="notes">${ns.map(x => `<div class="note" style="--c:var(--${x.color});--r:${((hash(x.id)%5)-2)*.7}deg">
+        <button class="nt" data-act="noteEdit" data-id="${x.id}">${esc(x.text)}${c===2 && x.doneOn ? `<br><span class="done-on">Done ${shortDay(x.doneOn)}</span>` : ''}</button>
+        <div class="mv"><button data-act="noteMove" data-id="${x.id}" data-v="-1" ${c===0?'disabled':''} aria-label="Move back">&lsaquo;</button><button data-act="noteMove" data-id="${x.id}" data-v="1" ${c===2?'disabled':''} aria-label="Move forward">&rsaquo;</button></div></div>`).join('')}</div>`
+      : `<div class="empty">Empty.</div>`}</section>`; });
+  return h;
+}
+
+/* ---- Map ---- */
+function isLand(x,y){
+  const nx = (x-(MAP_W-1)/2)/(MAP_W/2), ny = (y-(MAP_H-1)/2)/(MAP_H/2), d = nx*nx*.9 + ny*ny;
+  const n = Math.sin(x*1.3+y*.7)*.5 + Math.sin(x*.4-y*1.1)*.5 + Math.cos(x*.9+y*.5)*.4 + Math.sin(y*.55)*.3;
+  return (1-1.25*d) + .45*n > .2;
+}
+function renderMap(){
+  const F = S.map.factions;
+  let h = roomHead('The Map');
+  let g = '';
+  for (let y = 0; y < MAP_H; y++) for (let x = 0; x < MAP_W; x++){
+    if (!isLand(x,y)){ g += `<span class="tile sea"></span>`; continue; }
+    const own = F.find(f => f.id === S.map.tiles[x+','+y]);
+    g += `<button class="tile ${own?'own':'land'}" ${own?`style="--c:var(--${own.color})"`:''} data-act="paint" data-v="${x},${y}" aria-label="Land ${x},${y}"></button>`;
+  }
+  h += `<section class="paper"><div class="chips" style="margin-bottom:10px">${F.map(f => `<button class="chip ${view.paint===f.id?'on':''}" data-act="paintWith" data-id="${f.id}"><span class="sw" style="display:inline-block;width:10px;height:10px;border-width:1.5px;vertical-align:middle;--c:var(--${f.color})"></span> ${esc(f.name)}</button>`).join('')}
+    ${F.length ? `<button class="chip ${view.paint==='erase'?'on':''}" data-act="paintWith" data-id="erase">Eraser</button>` : ''}</div>
+    <div class="mapgrid">${g}</div>
+    <p class="muted" style="margin:10px 0 0">${F.length ? (view.paint ? 'Tap land to claim it.' : 'Pick a territory above, then tap land.') : 'Add a territory, then claim land on the island.'}</p></section>`;
+  h += `<section class="paper"><h2>Territories <button class="pbtn small" data-act="facNew">+ Add</button></h2>
+    ${F.length ? F.map(f => { const n = Object.values(S.map.tiles).filter(v => v === f.id).length;
+      return `<button class="fac" style="width:100%;text-align:left" data-act="facEdit" data-id="${f.id}"><span class="sw" style="--c:var(--${f.color})"></span><span class="gpn"><b>${esc(f.name)}</b><span class="muted">${esc(f.ruler||'')}${f.power ? (f.ruler?', ':'')+'power: '+esc(f.power) : ''}</span></span><span class="tag">${n} tiles</span></button>`; }).join('')
+      : `<div class="empty">Give each friend a territory and a superpower.</div>`}</section>`;
+  return h;
+}
+
+/* ---- Money ---- */
+const activeSession = () => S.money.sessions.find(m => !m.end);
+const moneyIn = m => m.entries.filter(e => e.type === 'in').reduce((a,e) => a+e.amt, 0);
+const moneyOut = m => m.entries.filter(e => e.type !== 'in').reduce((a,e) => a+e.amt, 0);
+const moneyLeft = m => moneyIn(m) - moneyOut(m);
+const fmtAt = iso => { const d = new Date(iso); return d.toLocaleTimeString('en-GB',{hour:'numeric',minute:'2-digit',hour12:true}); };
+function moneyEntries(m, editable){
+  const byDay = {};
+  m.entries.slice().sort((a,b) => b.at.localeCompare(a.at)).forEach(e => { const k = keyOf(new Date(e.at)); (byDay[k] = byDay[k]||[]).push(e); });
+  const days = Object.keys(byDay).sort().reverse();
+  if (!days.length) return `<div class="empty">Nothing spent yet.</div>`;
+  return days.map(k => { const out = byDay[k].filter(e => e.type !== 'in').reduce((a,e) => a+e.amt, 0);
+    return `<div class="mday"><span>${relLabel(k)==='Today'||relLabel(k)==='Yesterday' ? relLabel(k) : shortDay(k)}</span><span>${out ? '−'+taka(out) : ''}</span></div><ul class="list">${byDay[k].map(e => `<li class="task">
+      <span class="ttext">${esc(e.note || (e.type==='in' ? 'Got money' : 'Spent'))} ${e.cat ? `<span class="tag">${esc(e.cat)}</span>` : ''} <span class="muted">${fmtAt(e.at)}</span></span>
+      <span class="amt ${e.type==='in'?'in':''}">${e.type==='in' ? '+' : '−'}${taka(e.amt)}</span>
+      ${editable ? `<button class="x" data-act="mDel" data-id="${e.id}" aria-label="Delete">×</button>` : ''}</li>`).join('')}</ul>`; }).join('');
+}
+function moneySummary(m){
+  const got = moneyIn(m), spent = moneyOut(m), left = got - spent;
+  const days = Math.max(1, dayDiff(m.end || todayKey(), m.start) + 1);
+  const spentBlocks = got ? Math.min(20, Math.round(spent/got*20)) : 0;
+  const cats = {}; m.entries.filter(e => e.type !== 'in').forEach(e => { const c = e.cat || 'Other'; cats[c] = (cats[c]||0) + e.amt; });
+  const top = Object.entries(cats).sort((a,b) => b[1]-a[1]);
+  return `<section class="paper">
+    <div class="muted">${left < 0 ? 'Over budget by' : 'Left'}</div>
+    <div class="bigmoney ${left<0?'neg':''}">${taka(Math.abs(left))}</div>
+    <div class="mbar">${Array.from({length:20}, (_,i) => `<i class="${left<0 ? 'over' : i < spentBlocks ? 'sp' : ''}"></i>`).join('')}</div>
+    <p class="muted" style="margin:6px 0 0">Spent ${taka(spent)} of ${taka(got)}. ${days} day${days>1?'s':''} since ${shortDay(m.start)}, about ${taka(Math.round(spent/days))} a day.</p>
+    ${top.length ? `<div style="margin-top:12px">${top.map(([c,v]) => `<div class="catrow"><span>${esc(c)}</span><span class="cb"><i style="width:${Math.round(v/spent*100)}%"></i></span><span class="amt" style="font-size:13px">${taka(v)}</span></div>`).join('')}</div>` : ''}
+  </section>`;
+}
+function renderMoney(){
+  if (view.moneyId){
+    const m = S.money.sessions.find(x => x.id === view.moneyId);
+    if (m) return roomHead(m.title || 'Past session', 'mBack') + `<p class="muted" style="margin:-6px 0 14px">${shortDay(m.start)} to ${shortDay(m.end)}</p>` + moneySummary(m)
+      + `<section class="paper"><h2>Spending</h2>${moneyEntries(m, false)}</section><div class="row" style="margin-bottom:18px"><button class="pbtn danger" data-act="mSessDel" data-id="${m.id}">Delete session</button></div>`;
+    view.moneyId = null;
+  }
+  const m = activeSession();
+  let h = roomHead('Money');
+  if (!m){
+    h += `<section class="paper"><h2>Start a session</h2><p class="muted" style="margin:0 0 4px">Add what you have now. Each spend gets taken off until you start a new one.</p>
+      <label class="lbl" for="mStart">How much do you have? (৳)</label><input class="field" id="mStart" type="number" inputmode="decimal" min="1" placeholder="e.g. 3000">
+      <label class="lbl" for="mTitle">Name (optional)</label><input class="field" id="mTitle" maxlength="40" placeholder="e.g. November pocket money">
+      <div class="row"><button class="pbtn" data-act="mStart">Start</button></div></section>`;
+  } else {
+    h += moneySummary(m);
+    h += `<section class="paper"><h2>Spent something?</h2>
+      <div class="addrow" style="margin-top:0"><input class="field" id="mAmt" type="number" inputmode="decimal" min="0" placeholder="৳" style="flex:0 0 96px"><input class="field" id="mWhat" maxlength="80" placeholder="On what" enterkeyhint="done"><button class="pbtn" data-act="mAdd">Add</button></div>
+      <div class="chips" style="margin-top:10px">${MCATS.map(c => `<button class="chip ${view.mcat===c?'on':''}" data-act="mCat" data-v="${c}">${c}</button>`).join('')}</div>
+      <div class="row"><button class="pbtn ghost small" data-act="mGot">+ Got more money</button><button class="pbtn ghost small" data-act="mEnd">End session</button></div></section>`;
+    h += `<section class="paper"><h2>${esc(m.title || 'This session')}</h2>${moneyEntries(m, true)}</section>`;
+  }
+  const past = S.money.sessions.filter(x => x.end).sort((a,b) => b.end.localeCompare(a.end));
+  if (past.length) h += `<section class="paper"><h2>Past sessions</h2>${past.map(x => `<button class="gp" data-act="mOpen" data-id="${x.id}"><span class="gpn"><b>${esc(x.title || shortDay(x.start)+' to '+shortDay(x.end))}</b><span class="muted">Spent ${taka(moneyOut(x))} in ${dayDiff(x.end, x.start)+1} days</span></span><span class="amt ${moneyLeft(x)<0?'':'in'}">${moneyLeft(x)<0?'−':''}${taka(Math.abs(moneyLeft(x)))}</span></button>`).join('')}</section>`;
+  return h;
+}
+
+/* ---- Settings ---- */
+function renderSettings(){
+  return roomHead('Settings') + `<section class="paper"><h2>Your name</h2><input class="inline" data-b="profile.name" value="${esc(S.profile.name)}" placeholder="Shown on Home"></section>
+    <section class="paper"><h2>Look</h2><div class="seg" style="margin:0">${['auto','light','dark'].map(v => `<button class="${S.theme===v?'on':''}" data-act="theme" data-v="${v}">${v[0].toUpperCase()+v.slice(1)}</button>`).join('')}</div></section>
+    <section class="paper"><h2>Backup</h2><p class="muted" style="margin:0 0 12px">Everything lives on this device for now. Copy a backup now and then. Photos stay on the device and are not in the backup.</p>
+    <div class="row" style="margin:0"><button class="pbtn ghost" data-act="backup">Copy backup</button><button class="pbtn ghost" data-act="restore">Restore</button></div></section>`;
+}
+
+/* ================= render ================= */
+function render(){
+  const R = {home:renderHome, days:renderDays, habits:renderHabits, journal:renderJournal, more:renderMore};
+  $('main').innerHTML = R[view.tab]();
+  document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === view.tab));
+  fillImgs();
+}
+
+/* ================= sheets & forms ================= */
+function openSheet(html){ $('sheet').innerHTML = html; $('veil').classList.add('open'); }
+function closeSheet(){ $('veil').classList.remove('open'); FORM = null; ASK = null; }
+let ASK = null;
+function ask(msg, fn, label){ openSheet(`<h3>${esc(msg)}</h3><p class="muted" style="margin:0">This can’t be undone.</p><div class="row"><button class="pbtn ghost" data-act="closeSheet">Cancel</button><button class="pbtn danger" data-act="askYes">${esc(label||'Delete')}</button></div>`); FORM = null; ASK = fn; }
+function toast(msg){ const t = $('toast'); t.textContent = msg; t.style.display = 'block'; clearTimeout(toast.t); toast.t = setTimeout(() => t.style.display = 'none', 1700); }
+let FORM = null;
+function fieldHTML(f){
+  const id = 'f_'+f.k, v = f.value == null ? '' : f.value;
+  let inp;
+  if (f.type === 'textarea') inp = `<textarea class="field" id="${id}" rows="${f.rows||4}" placeholder="${esc(f.ph||'')}">${esc(v)}</textarea>`;
+  else if (f.type === 'select') inp = `<select class="field" id="${id}">${f.options.map(o => { const val = typeof o === 'object' ? o.v : o, lab = typeof o === 'object' ? o.n : o; return `<option value="${esc(val)}" ${String(val)===String(v)?'selected':''}>${esc(lab)}</option>`; }).join('')}</select>`;
+  else if (f.type === 'color') inp = `<div class="colors" id="${id}" data-v="${v}">${COLORS.map(c => `<button type="button" class="sw ${c===v?'on':''}" style="--c:var(--${c})" data-act="swatch" data-v="${c}" aria-label="${c}"></button>`).join('')}</div>`;
+  else inp = `<input class="field" id="${id}" type="${f.type||'text'}" value="${esc(v)}" placeholder="${esc(f.ph||'')}" ${f.min!=null?`min="${f.min}"`:''} ${f.max!=null?`max="${f.max}"`:''} maxlength="${f.type==='text'||!f.type?200:''}">`;
+  return `<label for="${id}">${esc(f.label)}</label>${inp}`;
+}
+function openForm(o){
+  FORM = o;
+  openSheet(`<h3>${esc(o.title)}</h3>${o.note ? `<p class="muted" style="margin:0 0 4px">${esc(o.note)}</p>` : ''}${o.fields.map(fieldHTML).join('')}
+    <div class="row">${o.onDelete ? `<button class="pbtn danger" data-act="formDel">Delete</button>` : ''}<button class="pbtn ghost" data-act="closeSheet">Cancel</button><button class="pbtn" data-act="formSave">${o.saveLabel||'Save'}</button></div>`);
+  if (o.focus !== false) setTimeout(() => { const f = document.querySelector('#sheet input.field, #sheet textarea.field'); if (f) f.focus(); }, 60);
+}
+function formVals(){ const o = {}; FORM.fields.forEach(f => { const el = $('f_'+f.k); o[f.k] = f.type === 'color' ? el.dataset.v : el.value.trim(); }); return o; }
+
+/* ================= actions ================= */
+const A = {
+  go(b){
+    if (view.tab === 'journal' && view.j === 'persona') pLock();
+    view.tab = b.dataset.tab;
+    if (b.dataset.room !== undefined) view.room = b.dataset.room || null;
+    else if (view.tab === 'more') view.room = null;
+    if (b.dataset.j) view.j = b.dataset.j;
+    if (view.tab === 'days' && !b.dataset.keep) view.day = todayKey();
+    view.gpId = null; view.jarOpen = null; view.moneyId = null; window.scrollTo(0,0);
+  },
+  roomBack(){ view.room = null; view.jarOpen = null; window.scrollTo(0,0); },
+  prev(){ view.day = addDays(view.day,-1); }, next(){ view.day = addDays(view.day,1); }, goToday(){ view.day = todayKey(); },
+  addTask(){ const inp = $('taskIn'), v = inp.value.trim(), k = inp.dataset.k; if (!v) return false;
+    (S.tasks[k] = S.tasks[k]||[]).push({id:uid(), text:v, done:false}); save(); render(); $('taskIn').focus(); return false; },
+  toggleTask(b){ const k = b.dataset.k, x = (S.tasks[k]||[]).find(y => y.id === b.dataset.id); if (!x) return false;
+    if (x.board && x.done){ const n = S.board.find(y => y.id === x.board); if (n){ n.col = 1; n.doneOn = null; } S.tasks[k] = S.tasks[k].filter(y => y !== x); }
+    else x.done = !x.done; save(); },
+  boardDone(b){ const n = S.board.find(y => y.id === b.dataset.id); if (n) setNoteCol(n, 2); save(); toast('Done and logged'); },
+  delTask(b){ S.tasks[b.dataset.k] = (S.tasks[b.dataset.k]||[]).filter(x => x.id !== b.dataset.id); save(); },
+  copy(b){ copyTask(b.dataset.k, b.dataset.id); save(); toast('Copied to today'); },
+  copyAll(){ leftovers().forEach(({k,x}) => copyTask(k, x.id)); save(); toast('Copied to today'); },
+  copyDay(b){ (S.tasks[b.dataset.k]||[]).filter(x => !x.done && !x.moved && !x.skipped).forEach(x => copyTask(b.dataset.k, x.id)); save(); toast('Copied to today'); },
+  dismiss(b){ const x = (S.tasks[b.dataset.k]||[]).find(y => y.id === b.dataset.id); if (x) x.skipped = true; save(); },
+  check(b){ const k = b.dataset.k, id = b.dataset.id; if (k > todayKey()) return false; const c = S.checks[id] = S.checks[id]||{}; if (c[k]) delete c[k]; else c[k] = 1; save(); },
+  mood(b){ const t = todayKey(), n = +b.dataset.v; if (S.mood[t] === n) delete S.mood[t]; else S.mood[t] = n; save(); },
+  newEvent(b){ openForm({title:'New plan', fields:[{k:'title',label:'What',ph:'e.g. Udvash exam'},{k:'date',label:'Date',type:'date',value:b.dataset.k||todayKey()},{k:'time',label:'Time (optional)',type:'time'}],
+    onSave:v => { if (!v.title || !v.date){ toast('Add a name and a date'); return false; } S.events.push({id:uid(), title:v.title, date:v.date, time:v.time}); toast('Plan saved'); }}); return false; },
+  delEvent(b){ S.events = S.events.filter(x => x.id !== b.dataset.id); save(); },
+
+  mprev(){ shiftMonth(-1); }, mnext(){ shiftMonth(1); },
+  mode(b){ view.mode = b.dataset.v; }, yearOf(b){ view.yearOf = b.dataset.id; },
+  newHabit(){ habitForm(null); return false; }, editHabit(b){ habitForm(S.habits.find(x => x.id === b.dataset.id)); return false; },
+
+  jtab(b){ if (view.j === 'persona' && b.dataset.v !== 'persona') pLock(); view.j = b.dataset.v; view.listId = null; },
+  jprev(){ view.jday = addDays(view.jday,-1); }, jnext(){ view.jday = addDays(view.jday,1); }, jToday(){ view.jday = todayKey(); },
+  jrate(b){ setPath('daily.'+view.jday+'.rate', +b.dataset.v); save(); },
+  wishAdd(){ const v = $('wishIn').value.trim(); if (!v) return false; S.wish.push({id:uid(), text:v, done:false}); save(); render(); $('wishIn').focus(); return false; },
+  wishToggle(b){ const w = S.wish.find(x => x.id === b.dataset.id); w.done = !w.done; w.doneOn = w.done ? todayKey() : null; save(); },
+  wishDel(b){ S.wish = S.wish.filter(x => x.id !== b.dataset.id); save(); },
+  listNew(b){ const l = b.dataset.v === 'page' ? {id:uid(), type:'page', title:'', body:''} : {id:uid(), type:'list', title:'', items:[]}; S.lists.unshift(l); view.listId = l.id; save(); window.scrollTo(0,0); },
+  listIdea(b){ const l = b.dataset.type === 'page' ? {id:uid(), type:'page', title:b.dataset.v, body:''} : {id:uid(), type:'list', title:b.dataset.v, items:[]}; S.lists.unshift(l); view.listId = l.id; save(); window.scrollTo(0,0); },
+  itemAdd(){ const v = $('itemIn').value.trim(); if (!v) return false; const l = S.lists.find(x => x.id === view.listId); l.items.push({id:uid(), t:v}); save(); render(); $('itemIn').focus(); return false; },
+  itemDel(b){ const l = S.lists.find(x => x.id === view.listId); l.items = l.items.filter(i => i.id !== b.dataset.id); save(); },
+  listOpen(b){ view.listId = b.dataset.id; window.scrollTo(0,0); },
+  listBack(){ S.lists = S.lists.filter(l => (l.title||'').trim() || (l.body||'').trim() || (l.items||[]).length); save(); view.listId = null; },
+  listDel(b){ const id = b.dataset.id; ask('Delete this for good?', () => { S.lists = S.lists.filter(l => l.id !== id); view.listId = null; }); return false; },
+
+  async pSetup(){ const a = $('pp1').value, c = $('pp2').value;
+    if (a.length < 4){ toast('Use at least 4 characters'); return false; } if (a !== c){ toast('Passwords don’t match'); return false; }
+    const salt = crypto.getRandomValues(new Uint8Array(16)); P.key = await deriveKey(a, salt); P.list = []; S.persona = {salt:b64(salt)}; await pSave(); toast('Persona locked'); },
+  async pUnlock(){ const pass = $('ppu').value; if (!pass) return false;
+    try { const key = await deriveKey(pass, unb64(S.persona.salt)); const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:unb64(S.persona.iv)}, key, unb64(S.persona.data));
+      P.list = JSON.parse(new TextDecoder().decode(pt)); P.key = key;
+      P.list.forEach(p => { if (p.notes && !p.extra) p.extra = p.notes; if (p.met && !p.since) p.since = p.met; p.qa = p.qa||[]; }); } catch(e){ toast('Wrong password'); return false; } },
+  pLock(){ pLock(); },
+  pNew(){ const p = {id:uid(), name:'', qa:[], updated:todayKey()}; P.list.push(p); view.personId = p.id; window.scrollTo(0,0); },
+  pOpen(b){ view.personId = b.dataset.id; window.scrollTo(0,0); },
+  pBack(){ P.list = P.list.filter(p => (p.name||'').trim() || (p.extra||'').trim() || (p.first||'').trim()); pSaveSoon(0); view.personId = null; },
+  pPick(b){ const p = P.list.find(x => x.id === view.personId); p.knows = p.knows === b.dataset.v ? '' : b.dataset.v; p.updated = todayKey(); pSaveSoon(0); },
+  pQAdd(b){ const p = P.list.find(x => x.id === view.personId); (p.qa = p.qa||[]).push({id:uid(), q:b.dataset.v, a:''}); pSaveSoon(0); },
+  pQDel(b){ const p = P.list.find(x => x.id === view.personId); p.qa = (p.qa||[]).filter(q => q.id !== b.dataset.id); pSaveSoon(0); },
+  pDel(){ const id = view.personId; ask('Delete this person for good?', () => { P.list = P.list.filter(x => x.id !== id); view.personId = null; pSaveSoon(0); }); return false; },
+
+  sprev(){ view.season = String(+view.season-1); }, snext(){ view.season = String(+view.season+1); },
+  gpNew(){ gpForm(null); return false; }, gpEdit(){ gpForm(S.f1.gps.find(x => x.id === view.gpId)); return false; },
+  openGp(b){ const g = S.f1.gps.find(x => x.id === b.dataset.id); if (!g) return false; view.tab = 'more'; view.room = 'f1'; view.season = g.season; view.gpId = g.id; window.scrollTo(0,0); },
+  gpBack(){ view.gpId = null; },
+  gpRate(b){ const g = S.f1.gps.find(x => x.id === view.gpId); g.rating = +g.rating === +b.dataset.v ? 0 : +b.dataset.v; save(); },
+  photo(b){ const id = b.dataset.id; openSheet(`<img class="bigimg" data-img="${id}" alt="Race memory"><div class="row"><button class="pbtn danger" data-act="photoDel" data-id="${id}">Delete photo</button><button class="pbtn ghost" data-act="closeSheet">Close</button></div>`); fillImgs(); return false; },
+  photoDel(b){ const g = S.f1.gps.find(x => x.id === view.gpId); if (g) g.photos = (g.photos||[]).filter(p => p !== b.dataset.id); IMG.del(b.dataset.id).catch(()=>{}); save(); closeSheet(); },
+
+  favAdd(b){ S.favs.push({id:uid(), k:b.dataset.v || 'Favourite', v:''}); save(); },
+  favDel(b){ S.favs = S.favs.filter(f => f.id !== b.dataset.id); save(); },
+  topNew(){ openForm({title:'New top 3', fields:[{k:'title',label:'Top 3 what?',ph:'e.g. Foods'}], onSave:v => { if (!v.title) return false; S.tops.push({id:uid(), title:v.title, items:['','','']}); }}); return false; },
+  topDel(b){ const id = b.dataset.id; ask('Remove this top 3?', () => { S.tops = S.tops.filter(t => t.id !== id); }, 'Remove'); return false; },
+
+  jarNew(){ openForm({title:'Note for future you', fields:[{k:'mood',label:'Open this when I feel',type:'select',options:JAR.map(j => ({v:j.k, n:j.n}))},{k:'text',label:'Note',type:'textarea',rows:5,ph:'What would help you then?'}],
+    onSave:v => { if (!v.text) return false; S.jar.push({id:uid(), mood:v.mood, text:v.text}); toast('Folded into the jar'); }}); return false; },
+  jarDraw(b){ const ns = S.jar.filter(n => n.mood === b.dataset.v && n.id !== view.jarOpen); const pool = ns.length ? ns : S.jar.filter(n => n.mood === b.dataset.v);
+    if (!pool.length) return false; view.jarOpen = pool[Math.floor(Math.random()*pool.length)].id; window.scrollTo(0,0); },
+  jarClose(){ view.jarOpen = null; },
+  jarDel(b){ const id = b.dataset.id; ask('Throw this note away?', () => { S.jar = S.jar.filter(n => n.id !== id); if (view.jarOpen === id) view.jarOpen = null; }, 'Throw away'); return false; },
+
+  saveNew(){ openForm({title:'New savings challenge', fields:[{k:'title',label:'Name',ph:'e.g. December stash'},{k:'target',label:'Target (৳)',type:'number',value:2000,min:1},{k:'days',label:'Days',type:'number',value:30,min:1,max:100}],
+    onSave:v => { const t = Math.round(+v.target), d = Math.round(+v.days);
+      if (!t || !d || d > 100){ toast('Check the target and days'); return false; } if (t < d){ toast('Target should be at least ৳1 per day'); return false; }
+      const am = makeAmounts(t, d); S.savings.push({id:uid(), title:v.title || 'Savings', target:t, amounts:am, filled:am.map(() => false)}); }}); return false; },
+  saveFill(b){ const s = S.savings.find(x => x.id === b.dataset.id), i = +b.dataset.v; s.filled[i] = !s.filled[i]; save();
+    if (s.filled.every(Boolean)) toast('Challenge complete!'); },
+  saveDel(b){ const id = b.dataset.id; ask('Delete this challenge?', () => { S.savings = S.savings.filter(x => x.id !== id); }); return false; },
+
+  mStart(){ const v = +$('mStart').value; if (!(v > 0)){ toast('Enter how much you have'); return false; }
+    const now = new Date().toISOString();
+    S.money.sessions.push({id:uid(), title:$('mTitle').value.trim(), start:todayKey(), end:null, entries:[{id:uid(), type:'in', amt:v, note:'Starting money', at:now}]}); save(); },
+  mAdd(){ const m = activeSession(), a = +$('mAmt').value; if (!m) return false; if (!(a > 0)){ toast('Enter an amount'); $('mAmt').focus(); return false; }
+    m.entries.push({id:uid(), type:'out', amt:a, note:$('mWhat').value.trim(), cat:view.mcat || '', at:new Date().toISOString()}); view.mcat = null; save(); render(); toast('−'+taka(a)); $('mAmt').focus(); return false; },
+  mCat(b){ view.mcat = view.mcat === b.dataset.v ? null : b.dataset.v; const a = $('mAmt').value, w = $('mWhat').value; render(); $('mAmt').value = a; $('mWhat').value = w; return false; },
+  mGot(){ openForm({title:'Got more money', fields:[{k:'amt',label:'Amount (৳)',type:'number',min:1},{k:'note',label:'From',ph:'e.g. Abbu, gift, tuition'}],
+    onSave:v => { const a = +v.amt, m = activeSession(); if (!(a > 0) || !m){ toast('Enter an amount'); return false; } m.entries.push({id:uid(), type:'in', amt:a, note:v.note || 'Got money', at:new Date().toISOString()}); }}); return false; },
+  mEnd(){ ask('End this session?', () => { const m = activeSession(); if (m) m.end = todayKey(); }, 'End it'); return false; },
+  mDel(b){ const id = b.dataset.id; ask('Delete this entry?', () => { const m = activeSession(); if (m) m.entries = m.entries.filter(e => e.id !== id); }); return false; },
+  mOpen(b){ view.moneyId = b.dataset.id; window.scrollTo(0,0); },
+  mBack(){ view.moneyId = null; },
+  mSessDel(b){ const id = b.dataset.id; ask('Delete this session for good?', () => { S.money.sessions = S.money.sessions.filter(x => x.id !== id); view.moneyId = null; }); return false; },
+  noteNew(){ noteForm(null); return false; }, noteEdit(b){ noteForm(S.board.find(x => x.id === b.dataset.id)); return false; },
+  noteMove(b){ const n = S.board.find(x => x.id === b.dataset.id); setNoteCol(n, Math.max(0, Math.min(2, n.col + (+b.dataset.v)))); save(); },
+
+  paintWith(b){ view.paint = view.paint === b.dataset.id ? null : b.dataset.id; },
+  paint(b){ if (!view.paint){ toast('Pick a territory first'); return false; } const k = b.dataset.v;
+    if (view.paint === 'erase') delete S.map.tiles[k]; else S.map.tiles[k] = view.paint; save(); },
+  facNew(){ facForm(null); return false; }, facEdit(b){ facForm(S.map.factions.find(x => x.id === b.dataset.id)); return false; },
+
+  theme(b){ S.theme = b.dataset.v; save(); applyTheme(); },
+  backup(){ openSheet(`<h3>Your backup</h3><p class="muted" style="margin:0 0 8px">Keep this text somewhere safe. Persona stays encrypted inside it.</p><textarea class="field mono" id="bk" readonly>${esc(JSON.stringify(S))}</textarea>
+    <div class="row"><button class="pbtn ghost" data-act="closeSheet">Close</button><button class="pbtn" data-act="copyBk">Copy</button></div>`); return false; },
+  copyBk(){ const ta = $('bk'); ta.select();
+    (navigator.clipboard ? navigator.clipboard.writeText(ta.value) : Promise.reject()).then(() => toast('Copied'), () => { try { document.execCommand('copy'); toast('Copied'); } catch(e){ toast('Select and copy it by hand'); } }); return false; },
+  restore(){ openSheet(`<h3>Restore</h3><p class="muted" style="margin:0 0 8px">Paste a backup. This replaces what is on this device.</p><textarea class="field mono" id="rs"></textarea>
+    <div class="row"><button class="pbtn ghost" data-act="closeSheet">Cancel</button><button class="pbtn" data-act="doRestore">Restore</button></div>`); return false; },
+  doRestore(){ try { const d = JSON.parse($('rs').value); if (!d || typeof d !== 'object' || !d.tasks) throw 0;
+      localStorage.setItem(KEY, JSON.stringify(d)); S = load(); pLock(); applyTheme(); closeSheet(); toast('Restored'); } catch(e){ toast('That backup text is not valid'); return false; } },
+
+  swatch(b){ const box = b.parentElement; box.dataset.v = b.dataset.v; box.querySelectorAll('.sw').forEach(s => s.classList.toggle('on', s === b)); return false; },
+  closeSheet(){ closeSheet(); return false; },
+  async formSave(){ if (!FORM) return false; const r = await FORM.onSave(formVals()); if (r === false) return false; save(); closeSheet(); },
+  formDel(){ if (!FORM || !FORM.onDelete) return false; const fn = FORM.onDelete; ask('Delete this for good?', fn); return false; },
+  async askYes(){ const fn = ASK; ASK = null; closeSheet(); if (fn) await fn(); save(); }
+};
+function setNoteCol(n, col){
+  if (n.col === col) return;
+  if (col === 2){ n.doneOn = todayKey(); (S.tasks[n.doneOn] = S.tasks[n.doneOn]||[]).push({id:uid(), text:n.text, done:true, board:n.id}); }
+  else if (n.col === 2 && n.doneOn){ S.tasks[n.doneOn] = (S.tasks[n.doneOn]||[]).filter(x => x.board !== n.id); n.doneOn = null; }
+  n.col = col;
+}
+function shiftMonth(dir){ const [y,m] = view.month.split('-').map(Number); const d = view.mode === 'month' ? new Date(y, m-1+dir, 1) : new Date(y+dir, m-1, 1); view.month = d.getFullYear()+'-'+pad(d.getMonth()+1); }
+function habitForm(h){
+  openForm({title: h ? 'Edit habit' : 'New habit', note: h ? '' : 'Habits stay every day, so set it once.',
+    fields:[{k:'name',label:'Name',value:h&&h.name,ph:'e.g. Read 20 minutes'},{k:'color',label:'Colour (repeats are fine)',type:'color',value:h ? h.color : COLORS[S.habits.length % COLORS.length]}],
+    onSave:v => { if (!v.name){ toast('Give it a name'); return false; } if (h){ h.name = v.name; h.color = v.color; } else S.habits.push({id:uid(), name:v.name, color:v.color}); },
+    onDelete: h ? () => { S.habits = S.habits.filter(x => x.id !== h.id); delete S.checks[h.id]; } : null});
+}
+function personForm(p){
+  openForm({title: p ? p.name : 'New person', focus: !p,
+    fields:[{k:'name',label:'Name',value:p&&p.name},{k:'where',label:'Where we met',value:p&&p.where},{k:'met',label:'First met',type:'date',value:p&&p.met},{k:'notes',label:'What I notice about them',type:'textarea',rows:10,value:p&&p.notes}],
+    onSave: async v => { if (!v.name){ toast('Add a name'); return false; } const t = todayKey();
+      if (p) Object.assign(p, v, {updated:t}); else P.list.push(Object.assign({id:uid(), updated:t}, v)); await pSave(); },
+    onDelete: p ? async () => { P.list = P.list.filter(x => x.id !== p.id); await pSave(); } : null});
+}
+function gpForm(g){
+  openForm({title: g ? 'Edit '+g.name : 'Log a Grand Prix', focus: !g,
+    fields:[{k:'name',label:'Grand Prix',value:g&&g.name,ph:'e.g. Spanish GP'},{k:'round',label:'Round',type:'number',min:1,max:30,value:g&&g.round},{k:'date',label:'Race date',type:'date',value:g&&g.date},
+      {k:'status',label:'Did I watch?',type:'select',options:GP_STATUS,value:g?g.status:'Watched live'},
+      {k:'rooted',label:'Rooted for',value:g&&g.rooted},{k:'p1',label:'P1',value:g&&g.p1},{k:'p2',label:'P2',value:g&&g.p2},{k:'p3',label:'P3',value:g&&g.p3},
+      {k:'dotd',label:'My Driver of the Day vote',value:g&&g.dotd},{k:'loved',label:'Loved',type:'textarea',rows:2,value:g&&g.loved},{k:'hated',label:'Hated',type:'textarea',rows:2,value:g&&g.hated},{k:'notes',label:'Notes',type:'textarea',rows:3,value:g&&g.notes}],
+    onSave:v => { if (!v.name){ toast('Name the race'); return false; } if (g) Object.assign(g, v);
+      else { const n = Object.assign({id:uid(), season:view.season, rating:0, photos:[]}, v); S.f1.gps.push(n); view.gpId = n.id; } },
+    onDelete: g ? () => { (g.photos||[]).forEach(p => IMG.del(p).catch(()=>{})); S.f1.gps = S.f1.gps.filter(x => x.id !== g.id); view.gpId = null; } : null});
+}
+function noteForm(n){
+  openForm({title: n ? 'Edit note' : 'New sticky note', fields:[{k:'text',label:'Task',type:'textarea',rows:3,value:n&&n.text},{k:'col',label:'Where',type:'select',options:[{v:0,n:'To do'},{v:1,n:'Current'},{v:2,n:'Done'}],value:n?n.col:0},{k:'color',label:'Colour',type:'color',value:n?n.color:pick(['yellow','peach','lime','pink','teal'], uid())}],
+    onSave:v => { if (!v.text) return false; let t = n; if (t){ t.text = v.text; t.color = v.color; } else { t = {id:uid(), text:v.text, col:0, color:v.color}; S.board.push(t); } setNoteCol(t, +v.col); },
+    onDelete: n ? () => { setNoteCol(n, 0); S.board = S.board.filter(x => x.id !== n.id); } : null});
+}
+function facForm(f){
+  openForm({title: f ? f.name : 'New territory', fields:[{k:'name',label:'Territory name',value:f&&f.name},{k:'ruler',label:'Ruled by',value:f&&f.ruler,ph:'Who owns it'},{k:'power',label:'Superpower',value:f&&f.power},{k:'color',label:'Colour',type:'color',value:f?f.color:COLORS[S.map.factions.length % COLORS.length]}],
+    onSave:v => { if (!v.name) return false; if (f) Object.assign(f, v); else { const n = Object.assign({id:uid()}, v); S.map.factions.push(n); view.paint = n.id; } },
+    onDelete: f ? () => { S.map.factions = S.map.factions.filter(x => x.id !== f.id); for (const k in S.map.tiles) if (S.map.tiles[k] === f.id) delete S.map.tiles[k]; if (view.paint === f.id) view.paint = null; } : null});
+}
+
+/* ================= events ================= */
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b || b.disabled) return;
+  const fn = A[b.dataset.act]; if (!fn) return;
+  const r = fn(b, e);
+  if (r && typeof r.then === 'function') r.then(x => { if (x !== false) render(); }).catch(() => toast('Something went wrong'));
+  else if (r !== false) render();
+});
+document.addEventListener('input', e => {
+  const d = e.target.dataset || {};
+  if (d.b){ setPath(d.b, e.target.value); saveSoon(); }
+  else if (d.pb && P.list){ const p = P.list.find(x => x.id === view.personId); if (p){ setPath(d.pb, e.target.value, p); p.updated = todayKey(); pSaveSoon(); } }
+});
+document.addEventListener('change', async e => {
+  const el = e.target; if (el.dataset.up !== 'gp' || !el.files.length) return;
+  const g = S.f1.gps.find(x => x.id === el.dataset.id); if (!g) return;
+  try { for (const file of el.files){ const data = await compress(file), id = 'img_'+uid(); await IMG.put(id, data); (g.photos = g.photos||[]).push(id); } save(); render(); }
+  catch(err){ toast('Could not add that photo'); }
+});
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== 'Escape') return;
+  if (e.key === 'Escape'){ closeSheet(); return; }
+  const id = e.target.id;
+  if (id === 'taskIn'){ e.preventDefault(); A.addTask(); }
+  else if (id === 'wishIn'){ e.preventDefault(); A.wishAdd(); }
+  else if (id === 'itemIn'){ e.preventDefault(); A.itemAdd(); }
+  else if (id === 'mAmt' || id === 'mWhat'){ e.preventDefault(); A.mAdd(); }
+  else if (id === 'mStart' || id === 'mTitle'){ e.preventDefault(); if (A.mStart() !== false) render(); }
+  else if (id === 'ppu'){ e.preventDefault(); A.pUnlock().then(x => { if (x !== false) render(); }); }
+  else if (e.target.closest && e.target.closest('#sheet') && e.target.tagName === 'INPUT'){ e.preventDefault(); A.formSave().then(x => { if (x !== false) render(); }); }
+});
+$('veil').addEventListener('click', e => { if (e.target.id === 'veil') closeSheet(); });
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden){ save(); if (P.list){ pLock(); if (view.tab === 'journal' && view.j === 'persona'){ closeSheet(); render(); } } return; }
+  if (todayKey() !== lastToday){ if (view.day === lastToday) view.day = todayKey(); if (view.jday === lastToday) view.jday = todayKey(); lastToday = todayKey(); render(); }
+});
+setInterval(() => { const t = todayKey(); if (t !== lastToday){ if (view.day === lastToday) view.day = t; if (view.jday === lastToday) view.jday = t; lastToday = t;
+  const a = document.activeElement; if (!$('veil').classList.contains('open') && !(a && a.matches && a.matches('input,textarea'))) render(); } }, 20000);
+
+function applyTheme(){ if (S.theme === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', S.theme); }
+const startTab = location.hash.slice(1);
+if (['home','days','habits','journal'].includes(startTab)) view.tab = startTab;
+const _render = render;
+render = function(){ _render(); if (location.hash.slice(1) !== view.tab){ try { history.replaceState(null, '', '#'+view.tab); } catch(e){} } };
+applyTheme();
+render();
+if ('serviceWorker' in navigator && location.protocol === 'https:' && /github\.io$/.test(location.hostname)){
+  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+}
+</script>
+</body>
+</html>
