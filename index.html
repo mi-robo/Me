@@ -275,6 +275,42 @@ nav.tabs button.on svg .f{fill:var(--accent)}
 .catrow{display:grid;grid-template-columns:90px 1fr auto;gap:10px;align-items:center;font-size:13px;padding:3px 0}
 .catrow .cb{height:12px;background:var(--empty);border:1.5px solid var(--line)}
 .catrow .cb i{display:block;height:100%;background:var(--peach)}
+.full{}
+@media (min-width:700px) and (max-width:999px){ .wrap{max-width:760px} }
+@media (min-width:1000px){
+  body{padding-left:224px}
+  .top{position:fixed;left:0;top:0;width:224px;padding:24px 20px;margin:0;z-index:41}
+  nav.tabs{top:0;bottom:0;left:0;right:auto;width:224px;border-top:0;border-right:2px solid var(--ink);padding:calc(92px + env(safe-area-inset-top,0px)) 16px 24px}
+  nav.tabs .in{flex-direction:column;gap:8px;max-width:none}
+  nav.tabs button{flex:none;flex-direction:row;justify-content:flex-start;gap:14px;padding:10px 12px;font-size:18px;border:2px solid transparent}
+  nav.tabs button:hover{color:var(--ink);border-color:var(--line)}
+  nav.tabs button.on{border-color:var(--ink);background:var(--bg);box-shadow:3px 3px 0 var(--ink)}
+  .wrap{max-width:1180px;padding:36px 44px 60px}
+  #main{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));column-gap:26px;align-items:start}
+  #main > *{grid-column:1 / -1}
+  #main.t-home > .paper, #main.t-days > .paper, #main.t-habits > .hcard,
+  #main.j-daily > .paper, #main.j-lists > .paper, #main.j-persona > .paper,
+  #main.r-money > .paper, #main.r-f1 > .paper, #main.r-about > .paper, #main.r-save > .paper, #main.r-settings > .paper{grid-column:span 3}
+  #main.r-board > section{grid-column:span 2}
+  #main.t-home > .strip, #main > .paper.full{grid-column:1 / -1}
+  #main.r-jar > *, #main.j-wish > *{grid-column:2 / span 4}
+  #main.j-wish > .seg{grid-column:1 / -1}
+  .hello{margin-top:0}
+  .hgreet{font-size:46px}
+  .dname{font-size:42px}
+  .little{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .rooms{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .room{min-height:150px;transition:transform .12s, box-shadow .12s}
+  .room:hover,.lt:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink)}
+  .gp:hover .gpn b,.listcard:hover b{color:var(--accent)}
+  .pbtn:hover{filter:brightness(1.08)}
+  .veil{align-items:center}
+  .sheet{max-width:600px;border-bottom:2px solid var(--ink);box-shadow:6px 6px 0 var(--ink);padding-bottom:20px}
+  .toast{bottom:32px;left:calc(50% + 112px)}
+  .grid16 .cell{font-size:12px}
+  .circles{grid-template-columns:repeat(6,minmax(0,1fr))}
+}
+@media (min-width:1000px) and (prefers-reduced-motion:reduce){ .room,.lt{transition:none} }
 .done-on{font-size:11px;font-family:var(--pixel);opacity:.75}
 </style>
 </head>
@@ -336,8 +372,62 @@ function load(){
   return blank();
 }
 let S = load();
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ toast('Storage is full'); } }
+function save(){ S._ts = Date.now(); try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ toast('Storage is full'); } if (typeof syncSoon === 'function') syncSoon(); }
 let saveT; function saveSoon(){ clearTimeout(saveT); saveT = setTimeout(save, 350); }
+
+/* ================= sync (GitHub Gist) ================= */
+const SYNC_KEY = 'mirobome.sync', GIST_FILE = 'mirobome.json';
+let SY = {}; try { SY = JSON.parse(localStorage.getItem(SYNC_KEY) || '{}'); } catch(e){}
+const saveSy = () => { try { localStorage.setItem(SYNC_KEY, JSON.stringify(SY)); } catch(e){} };
+let syncReady = false, syncBusy = false, syncT = null, syncState = '';
+async function gh(path, opts){
+  opts = opts || {};
+  const r = await fetch('https://api.github.com'+path, {method:opts.method||'GET', body:opts.body,
+    headers:Object.assign({'Authorization':'Bearer '+SY.token, 'Accept':'application/vnd.github+json'}, opts.body ? {'Content-Type':'application/json'} : {})});
+  if (!r.ok) throw new Error(r.status === 401 ? 'Token not accepted' : 'GitHub said '+r.status);
+  return r.json();
+}
+async function syncPullRemote(){
+  const g = await gh('/gists/'+SY.gist), f = g.files[GIST_FILE];
+  if (!f) return null;
+  const txt = f.truncated ? await (await fetch(f.raw_url)).text() : f.content;
+  return txt ? JSON.parse(txt) : null;
+}
+async function syncPush(){
+  if (!SY.token || !SY.gist || !syncReady) return;
+  syncBusy = true;
+  try { await gh('/gists/'+SY.gist, {method:'PATCH', body:JSON.stringify({files:{[GIST_FILE]:{content:JSON.stringify(S)}}})}); SY.last = Date.now(); saveSy(); syncState = ''; }
+  catch(e){ syncState = e.message; }
+  syncBusy = false;
+}
+function syncSoon(){ if (!SY.token || !SY.gist || !syncReady) return; clearTimeout(syncT); syncT = setTimeout(syncPush, 3000); }
+async function syncNow(silent){
+  if (!SY.token || !SY.gist || syncBusy) return;
+  syncBusy = true;
+  try {
+    const remote = await syncPullRemote();
+    syncReady = true; syncBusy = false;
+    if (remote && (remote._ts||0) > (S._ts||0)){
+      localStorage.setItem(KEY, JSON.stringify(remote)); S = load(); pLock(); applyTheme(); SY.last = Date.now(); saveSy();
+      if (!$('veil').classList.contains('open')) render();
+      if (!silent) toast('Synced from your other device');
+    } else if (!remote || (remote._ts||0) < (S._ts||0)){ await syncPush(); if (!silent) toast('Synced'); }
+    else { SY.last = Date.now(); saveSy(); if (!silent) toast('Already up to date'); }
+    syncState = '';
+  } catch(e){ syncBusy = false; syncState = e.message; if (!silent) toast(e.message); }
+}
+async function syncConnect(token){
+  SY = {token}; 
+  const gists = await gh('/gists?per_page=100');
+  const found = gists.find(g => g.files && g.files[GIST_FILE]);
+  if (found){
+    SY.gist = found.id; saveSy();
+    const remote = await syncPullRemote();
+    if (remote){ localStorage.setItem(KEY, JSON.stringify(remote)); S = load(); pLock(); applyTheme(); }
+    SY.last = Date.now(); saveSy(); syncReady = true; return;
+  } else { const g = await gh('/gists', {method:'POST', body:JSON.stringify({description:'Mi Robo Me data', public:false, files:{[GIST_FILE]:{content:JSON.stringify(S)}}})}); SY.gist = g.id; }
+  saveSy(); syncReady = false; await syncNow(true); syncReady = true;
+}
 
 /* ================= helpers ================= */
 const $ = id => document.getElementById(id);
@@ -487,8 +577,7 @@ function renderHome(){
 
   h += `<section class="paper"><h2>Habits</h2>${habitChips(t, true)}</section>`;
 
-  h += `<section class="paper moodrow"><span class="q">How’s today?</span><div class="mini">${MOODS.map((m,i) => `<button class="${mv===i+1?'on':''}" style="--mc:${m.c}" data-act="mood" data-v="${i+1}" aria-label="${m.n}" title="${m.n}"></button>`).join('')}</div></section>
-    ${mv ? `<div class="moodname">Feeling ${MOODS[mv-1].n.toLowerCase()}</div>` : ''}`;
+  h += `<section class="paper moodrow"><span class="q">How’s today?${mv ? `<span class="muted" style="display:block;font-family:var(--body)">Feeling ${MOODS[mv-1].n.toLowerCase()}</span>` : ''}</span><div class="mini">${MOODS.map((m,i) => `<button class="${mv===i+1?'on':''}" style="--mc:${m.c}" data-act="mood" data-v="${i+1}" aria-label="${m.n}" title="${m.n}"></button>`).join('')}</div></section>`;
 
   const tiles = [];
   const jd = S.daily[t]||{}, wrote = Object.values(jd).some(v => String(v).trim());
@@ -497,8 +586,8 @@ function renderHome(){
   if (wl.length) tiles.push(`<button class="lt" style="--c:var(--peach)" data-act="go" data-tab="journal" data-j="wish"><b><i></i>Someday</b><span>${esc(pick(wl, t).text)}</span></button>`);
   const cur = S.board.filter(n => n.col === 1);
   if (cur.length) tiles.push(`<button class="lt" style="--c:var(--yellow)" data-act="go" data-tab="more" data-room="board"><b><i></i>Working on</b><span>${esc(cur.map(n=>n.text).join(', '))}</span></button>`);
-  const ms = activeSession();
-  if (ms) tiles.push(`<button class="lt" style="--c:var(--lime)" data-act="go" data-tab="more" data-room="money"><b><i></i>Money</b><span>${taka(moneyLeft(ms))} left${ms.title ? ' in '+esc(ms.title) : ''}</span></button>`);
+  const mss = activeSessions();
+  if (mss.length) tiles.push(`<button class="lt" style="--c:var(--lime)" data-act="go" data-tab="more" data-room="money"><b><i></i>Money</b><span>${mss.map(m => esc(m.title || 'Mine')+': '+taka(moneyLeft(m))).join(', ')}</span></button>`);
   const sv = S.savings.find(s => s.filled.some(f=>!f));
   if (sv){ const got = sv.amounts.reduce((a,v,i)=>a+(sv.filled[i]?v:0),0);
     tiles.push(`<button class="lt" style="--c:var(--mint)" data-act="go" data-tab="more" data-room="save"><b><i></i>Savings</b><span>${taka(got)} of ${taka(sv.target)} in ${esc(sv.title)}</span></button>`); }
@@ -608,22 +697,22 @@ function renderDaily(){
     <span class="lbl">Best part of the day</span>${bindArea(base+'best', e.best, '', 2)}
     <span class="lbl">One thing I learned</span>${bindArea(base+'learned', e.learned, '', 2)}
     <span class="lbl">How do I want to show up tomorrow?</span>${bindArea(base+'tomorrow', e.tomorrow, '', 2)}</section>`;
-  h += `<section class="paper"><h2>Free write</h2>${bindArea(base+'free', e.free, 'Anything on your mind', 6)}</section>`;
+  h += `<section class="paper full"><h2>Free write</h2>${bindArea(base+'free', e.free, 'Anything on your mind', 6)}</section>`;
   return h;
 }
 function renderPersona(){
   if (!window.crypto || !crypto.subtle) return `<section class="paper"><h2>Persona</h2><p class="muted" style="margin:0">Persona needs the app opened over https to lock entries.</p></section>`;
-  if (!S.persona) return `<section class="paper"><div class="lock">[ ]</div><h2>Lock Persona first</h2>
+  if (!S.persona) return `<section class="paper full"><div class="lock">[ ]</div><h2>Lock Persona first</h2>
     <p class="muted" style="margin:0">Pick a password. Entries get encrypted on this device, so not even your backup text can be read without it. If you forget it, the entries can’t be recovered.</p>
     <label class="lbl" for="pp1">Password</label><input class="field" type="password" id="pp1" autocomplete="new-password">
     <label class="lbl" for="pp2">Type it again</label><input class="field" type="password" id="pp2" autocomplete="new-password">
     <div class="row"><button class="pbtn" data-act="pSetup">Lock Persona</button></div></section>`;
-  if (!P.list) return `<section class="paper"><div class="lock">[x]</div><h2 style="justify-content:center">Persona is locked</h2>
+  if (!P.list) return `<section class="paper full"><div class="lock">[x]</div><h2 style="justify-content:center">Persona is locked</h2>
     <input class="field" type="password" id="ppu" placeholder="Password" autocomplete="current-password">
     <div class="row"><button class="pbtn" data-act="pUnlock">Unlock</button></div></section>`;
   if (view.personId){ const p = P.list.find(x => x.id === view.personId); if (p) return renderPerson(p); view.personId = null; }
   const list = P.list.slice().sort((a,b) => (b.updated||'').localeCompare(a.updated||''));
-  return `<section class="paper"><h2>People <span style="display:flex;gap:8px"><button class="pbtn small ghost" data-act="pLock">Lock</button><button class="pbtn small" data-act="pNew">+ Person</button></span></h2>
+  return `<section class="paper full"><h2>People <span style="display:flex;gap:8px"><button class="pbtn small ghost" data-act="pLock">Lock</button><button class="pbtn small" data-act="pNew">+ Person</button></span></h2>
     ${list.length ? list.map(p => `<button class="gp" data-act="pOpen" data-id="${p.id}"><span class="gpn"><b>${esc(p.name)}</b><span class="muted">${esc(p.oneline || p.where || '')}</span></span><span class="muted">&rsaquo;</span></button>`).join('')
       : `<div class="empty">No one here yet. Write about someone interesting you met.</div>`}</section>
     <p class="muted" style="text-align:center">Locks again when you leave this page or close the app.</p>`;
@@ -660,12 +749,12 @@ function renderWish(){
 function renderLists(){
   if (view.listId){
     const l = S.lists.find(x => x.id === view.listId);
-    if (l && l.type === 'list') return `${roomHead('List', 'listBack')}<section class="paper">
+    if (l && l.type === 'list') return `${roomHead('List', 'listBack')}<section class="paper full">
       <input class="field" style="font-family:var(--pixel);font-size:20px;font-weight:600" data-b="lists.#${l.id}.title" value="${esc(l.title)}" placeholder="Title">
       <ol class="olist" style="margin-top:12px">${(l.items||[]).map(it => `<li><input class="inline" data-b="lists.#${l.id}.items.#${it.id}.t" value="${esc(it.t)}"><button class="x" data-act="itemDel" data-id="${it.id}" aria-label="Remove">×</button></li>`).join('')}</ol>
       <div class="addrow"><input class="field" id="itemIn" placeholder="Add an item" maxlength="300"><button class="pbtn" data-act="itemAdd">Add</button></div>
       <div class="row"><button class="pbtn danger" data-act="listDel" data-id="${l.id}">Delete list</button></div></section>`;
-    if (l) return `${roomHead('Page', 'listBack')}<section class="paper">
+    if (l) return `${roomHead('Page', 'listBack')}<section class="paper full">
       <input class="field" style="font-family:var(--pixel);font-size:20px;font-weight:600" data-b="lists.#${l.id}.title" value="${esc(l.title)}" placeholder="Title">
       <div style="margin-top:12px">${bindArea('lists.#'+l.id+'.body', l.body, 'Write freely', 16)}</div>
       <div class="row"><button class="pbtn danger" data-act="listDel" data-id="${l.id}">Delete page</button></div></section>`;
@@ -702,7 +791,7 @@ function renderMore(){
     ${roomTile('f1','F1 Journal', gps ? gps+' races in '+view.season : view.season+' season', ['cherry','sand'])}
     ${roomTile('about','About Me', S.profile.name ? esc(S.profile.name) : 'Your page', ['lilac','pink'])}
     ${roomTile('jar','Mood Jar', S.jar.length+' notes', ['blue','mint','yellow'])}
-    ${roomTile('money','Money', (() => { const m = activeSession(); return m ? taka(moneyLeft(m))+' left' : 'Track a session'; })(), ['lime','mint','yellow'])}
+    ${roomTile('money','Money', (() => { const a = activeSessions(); return a.length === 1 ? taka(moneyLeft(a[0]))+' left' : a.length ? a.length+' sessions running' : 'Track a session'; })(), ['lime','mint','yellow'])}
     ${roomTile('save','Savings', S.savings.length ? S.savings.length+' challenge'+(S.savings.length>1?'s':'') : 'Save in circles', ['mint','lime'])}
     ${roomTile('board','Task Board', cur ? cur+' in progress' : 'Big long tasks', ['yellow','peach','lime'])}
     ${roomTile('settings','Settings', 'Theme, backup', ['slate'])}
@@ -853,7 +942,8 @@ function renderMap(){
 }
 
 /* ---- Money ---- */
-const activeSession = () => S.money.sessions.find(m => !m.end);
+const activeSessions = () => S.money.sessions.filter(m => !m.end);
+const activeSession = () => { const a = activeSessions(); return a.find(m => m.id === view.msess) || a[0]; };
 const moneyIn = m => m.entries.filter(e => e.type === 'in').reduce((a,e) => a+e.amt, 0);
 const moneyOut = m => m.entries.filter(e => e.type !== 'in').reduce((a,e) => a+e.amt, 0);
 const moneyLeft = m => moneyIn(m) - moneyOut(m);
@@ -890,13 +980,14 @@ function renderMoney(){
       + `<section class="paper"><h2>Spending</h2>${moneyEntries(m, false)}</section><div class="row" style="margin-bottom:18px"><button class="pbtn danger" data-act="mSessDel" data-id="${m.id}">Delete session</button></div>`;
     view.moneyId = null;
   }
-  const m = activeSession();
+  const m = activeSession(), act = activeSessions();
   let h = roomHead('Money');
-  if (!m){
-    h += `<section class="paper"><h2>Start a session</h2><p class="muted" style="margin:0 0 4px">Add what you have now. Each spend gets taken off until you start a new one.</p>
+  if (act.length) h += `<div class="chips full" style="margin-bottom:16px">${act.map(x => `<button class="chip ${x===m && !view.mNew?'on':''}" data-act="mPick" data-id="${x.id}">${esc(x.title || 'Mine')} <b>${taka(moneyLeft(x))}</b></button>`).join('')}<button class="chip ${view.mNew?'on':''}" data-act="mNewSess">+ New session</button></div>`;
+  if (!m || view.mNew){
+    h += `<section class="paper"><h2>Start a session</h2><p class="muted" style="margin:0 0 4px">${act.length ? 'Runs alongside your other sessions. Good for money you keep for Mom or your brother.' : 'Add what you have now. Each spend gets taken off until you end it.'}</p>
       <label class="lbl" for="mStart">How much do you have? (৳)</label><input class="field" id="mStart" type="number" inputmode="decimal" min="1" placeholder="e.g. 3000">
-      <label class="lbl" for="mTitle">Name (optional)</label><input class="field" id="mTitle" maxlength="40" placeholder="e.g. November pocket money">
-      <div class="row"><button class="pbtn" data-act="mStart">Start</button></div></section>`;
+      <label class="lbl" for="mTitle">Name (optional)</label><input class="field" id="mTitle" maxlength="40" placeholder="${act.length ? 'e.g. Mom’s money' : 'e.g. Mine, November pocket money'}">
+      <div class="row">${act.length ? `<button class="pbtn ghost" data-act="mCancelNew">Cancel</button>` : ''}<button class="pbtn" data-act="mStart">Start</button></div></section>`;
   } else {
     h += moneySummary(m);
     h += `<section class="paper"><h2>Spent something?</h2>
@@ -911,8 +1002,21 @@ function renderMoney(){
 }
 
 /* ---- Settings ---- */
+function syncCard(){
+  if (!SY.token) return `<section class="paper"><h2>Sync across devices</h2>
+    <p class="muted" style="margin:0 0 4px">Uses a private GitHub Gist, same idea as Shelf. Paste a GitHub token with the <b>gist</b> permission. Do the same on your other devices.</p>
+    <p style="margin:0 0 8px"><a class="link" href="https://github.com/settings/tokens/new?scopes=gist&description=Mi%20Robo%20Me%20sync&default_expires_at=none" target="_blank" rel="noopener">Make a token on GitHub</a></p>
+    <input class="field" id="syTok" type="password" placeholder="ghp_..." autocomplete="off">
+    <div class="row"><button class="pbtn" data-act="syConnect">Connect</button></div>
+    <p class="muted" style="margin:10px 0 0">Photos stay on each device. Persona stays encrypted in the Gist.</p></section>`;
+  const ago = SY.last ? Math.round((Date.now()-SY.last)/60000) : null;
+  return `<section class="paper"><h2>Sync across devices</h2>
+    <p style="margin:0 0 4px">${syncState ? `<span style="color:var(--danger)">${esc(syncState)}</span>` : 'Connected. Changes upload a few seconds after you make them.'}</p>
+    <p class="muted" style="margin:0">${ago == null ? 'Not synced yet' : ago < 1 ? 'Last synced just now' : 'Last synced '+(ago < 60 ? ago+' min' : Math.round(ago/60)+' h')+' ago'}</p>
+    <div class="row"><button class="pbtn ghost" data-act="syDisconnect">Disconnect</button><button class="pbtn" data-act="syNow">Sync now</button></div></section>`;
+}
 function renderSettings(){
-  return roomHead('Settings') + `<section class="paper"><h2>Your name</h2><input class="inline" data-b="profile.name" value="${esc(S.profile.name)}" placeholder="Shown on Home"></section>
+  return roomHead('Settings') + syncCard() + `<section class="paper"><h2>Your name</h2><input class="inline" data-b="profile.name" value="${esc(S.profile.name)}" placeholder="Shown on Home"></section>
     <section class="paper"><h2>Look</h2><div class="seg" style="margin:0">${['auto','light','dark'].map(v => `<button class="${S.theme===v?'on':''}" data-act="theme" data-v="${v}">${v[0].toUpperCase()+v.slice(1)}</button>`).join('')}</div></section>
     <section class="paper"><h2>Backup</h2><p class="muted" style="margin:0 0 12px">Everything lives on this device for now. Copy a backup now and then. Photos stay on the device and are not in the backup.</p>
     <div class="row" style="margin:0"><button class="pbtn ghost" data-act="backup">Copy backup</button><button class="pbtn ghost" data-act="restore">Restore</button></div></section>`;
@@ -922,6 +1026,7 @@ function renderSettings(){
 function render(){
   const R = {home:renderHome, days:renderDays, habits:renderHabits, journal:renderJournal, more:renderMore};
   $('main').innerHTML = R[view.tab]();
+  $('main').className = 't-'+view.tab + (view.tab==='more' && view.room ? ' r-'+view.room : '') + (view.tab==='journal' ? ' j-'+view.j : '');
   document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === view.tab));
   fillImgs();
 }
@@ -1044,17 +1149,25 @@ const A = {
 
   mStart(){ const v = +$('mStart').value; if (!(v > 0)){ toast('Enter how much you have'); return false; }
     const now = new Date().toISOString();
-    S.money.sessions.push({id:uid(), title:$('mTitle').value.trim(), start:todayKey(), end:null, entries:[{id:uid(), type:'in', amt:v, note:'Starting money', at:now}]}); save(); },
+    const ns = {id:uid(), title:$('mTitle').value.trim(), start:todayKey(), end:null, entries:[{id:uid(), type:'in', amt:v, note:'Starting money', at:now}]};
+    S.money.sessions.push(ns); view.msess = ns.id; view.mNew = false; save(); },
+  mPick(b){ view.msess = b.dataset.id; view.mNew = false; },
+  mNewSess(){ view.mNew = true; },
+  mCancelNew(){ view.mNew = false; },
   mAdd(){ const m = activeSession(), a = +$('mAmt').value; if (!m) return false; if (!(a > 0)){ toast('Enter an amount'); $('mAmt').focus(); return false; }
     m.entries.push({id:uid(), type:'out', amt:a, note:$('mWhat').value.trim(), cat:view.mcat || '', at:new Date().toISOString()}); view.mcat = null; save(); render(); toast('−'+taka(a)); $('mAmt').focus(); return false; },
   mCat(b){ view.mcat = view.mcat === b.dataset.v ? null : b.dataset.v; const a = $('mAmt').value, w = $('mWhat').value; render(); $('mAmt').value = a; $('mWhat').value = w; return false; },
   mGot(){ openForm({title:'Got more money', fields:[{k:'amt',label:'Amount (৳)',type:'number',min:1},{k:'note',label:'From',ph:'e.g. Abbu, gift, tuition'}],
     onSave:v => { const a = +v.amt, m = activeSession(); if (!(a > 0) || !m){ toast('Enter an amount'); return false; } m.entries.push({id:uid(), type:'in', amt:a, note:v.note || 'Got money', at:new Date().toISOString()}); }}); return false; },
-  mEnd(){ ask('End this session?', () => { const m = activeSession(); if (m) m.end = todayKey(); }, 'End it'); return false; },
+  mEnd(){ ask('End this session?', () => { const m = activeSession(); if (m) m.end = todayKey(); view.msess = null; }, 'End it'); return false; },
   mDel(b){ const id = b.dataset.id; ask('Delete this entry?', () => { const m = activeSession(); if (m) m.entries = m.entries.filter(e => e.id !== id); }); return false; },
   mOpen(b){ view.moneyId = b.dataset.id; window.scrollTo(0,0); },
   mBack(){ view.moneyId = null; },
   mSessDel(b){ const id = b.dataset.id; ask('Delete this session for good?', () => { S.money.sessions = S.money.sessions.filter(x => x.id !== id); view.moneyId = null; }); return false; },
+  async syConnect(){ const t = $('syTok').value.trim(); if (!t){ toast('Paste your token'); return false; }
+    try { await syncConnect(t); toast('Sync is on'); } catch(e){ SY = {}; saveSy(); toast(e.message); } },
+  syNow(){ return syncNow(false); },
+  syDisconnect(){ ask('Turn off sync on this device?', () => { SY = {}; saveSy(); syncReady = false; }, 'Turn off'); return false; },
   noteNew(){ noteForm(null); return false; }, noteEdit(b){ noteForm(S.board.find(x => x.id === b.dataset.id)); return false; },
   noteMove(b){ const n = S.board.find(x => x.id === b.dataset.id); setNoteCol(n, Math.max(0, Math.min(2, n.col + (+b.dataset.v)))); save(); },
 
@@ -1071,7 +1184,7 @@ const A = {
   restore(){ openSheet(`<h3>Restore</h3><p class="muted" style="margin:0 0 8px">Paste a backup. This replaces what is on this device.</p><textarea class="field mono" id="rs"></textarea>
     <div class="row"><button class="pbtn ghost" data-act="closeSheet">Cancel</button><button class="pbtn" data-act="doRestore">Restore</button></div>`); return false; },
   doRestore(){ try { const d = JSON.parse($('rs').value); if (!d || typeof d !== 'object' || !d.tasks) throw 0;
-      localStorage.setItem(KEY, JSON.stringify(d)); S = load(); pLock(); applyTheme(); closeSheet(); toast('Restored'); } catch(e){ toast('That backup text is not valid'); return false; } },
+      localStorage.setItem(KEY, JSON.stringify(d)); S = load(); save(); pLock(); applyTheme(); closeSheet(); toast('Restored'); } catch(e){ toast('That backup text is not valid'); return false; } },
 
   swatch(b){ const box = b.parentElement; box.dataset.v = b.dataset.v; box.querySelectorAll('.sw').forEach(s => s.classList.toggle('on', s === b)); return false; },
   closeSheet(){ closeSheet(); return false; },
@@ -1153,7 +1266,8 @@ document.addEventListener('keydown', e => {
 });
 $('veil').addEventListener('click', e => { if (e.target.id === 'veil') closeSheet(); });
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden){ save(); if (P.list){ pLock(); if (view.tab === 'journal' && view.j === 'persona'){ closeSheet(); render(); } } return; }
+  if (!document.hidden && SY.token) syncNow(true);
+  if (document.hidden){ localStorage.setItem(KEY, JSON.stringify(S)); if (syncT){ clearTimeout(syncT); syncPush(); } if (P.list){ pLock(); if (view.tab === 'journal' && view.j === 'persona'){ closeSheet(); render(); } } return; }
   if (todayKey() !== lastToday){ if (view.day === lastToday) view.day = todayKey(); if (view.jday === lastToday) view.jday = todayKey(); lastToday = todayKey(); render(); }
 });
 setInterval(() => { const t = todayKey(); if (t !== lastToday){ if (view.day === lastToday) view.day = t; if (view.jday === lastToday) view.jday = t; lastToday = t;
@@ -1166,6 +1280,7 @@ const _render = render;
 render = function(){ _render(); if (location.hash.slice(1) !== view.tab){ try { history.replaceState(null, '', '#'+view.tab); } catch(e){} } };
 applyTheme();
 render();
+if (SY.token) syncNow(true);
 if ('serviceWorker' in navigator && location.protocol === 'https:' && /github\.io$/.test(location.hostname)){
   window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
 }
