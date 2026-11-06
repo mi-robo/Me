@@ -54,6 +54,9 @@ button{cursor:pointer;background:none;border:0;padding:0}
 @keyframes blink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.15)}}
 @media (prefers-reduced-motion:reduce){.logo .eyes{animation:none}}
 .brand{font-family:var(--pixel);font-weight:700;font-size:22px;letter-spacing:.5px}
+.instbtn{margin-left:auto;width:34px;height:34px;border:2px solid var(--ink);background:var(--paper);box-shadow:2px 2px 0 var(--ink);display:grid;place-items:center;color:var(--accent)}
+.instbtn svg{width:16px;height:16px}
+.instbtn[hidden]{display:none}
 
 .paper{background:var(--paper);border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:14px;margin-bottom:18px}
 h2{font-family:var(--pixel);font-weight:600;font-size:19px;margin:0 0 10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -324,6 +327,7 @@ nav.tabs button.on svg .f{fill:var(--accent)}
       <g class="eyes"><rect x="3" y="4" width="2" height="3" fill="var(--accent)"/><rect x="7" y="4" width="2" height="3" fill="var(--accent)"/></g>
     </svg>
     <div class="brand">Mi Robo Me</div>
+    <button class="instbtn" id="instBtn" hidden aria-label="Install app" title="Install app"><svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="0" width="2" height="4" fill="currentColor"/><rect x="1" y="3" width="6" height="1" fill="currentColor"/><rect x="2" y="4" width="4" height="1" fill="currentColor"/><rect x="3" y="5" width="2" height="1" fill="currentColor"/><rect x="0" y="7" width="8" height="1" fill="currentColor"/></svg></button>
   </header>
   <main id="main"></main>
 </div>
@@ -1278,6 +1282,10 @@ const startTab = location.hash.slice(1);
 if (['home','days','habits','journal'].includes(startTab)) view.tab = startTab;
 const _render = render;
 render = function(){ _render(); if (location.hash.slice(1) !== view.tab){ try { history.replaceState(null, '', '#'+view.tab); } catch(e){} } };
+let installEvt = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; $('instBtn').hidden = false; });
+window.addEventListener('appinstalled', () => { installEvt = null; $('instBtn').hidden = true; toast('Installed'); });
+$('instBtn').addEventListener('click', async () => { if (!installEvt) return; installEvt.prompt(); try { await installEvt.userChoice; } catch(e){} installEvt = null; $('instBtn').hidden = true; });
 applyTheme();
 render();
 if (SY.token) syncNow(true);
