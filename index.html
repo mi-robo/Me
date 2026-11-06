@@ -293,7 +293,7 @@ nav.tabs button.on svg .f{fill:var(--accent)}
   #main > *{grid-column:1 / -1}
   #main.t-home > .paper, #main.t-days > .paper, #main.t-habits > .hcard,
   #main.j-daily > .paper, #main.j-lists > .paper, #main.j-persona > .paper,
-  #main.r-money > .paper, #main.r-f1 > .paper, #main.r-about > .paper, #main.r-save > .paper, #main.r-settings > .paper{grid-column:span 3}
+  #main.r-money > .paper, #main.r-salah > .paper, #main.r-f1 > .paper, #main.r-about > .paper, #main.r-save > .paper, #main.r-settings > .paper{grid-column:span 3}
   #main.r-board > section{grid-column:span 2}
   #main.t-home > .strip, #main > .paper.full{grid-column:1 / -1}
   #main.r-jar > *, #main.j-wish > *{grid-column:2 / span 4}
@@ -314,6 +314,26 @@ nav.tabs button.on svg .f{fill:var(--accent)}
   .circles{grid-template-columns:repeat(6,minmax(0,1fr))}
 }
 @media (min-width:1000px) and (prefers-reduced-motion:reduce){ .room,.lt{transition:none} }
+.prayers{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.pray{border:2px solid var(--ink);background:var(--paper);padding:12px 2px 8px;text-align:center;font-family:var(--pixel);font-size:14px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.pray i{width:26px;height:26px;border:2px solid var(--ink);background:var(--empty)}
+.pray.on{box-shadow:3px 3px 0 var(--ink)}
+.pray.on i{background:var(--teal)}
+.pray.miss i{background:repeating-linear-gradient(45deg,var(--empty) 0 3px,var(--line) 3px 6px)}
+.minipray{display:flex;gap:6px;flex-wrap:wrap}
+.minipray button{border:2px solid var(--ink);background:var(--paper);padding:4px 8px;font-family:var(--pixel);font-size:13px}
+.minipray button.on{background:var(--teal);color:#1E2440;box-shadow:2px 2px 0 var(--ink)}
+.streakbig{display:flex;gap:22px;align-items:flex-end;flex-wrap:wrap}
+.streakbig b{font-family:var(--pixel);font-size:44px;line-height:1;display:block}
+.sgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.sgrid .sd{aspect-ratio:1;border:1.5px solid var(--line);background:var(--empty);display:grid;place-items:center;font-family:var(--pixel);font-size:11px;color:var(--muted);padding:0;min-width:0}
+.sgrid .sd.l1{background:color-mix(in srgb,var(--teal) 20%,var(--paper))}
+.sgrid .sd.l2{background:color-mix(in srgb,var(--teal) 40%,var(--paper))}
+.sgrid .sd.l3{background:color-mix(in srgb,var(--teal) 60%,var(--paper))}
+.sgrid .sd.l4{background:color-mix(in srgb,var(--teal) 80%,var(--paper))}
+.sgrid .sd.l5{background:var(--teal);color:#1E2440;border-color:var(--ink)}
+.sgrid .sd.sel{outline:2px solid var(--accent);outline-offset:1px}
+.sgrid .wk{font-size:10px;color:var(--muted);text-align:center;font-family:var(--pixel)}
 .done-on{font-size:11px;font-family:var(--pixel);opacity:.75}
 </style>
 </head>
@@ -359,6 +379,7 @@ const PERSONA_Q = ['How they talk','What makes them laugh','What gets on their n
 const FAV_KEYS = ['Animal','Colour','Season','Food','Drink','Movie','Show','Book','Song','Game','App','City','Dream trip','YouTuber','Snack','Subject'];
 const PROMPTS = ['What was the best part of today?','What is one thing you learned today?','How do you want to show up tomorrow?','What are three things you are grateful for?','Rate today and explain the rating.','What would make tomorrow great?'];
 const GP_STATUS = ['Watched live','Watched later','Missed'];
+const SALAH = ['Fajr','Zohr','Asr','Maghrib','Isha'];
 const MCATS = ['Food','Transport','Recharge','Study','Fun','Gift','Other'];
 const MAP_W = 18, MAP_H = 24;
 
@@ -366,11 +387,11 @@ function blank(){ return {
   profile:{name:'',birthday:'',from:'',quote:''}, favs:[], tops:[],
   tasks:{}, events:[], habits:[], checks:{}, mood:{},
   daily:{}, wish:[], lists:[], persona:null,
-  f1:{seasons:{}, gps:[]}, jar:[], savings:[], money:{sessions:[]}, board:[], map:{factions:[], tiles:{}},
+  f1:{seasons:{}, gps:[]}, jar:[], savings:[], money:{sessions:[]}, salah:{}, board:[], map:{factions:[], tiles:{}},
   theme:'auto'
 };}
 function load(){
-  try{ const r = localStorage.getItem(KEY); if (r){ const d = Object.assign(blank(), JSON.parse(r)); d.profile = Object.assign(blank().profile, d.profile); d.f1 = Object.assign({seasons:{},gps:[]}, d.f1); d.map = Object.assign({factions:[],tiles:{}}, d.map); d.money = Object.assign({sessions:[]}, d.money);
+  try{ const r = localStorage.getItem(KEY); if (r){ const d = Object.assign(blank(), JSON.parse(r)); d.profile = Object.assign(blank().profile, d.profile); d.f1 = Object.assign({seasons:{},gps:[]}, d.f1); d.map = Object.assign({factions:[],tiles:{}}, d.map); d.money = Object.assign({sessions:[]}, d.money); d.salah = d.salah || {};
     d.lists.forEach(l => { if (!l.type){ l.type = 'list'; l.items = (l.body||'').split('\n').filter(x => x.trim()).map(t => ({id:Math.random().toString(36).slice(2,10), t})); delete l.body; } });
     return d; } }catch(e){}
   return blank();
@@ -580,6 +601,8 @@ function renderHome(){
     ${soon.length ? `<div class="muted" style="margin:12px 0 2px">Next up</div>${soon.map(e => evRow(e,true)).join('')}` : ''}</section>`;
 
   h += `<section class="paper"><h2>Habits</h2>${habitChips(t, true)}</section>`;
+  const sst = salahStreak();
+  h += `<section class="paper"><h2>Salah <small>${sst ? sst+' day streak' : salahCount(t)+' of 5'}</small></h2><div class="minipray">${SALAH.map((p,i) => `<button class="${salahDay(t)[i]?'on':''}" data-act="pray" data-k="${t}" data-v="${i}">${p}</button>`).join('')}</div></section>`;
 
   h += `<section class="paper moodrow"><span class="q">How’s today?${mv ? `<span class="muted" style="display:block;font-family:var(--body)">Feeling ${MOODS[mv-1].n.toLowerCase()}</span>` : ''}</span><div class="mini">${MOODS.map((m,i) => `<button class="${mv===i+1?'on':''}" style="--mc:${m.c}" data-act="mood" data-v="${i+1}" aria-label="${m.n}" title="${m.n}"></button>`).join('')}</div></section>`;
 
@@ -787,6 +810,7 @@ function renderMore(){
   if (view.room === 'jar') return renderJar();
   if (view.room === 'save') return renderSave();
   if (view.room === 'money') return renderMoney();
+  if (view.room === 'salah') return renderSalah();
   if (view.room === 'board') return renderBoard();
   if (view.room === 'settings') return renderSettings();
   const gps = S.f1.gps.filter(g => g.season === view.season).length;
@@ -795,6 +819,7 @@ function renderMore(){
     ${roomTile('f1','F1 Journal', gps ? gps+' races in '+view.season : view.season+' season', ['cherry','sand'])}
     ${roomTile('about','About Me', S.profile.name ? esc(S.profile.name) : 'Your page', ['lilac','pink'])}
     ${roomTile('jar','Mood Jar', S.jar.length+' notes', ['blue','mint','yellow'])}
+    ${roomTile('salah','Salah', (() => { const n = salahStreak(); return n ? n+' day streak' : salahCount(todayKey())+' of 5 today'; })(), ['teal','mint'])}
     ${roomTile('money','Money', (() => { const a = activeSessions(); return a.length === 1 ? taka(moneyLeft(a[0]))+' left' : a.length ? a.length+' sessions running' : 'Track a session'; })(), ['lime','mint','yellow'])}
     ${roomTile('save','Savings', S.savings.length ? S.savings.length+' challenge'+(S.savings.length>1?'s':'') : 'Save in circles', ['mint','lime'])}
     ${roomTile('board','Task Board', cur ? cur+' in progress' : 'Big long tasks', ['yellow','peach','lime'])}
@@ -1005,6 +1030,38 @@ function renderMoney(){
   return h;
 }
 
+/* ---- Salah ---- */
+const salahDay = k => S.salah[k] || [0,0,0,0,0];
+const salahCount = k => salahDay(k).filter(Boolean).length;
+function salahStreak(){ let k = todayKey(); if (salahCount(k) < 5) k = addDays(k,-1); let n = 0; while (salahCount(k) === 5){ n++; k = addDays(k,-1); } return n; }
+function salahBest(){ const days = Object.keys(S.salah).filter(k => salahCount(k) === 5).sort(); let best = 0, run = 0, prev = null;
+  days.forEach(k => { run = prev && addDays(prev,1) === k ? run+1 : 1; best = Math.max(best, run); prev = k; }); return best; }
+function renderSalah(){
+  const d = view.sday || todayKey(), t = todayKey(), day = salahDay(d), past = d < t;
+  const st = salahStreak();
+  let h = roomHead('Salah');
+  h += `<section class="paper full"><div class="streakbig"><div><b>${st}</b><span class="muted">day streak</span></div><div><b style="font-size:28px">${salahBest()}</b><span class="muted">best</span></div></div>
+    <p class="muted" style="margin:10px 0 0">${salahCount(t) === 5 ? 'All 5 done today. Alhamdulillah.' : 'Pray all 5 today to '+(st ? 'keep' : 'start')+' your streak.'}</p></section>`;
+  h += `<section class="paper"><div class="dayhead" style="margin-bottom:14px"><button class="arrow" data-act="sprevDay" aria-label="Previous day">&lsaquo;</button>
+    <div class="mid"><div class="dname" style="font-size:24px">${parse(d).toLocaleDateString('en-GB',{weekday:'long'})}</div><div class="ddate">${parse(d).toLocaleDateString('en-GB',{day:'numeric',month:'long'})}</div>
+    ${d===t ? '' : `<button class="rel go" data-act="sToday">Back to today</button>`}</div>
+    <button class="arrow" data-act="snextDay" ${d>=t?'disabled style="opacity:.3"':''} aria-label="Next day">&rsaquo;</button></div>
+    <div class="prayers">${SALAH.map((p,i) => `<button class="pray ${day[i]?'on':past?'miss':''}" data-act="pray" data-k="${d}" data-v="${i}"><i></i>${p}</button>`).join('')}</div>
+    <p class="muted" style="margin:12px 0 0">${salahCount(d)} of 5${past && salahCount(d) < 5 ? ', missed: '+SALAH.filter((p,i) => !day[i]).join(', ') : ''}</p></section>`;
+  const [y,m] = (view.smonth || t.slice(0,7)).split('-').map(Number), dim = new Date(y,m,0).getDate(), lead = (new Date(y,m-1,1).getDay()+6)%7;
+  let g = ['M','T','W','T','F','S','S'].map(w => `<span class="wk">${w}</span>`).join('') + '<span></span>'.repeat(lead);
+  let done = 0, total = 0; const missed = [0,0,0,0,0];
+  for (let i = 1; i <= dim; i++){ const k = y+'-'+pad(m)+'-'+pad(i);
+    if (k > t){ g += `<span class="sd" style="opacity:.35">${i}</span>`; continue; }
+    const c = salahCount(k); total += 5; done += c; salahDay(k).forEach((v,j) => { if (!v) missed[j]++; });
+    g += `<button class="sd l${c} ${k===d?'sel':''}" data-act="sPick" data-k="${k}">${i}</button>`; }
+  const worst = Math.max(...missed), worstName = worst ? SALAH[missed.indexOf(worst)] : '';
+  h += `<section class="paper"><div class="monthnav" style="margin-bottom:10px"><button class="arrow" data-act="smPrev" aria-label="Previous month">&lsaquo;</button><div class="mid" style="font-size:20px">${MONTHS[m-1]} ${y}</div><button class="arrow" data-act="smNext" aria-label="Next month">&rsaquo;</button></div>
+    <div class="sgrid">${g}</div>
+    <p class="muted" style="margin:12px 0 0">${total ? done+' of '+total+' prayers this month'+(worstName ? '. Missed most: '+worstName+' ('+worst+')' : '. None missed.') : 'Nothing yet this month.'}</p></section>`;
+  return h;
+}
+
 /* ---- Settings ---- */
 function syncCard(){
   if (!SY.token) return `<section class="paper"><h2>Sync across devices</h2>
@@ -1172,6 +1229,14 @@ const A = {
     try { await syncConnect(t); toast('Sync is on'); } catch(e){ SY = {}; saveSy(); toast(e.message); } },
   syNow(){ return syncNow(false); },
   syDisconnect(){ ask('Turn off sync on this device?', () => { SY = {}; saveSy(); syncReady = false; }, 'Turn off'); return false; },
+  pray(b){ const k = b.dataset.k, i = +b.dataset.v; if (k > todayKey()) return false; const a = salahDay(k).slice(); a[i] = a[i] ? 0 : 1;
+    if (a.every(v => !v)) delete S.salah[k]; else S.salah[k] = a; save(); if (k === todayKey() && a.every(Boolean)) toast('All 5 done. '+salahStreak()+' day streak'); },
+  sprevDay(){ view.sday = addDays(view.sday || todayKey(), -1); view.smonth = view.sday.slice(0,7); },
+  snextDay(){ const n = addDays(view.sday || todayKey(), 1); if (n > todayKey()) return false; view.sday = n; view.smonth = n.slice(0,7); },
+  sToday(){ view.sday = todayKey(); view.smonth = null; },
+  sPick(b){ view.sday = b.dataset.k; },
+  smPrev(){ const [y,m] = (view.smonth || todayKey().slice(0,7)).split('-').map(Number); const d = new Date(y, m-2, 1); view.smonth = d.getFullYear()+'-'+pad(d.getMonth()+1); },
+  smNext(){ const [y,m] = (view.smonth || todayKey().slice(0,7)).split('-').map(Number); const d = new Date(y, m, 1); view.smonth = d.getFullYear()+'-'+pad(d.getMonth()+1); },
   noteNew(){ noteForm(null); return false; }, noteEdit(b){ noteForm(S.board.find(x => x.id === b.dataset.id)); return false; },
   noteMove(b){ const n = S.board.find(x => x.id === b.dataset.id); setNoteCol(n, Math.max(0, Math.min(2, n.col + (+b.dataset.v)))); save(); },
 
