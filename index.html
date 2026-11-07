@@ -473,10 +473,11 @@ textarea.inline.grow{display:block;resize:none;overflow:hidden;line-height:1.45;
 .sname{font-family:var(--pixel);font-weight:600;font-size:13px;line-height:1.15;word-break:normal;overflow-wrap:normal;hyphens:none;white-space:nowrap;overflow:hidden;text-overflow:clip}
 .sname.long{white-space:normal;font-size:11px}
 .smk{position:absolute;right:-14px;top:-14px;width:46px;height:46px;border:2px dashed var(--a);border-radius:50%;opacity:.45}
-.stks{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:4px;margin:12px -2px 0 0}
-.stk{position:relative;width:66px;background:#fff;padding:4px 4px 12px;border:1px solid rgba(0,0,0,.15);box-shadow:2px 3px 0 rgba(0,0,0,.22)}
+.stks{position:absolute;top:0;right:0;width:0;height:0}
+.sbox.haspics ul,.sbox.haspics .frow,.sbox.haspics .muted{padding-right:64px}
+.stk{position:absolute;width:66px;background:#fff;padding:4px 4px 12px;border:1px solid rgba(0,0,0,.15);box-shadow:2px 3px 0 rgba(0,0,0,.22)}
 .stk img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:var(--empty)}
-.stk.s0{transform:rotate(-7deg)}.stk.s1{transform:rotate(5deg) translateY(5px)}.stk.s2{transform:rotate(-3deg) translateY(-3px)}.stk.s3{transform:rotate(8deg) translateY(3px)}
+.stk.s0{transform:rotate(8deg)}.stk.s1{transform:rotate(-6deg)}.stk.s2{transform:rotate(5deg)}.stk.s3{transform:rotate(-8deg)}
 .stk.s0::before,.stk.s2::before{content:'';position:absolute;top:-7px;left:50%;width:32px;height:12px;transform:translateX(-50%) rotate(-5deg);background:color-mix(in srgb,var(--c,var(--a)) 55%,transparent);border:1px solid rgba(0,0,0,.12)}
 .stk.s1::before,.stk.s3::before{content:'';position:absolute;top:-5px;right:-6px;width:22px;height:10px;transform:rotate(40deg);background:color-mix(in srgb,var(--c,var(--a)) 55%,transparent);border:1px solid rgba(0,0,0,.12)}
 .stkedit{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
@@ -484,7 +485,7 @@ textarea.inline.grow{display:block;resize:none;overflow:hidden;line-height:1.45;
 .stkth img{width:100%;height:100%;object-fit:cover;display:block}
 .stkth button{position:absolute;top:-9px;right:-9px;width:20px;height:20px;background:var(--danger);color:#fff;border:2px solid var(--ink);font-size:12px;line-height:1}
 .stkadd{width:54px;height:54px;border:2px dashed var(--ink);display:grid;place-items:center;font-family:var(--pixel);font-size:22px;cursor:pointer;color:var(--muted)}
-.shot{position:fixed;left:-10000px;top:0;width:430px;padding:18px 14px 12px;background-image:radial-gradient(var(--dot) 1px,transparent 1.4px);background-size:18px 18px}
+.shot{position:absolute;left:0;top:0;z-index:-5;pointer-events:none;opacity:0;width:430px;padding:18px 14px 12px;background-image:radial-gradient(var(--dot) 1px,transparent 1.4px);background-size:18px 18px}
 .shot .scrap{margin:0;padding:18px 16px 22px}
 .shot .scrap-title{font-size:54px}
 .shot .boxgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -1237,7 +1238,8 @@ function getDob(){
 function ageYM(k){ const b = parse(k), n = new Date(); let m = (n.getFullYear()-b.getFullYear())*12 + (n.getMonth()-b.getMonth()); if (n.getDate() < b.getDate()) m--; return [Math.floor(m/12), m%12]; }
 function ageText(k, short){ const [y,m] = ageYM(k); return short ? y+' yrs'+(m ? ', '+m+' mo' : '') : y+' year'+(y===1?'':'s')+(m ? ' '+m+' month'+(m===1?'':'s') : ''); }
 function ageOf(k){ const b = parse(k), n = new Date(); let a = n.getFullYear() - b.getFullYear(); if (n.getMonth() < b.getMonth() || (n.getMonth() === b.getMonth() && n.getDate() < b.getDate())) a--; return a; }
-const stickers = ids => (ids||[]).length ? `<div class="stks">${ids.map((id,i) => `<span class="stk s${i%4}"><img data-img="${id}" alt=""></span>`).join('')}</div>` : '';
+const stickers = ids => (ids||[]).length ? `<div class="stks">${ids.map((id,i) => `<span class="stk s${i%4}" style="top:${-14 + i*46}px;right:${-12 + (i%2)*22}px;z-index:${4-i}"><img data-img="${id}" alt=""></span>`).join('')}</div>` : '';
+const stkBoxAttr = ids => { const n = (ids||[]).length; return n ? ` haspics" style="min-height:${70 + n*46}px;` : ''; };
 const stickerEdit = (ids, target) => `<span class="lbl">Sticker photos (optional, up to 4)</span><div class="stkedit">${(ids||[]).map(id => `<span class="stkth"><img data-img="${id}" alt=""><button data-act="aPicDel" data-t="${target}" data-v="${id}" aria-label="Remove">×</button></span>`).join('')}${(ids||[]).length < 4 ? `<label class="stkadd">+<input type="file" accept="image/*" hidden data-up="sticker" data-t="${target}"></label>` : ''}</div>`;
 function aboutEmpty(){ const p = S.profile, A = S.about; return !(p.name||p.birthday||p.from||p.quote||A.photo||A.note||A.boxes.some(bx => String(bx.body||'').trim())||A.fields.length||S.favs.length||S.tops.length); }
 function renderAbout(){
@@ -1261,10 +1263,10 @@ function renderAbout(){
     </div>`;
   if (p.quote && p.quote.trim()) g += `<div class="quotebox"><div class="qt"><span class="qm">“</span>${esc(p.quote.trim().replace(/^["“]|["”]$/g,''))}<span class="qm">”</span></div>${(p.quoteBy||'').trim() ? `<div class="qby">- ${esc(p.quoteBy.trim().replace(/^[-–—~\s]+/,''))}</div>` : ''}</div>`;
   const vboxes = A.boxes.filter(bx => lines(bx.body).length || (bx.pics||[]).length);
-  if (vboxes.length) g += `<div class="boxgrid">${vboxes.map((bx,i) => { const it = lines(bx.body); return `<div class="sbox st${i%3}" style="--c:var(--${bx.color})"><div class="sbt">${esc(bx.title||'Box')}</div>
+  if (vboxes.length) g += `<div class="boxgrid">${vboxes.map((bx,i) => { const it = lines(bx.body); return `<div class="sbox st${i%3}${stkBoxAttr(bx.pics) ? stkBoxAttr(bx.pics) : '" style="'}--c:var(--${bx.color})"><div class="sbt">${esc(bx.title||'Box')}</div>
     ${it.length ? `<ul>${it.map(x => `<li>${pxHeart(`var(--${bx.color})`)}<span>${esc(x)}</span></li>`).join('')}</ul>` : `<div class="muted">empty</div>`}${stickers(bx.pics)}</div>`; }).join('')}</div>`;
   const favs = S.favs.filter(f => String(f.v||'').trim());
-  if (favs.length) g += `<div class="sbox favbox" style="--c:${ac}"><div class="sbt">MY FAVOURITES</div>${favs.map(f => `<div class="frow"><b>${esc(f.k)}:</b> ${esc(f.v)}</div>`).join('')}${stickers(A.favPics)}</div>`;
+  if (favs.length) g += `<div class="sbox favbox${stkBoxAttr(A.favPics) || '" style="'}--c:${ac}"><div class="sbt">MY FAVOURITES</div>${favs.map(f => `<div class="frow"><b>${esc(f.k)}:</b> ${esc(f.v)}</div>`).join('')}${stickers(A.favPics)}</div>`;
   const tops = S.tops.filter(t => (t.items||[]).some(x => String(x||'').trim()));
   if (tops.length) g += `<div class="toptitle">TOP 3</div><div class="topgrid">${tops.map(t => `<div class="topcard"><div class="tt">${esc(t.title)}</div>${(t.items||[]).map((x,i) => String(x||'').trim() ? `<div class="ti"><span class="tn">${i+1}</span>${esc(x)}</div>` : '').join('')}</div>`).join('')}</div>`;
   if (A.note && A.note.trim()) g += `<div class="sticky" style="--sc:var(--${A.noteColor||'yellow'})">${esc(A.note)}</div>`;
@@ -1817,16 +1819,26 @@ const A = {
     try { await loadScript('https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js'); } catch(e){ toast('Needs internet the first time'); return false; }
     const src = document.querySelector('.scrap'); if (!src) return false;
     const wrap = document.createElement('div'); wrap.className = 'shot';
-    wrap.style.background = getComputedStyle(document.body).backgroundColor;
+    wrap.style.backgroundColor = getComputedStyle(document.body).backgroundColor;
     const clone = src.cloneNode(true); wrap.appendChild(clone);
     const foot = document.createElement('div'); foot.className = 'shotfoot'; foot.textContent = 'made with Mi Robo Me'; wrap.appendChild(foot);
     document.body.appendChild(wrap);
+    // turn every outside image into an inline one first, so nothing can block the capture
+    await Promise.all([...wrap.querySelectorAll('img')].map(async im => {
+      const u = im.getAttribute('src') || '';
+      if (!u || u.startsWith('data:')) return;
+      try { const bl = await (await fetch(u, {mode:'cors'})).blob(); im.src = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(bl); }); }
+      catch(e){ const ph = document.createElement('span'); ph.className = 'flagcode'; ph.textContent = im.alt ? im.alt.slice(0,2).toUpperCase() : '?'; im.replaceWith(ph); }
+    }));
     await Promise.all([...wrap.querySelectorAll('img')].map(im => im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; })));
-    try {
-      const url = await htmlToImage.toPng(wrap, {pixelRatio:2.5, imagePlaceholder:'data:image/gif;base64,R0lGODlhAQABAAAAACw=', filter: n => !(n.classList && n.classList.contains('smk'))});
-      wrap.remove(); SHOT = url;
-      openSheet(`<h3>Your card</h3><img src="${url}" class="shotprev" alt="About me card"><div class="row"><button class="pbtn ghost" data-act="shotSave">Download</button><button class="pbtn" data-act="shotShare">Share</button></div>`);
-    } catch(e){ wrap.remove(); toast('Could not make the image'); }
+    const opts = {pixelRatio:2, cacheBust:false, style:{position:'static', left:'0', top:'0', zIndex:'auto', opacity:'1'}, filter: n => !(n.classList && n.classList.contains('smk'))};
+    let url = null, err = null;
+    try { url = await htmlToImage.toPng(wrap, opts); }
+    catch(e1){ err = e1; try { url = await htmlToImage.toPng(wrap, Object.assign({}, opts, {skipFonts:true})); } catch(e2){ err = e2; } }
+    wrap.remove();
+    if (!url){ toast('Could not make the image: '+((err && (err.message || err.type)) || 'unknown')); return false; }
+    SHOT = url;
+    openSheet(`<h3>Your card</h3><img src="${url}" class="shotprev" alt="About me card"><div class="row"><button class="pbtn ghost" data-act="shotSave">Download</button><button class="pbtn" data-act="shotShare">Share</button></div>`);
     return false; },
   async shotShare(){ if (!SHOT) return false; try { const blob = await (await fetch(SHOT)).blob(), file = new File([blob], 'about-me.png', {type:'image/png'});
       if (navigator.canShare && navigator.canShare({files:[file]})) await navigator.share({files:[file], title:'About me'}); else A.shotSave(); } catch(e){} return false; },
