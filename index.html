@@ -15,6 +15,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen&text=0123456789&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Lexend:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -22,7 +23,7 @@
   --line:#D3D8E8; --empty:#E3E6F1; --accent:#5A55D2; --accent-ink:#FFFFFF; --danger:#C2415B; --sea:#D8E2F6;
   --pink:#F49CBB; --yellow:#FFCF6B; --mint:#7FD3BB; --blue:#8FB0F5; --lilac:#BC9CF0; --peach:#FFAA80;
   --cherry:#F2727F; --lime:#A9D86E; --teal:#5EC6D6; --sand:#E3C79A; --orchid:#E08FD8; --slate:#A3ABC9;
-  --pixel:'Pixelify Sans','Courier New',monospace;
+  --pixel:'Silkscreen','Pixelify Sans','Courier New',monospace;
   --body:'Lexend',system-ui,-apple-system,'Segoe UI',sans-serif;
   color-scheme:light; box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
@@ -40,7 +41,7 @@
   color-scheme:dark;
 }
 *,*::before,*::after{box-sizing:border-box}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);font-synthesis-weight:none}
 body{margin:0;color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;background-color:var(--bg);
   background-image:radial-gradient(var(--dot) 1px,transparent 1.4px);background-size:18px 18px;-webkit-tap-highlight-color:transparent}
 button,input,textarea,select{font:inherit;color:inherit}
@@ -392,6 +393,19 @@ textarea.inline.grow{display:block;resize:none;overflow:hidden;line-height:1.45;
 .prow .agev{font-family:var(--pixel);font-weight:600;color:var(--a);filter:brightness(.8)}
 .agelive{margin-top:8px;font-size:14px;color:var(--muted)}
 .agelive span{color:var(--ink);font-size:16px;margin-left:4px}
+.lcol{display:flex;flex-direction:column;align-items:center;min-width:0}
+.lcol .polaroid{align-self:stretch}
+.stamp{position:relative;margin:26px 0 4px;width:90%;padding:6px;background:radial-gradient(circle,transparent 3px,#FBFBFE 3.6px) -5px -5px/10px 10px;transform:rotate(-6deg);filter:drop-shadow(2px 2px 0 var(--ink))}
+.stamp-in{position:relative;background:#FBFBFE;border:2px solid var(--a);padding:8px 6px 7px;text-align:center;color:#1E2440;overflow:hidden}
+.sfrom{font-family:var(--pixel);font-size:11px;letter-spacing:2px;color:var(--a);filter:brightness(.8)}
+.flagw{position:relative;display:inline-block;margin:5px 0 3px;line-height:0}
+.flagimg{width:64px;height:auto;display:block;border:1.5px solid #1E2440;image-rendering:pixelated}
+.flagcode{display:grid;place-items:center;width:64px;height:42px;border:1.5px solid #1E2440;font-family:var(--pixel);font-size:16px;background:var(--empty);color:#1E2440}
+.flagw.tint .flagimg,.flagw.tint .flagcode{filter:grayscale(1) contrast(1.15) brightness(1.05)}
+.flagw.tint::after{content:'';position:absolute;inset:0;background:var(--a);mix-blend-mode:color;pointer-events:none}
+.sname{font-family:var(--pixel);font-weight:600;font-size:13px;line-height:1.15;word-break:normal;overflow-wrap:normal;hyphens:none;white-space:nowrap;overflow:hidden;text-overflow:clip}
+.sname.long{white-space:normal;font-size:11px}
+.smk{position:absolute;right:-14px;top:-14px;width:46px;height:46px;border:2px dashed var(--a);border-radius:50%;opacity:.45}
 .rcol{display:flex;flex-direction:column;gap:12px;min-width:0}
 .curbox{border:2px dashed var(--ink);padding:10px 10px 8px;background:color-mix(in srgb,var(--a) 14%,var(--paper));font-size:14px;transform:rotate(1.2deg)}
 .curbox .ptitle{color:var(--ink)}
@@ -478,6 +492,7 @@ const FAV_KEYS = ['Animal','Colour','Season','Food','Drink','Movie','Show','Book
 const PROMPTS = ['What was the best part of today?','What is one thing you learned today?','How do you want to show up tomorrow?','What are three things you are grateful for?','Rate today and explain the rating.','What would make tomorrow great?'];
 const GP_STATUS = ['Watched live','Watched later','Missed'];
 const SALAH = ['Fajr','Zohr','Asr','Maghrib','Isha'];
+const COUNTRIES = 'AF AL DZ AD AO AG AR AM AU AT AZ BS BH BD BB BY BE BZ BJ BT BO BA BW BR BN BG BF BI CV KH CM CA CF TD CL CN CO KM CG CD CR CI HR CU CY CZ DK DJ DM DO EC EG SV GQ ER EE SZ ET FJ FI FR GA GM GE DE GH GR GD GT GN GW GY HT HN HK HU IS IN ID IR IQ IE IL IT JM JP JO KZ KE KI KW KG LA LV LB LS LR LY LI LT LU MO MG MW MY MV ML MT MH MR MU MX FM MD MC MN ME MA MZ MM NA NR NP NL NZ NI NE NG KP MK NO OM PK PW PS PA PG PY PE PH PL PT PR QA RO RU RW KN LC VC WS SM ST SA SN RS SC SL SG SK SI SB SO ZA KR SS ES LK SD SR SE CH SY TW TJ TZ TH TL TG TO TT TN TR TM TV UG UA AE GB US UY UZ VU VA VE VN YE ZM ZW XK'.split(' ');
 const MCATS = ['Food','Transport','Recharge','Study','Fun','Gift','Other'];
 const MAP_W = 18, MAP_H = 24;
 
@@ -1072,6 +1087,16 @@ function renderGp(g){
 }
 
 /* ---- About Me ---- */
+function countryName(c){ try { return new Intl.DisplayNames(['en'], {type:'region'}).of(c); } catch(e){ return c; } }
+const flagEmoji = c => String.fromCodePoint(...[...c].map(ch => 0x1F1E6 + ch.charCodeAt(0) - 65));
+const flagHex = c => [...c].map(ch => (0x1F1E6 + ch.charCodeAt(0) - 65).toString(16)).join('-');
+function stampHTML(A){
+  if (!A.country) return '';
+  const c = A.country;
+  return `<div class="stamp"><div class="stamp-in"><span class="smk"></span><div class="sfrom">FROM</div>
+    <span class="flagw ${A.flagStyle==='page'?'tint':''}"><img class="flagimg" src="https://flagcdn.com/w80/${c.toLowerCase()}.png" alt="${esc(countryName(c))} flag" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'flagcode',textContent:'${c}'}))"></span>
+    <div class="sname ${countryName(c).length > 12 ? 'long' : ''}">${esc(countryName(c))}</div></div></div>`;
+}
 const pxHeart = c => `<svg class="pxh" viewBox="0 0 7 6" shape-rendering="crispEdges" aria-hidden="true"><path fill="${c}" d="M1 0h2v1h1V0h2v1h1v2H6v1H5v1H4v1H3V5H2V4H1V3H0V1h1z"/></svg>`;
 const STAR_ROWS = [[4,4],[4,4],[3,5],[0,8],[1,7],[2,6],[2,6],[1,3,5,7],[1,2,6,7]];
 const pxStar = c => `<svg class="pxs" viewBox="-0.5 -0.5 10 10" shape-rendering="crispEdges" aria-hidden="true">${STAR_ROWS.map((r,y) => { let o = ''; for (let i = 0; i < r.length; i += 2) o += `<rect x="${r[i]}" y="${y}" width="${r[i+1]-r[i]+1}" height="1" fill="${c}" stroke="#1E2440" stroke-width=".25"/>`; return o; }).join('')}</svg>`;
@@ -1090,14 +1115,15 @@ function renderAbout(){
   let h = `<div class="roomhead"><button class="arrow" data-act="roomBack" aria-label="Back">&lsaquo;</button><div class="t">About Me</div><button class="pbtn small ghost" style="margin-left:auto" data-act="aboutEdit">Edit</button></div>`;
   if (aboutEmpty()) return `<div class="roomhead"><button class="arrow" data-act="roomBack" aria-label="Back">&lsaquo;</button><div class="t">About Me</div></div><section class="scrap emptyscrap" style="--a:${ac}"><span class="deco d1">${pxStar('var(--yellow)')}</span><span class="deco d3">${pxHeart(ac)}</span><span class="deco d4">${pxHeart('var(--cherry)')}</span><span class="deco d5">${pxStar(ac)}</span><div class="scrap-title">ABOUT<br>ME!</div><p class="muted">Your own scrapbook page. Add a photo, likes, dislikes, favourites, a quote.</p><button class="pbtn" data-act="aboutEdit">Make my page</button></section>`;
   const dob = getDob(), bday = dob ? parse(dob).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : p.birthday;
-  const rows = [['name',p.name],['nickname',p.nickname],['age',dob ? ageText(dob, true) : ''],['from',p.from]].concat(A.fields.map(fd => [fd.k, fd.v])).filter(r => String(r[1]||'').trim());
+  const H = A.hide || {};
+  const rows = [['name',p.name,'name'],['nickname',p.nickname,'nickname'],['age',dob ? ageText(dob, true) : '','age'],['from',p.from,'from']].concat(A.fields.map(fd => [fd.k, fd.v, fd.id])).filter(r => !H[r[2]]).filter(r => String(r[1]||'').trim());
   const lines = t => String(t||'').split('\n').map(x => x.trim()).filter(Boolean);
   const cur = [];
   let g = `<div class="scrap" style="--a:${ac}">
     <span class="deco d1">${pxStar('var(--yellow)')}</span><span class="deco d2">${pxStar(ac)}</span><span class="deco d3">${pxHeart(ac)}</span><span class="deco d4">${pxHeart('var(--cherry)')}</span>
     <div class="scrap-title">ABOUT<br>ME!</div>
     <div class="scrap-top">
-      <div class="polaroid">${A.photo ? `<img data-img="${A.photo}" alt="Me">` : `<div class="noimg">no photo yet</div>`}<i class="tape t1"></i><i class="tape t2"></i></div>
+      <div class="lcol"><div class="polaroid">${A.photo ? `<img data-img="${A.photo}" alt="Me">` : `<div class="noimg">no photo yet</div>`}<i class="tape t1"></i><i class="tape t2"></i></div>${stampHTML(A)}</div>
       <div class="rcol">${rows.length ? `<div class="profilebox"><div class="ptitle">PROFILE</div>${rows.map(r => `<div class="prow"><b>${esc(r[0])}:</b> <span class="agev">${esc(r[1])}</span></div>`).join('')}</div>` : ''}
       ${cur.length ? `<div class="curbox"><div class="ptitle">CURRENTLY</div>${cur.map(c => `<div class="prow"><b>${c[0]}</b> ${esc(c[1])}</div>`).join('')}</div>` : ''}
       ${!rows.length || !cur.length ? `<div class="robodoodle"><div class="bubble">${esc((A.bubble||'').trim() || (rows.length ? 'that’s me!' : 'hi! fill me in'))}</div><svg viewBox="0 0 12 11" shape-rendering="crispEdges" aria-hidden="true"><rect x="5" y="0" width="2" height="1" fill="#1E2440"/><rect x="5.5" y="1" width="1" height="1" fill="#1E2440"/><rect x="1" y="2" width="10" height="8" fill="#1E2440"/><rect x="0" y="4" width="1" height="3" fill="#1E2440"/><rect x="11" y="4" width="1" height="3" fill="#1E2440"/><rect x="2" y="3" width="8" height="6" fill="#FBFBFE"/><g class="eyes"><rect x="3" y="4" width="2" height="3" fill="var(--a)"/><rect x="7" y="4" width="2" height="3" fill="var(--a)"/></g></svg></div>` : ''}</div>
@@ -1125,10 +1151,13 @@ function renderAboutEdit(){
     <span class="lbl">From</span>${growArea("profile.from", p.from, "Hometown")}
     ${A.fields.map(fd => `<div class="kv">${growArea("about.fields.#"+fd.id+".k", fd.k, "Label", "k")}${growArea("about.fields.#"+fd.id+".v", fd.v, "...")}<button class="x" data-act="afDel" data-id="${fd.id}" aria-label="Remove">×</button></div>`).join('')}
     <div class="chips" style="margin-top:8px">${['Height','Languages','School','Dream job','Lucky number'].filter(k => !A.fields.some(x => x.k === k)).map(k => `<button class="chip" data-act="afAdd" data-v="${k}">+ ${k}</button>`).join('')}<button class="chip" data-act="afAdd" data-v="">+ Custom</button></div>
+    <span class="lbl">Show on my page</span><div class="chips">${[['name','Name'],['nickname','Nickname'],['age','Age'],['from','From']].concat(A.fields.map(fd => [fd.id, fd.k || 'Field'])).map(([k,n]) => `<button class="chip ${(A.hide||{})[k] ? '' : 'on'}" data-act="aShow" data-v="${k}">${(A.hide||{})[k] ? '' : '✓ '}${esc(n)}</button>`).join('')}</div>
     <span class="lbl">A line I live by</span>${growArea("profile.quote", p.quote, "Everything you lose is a step you take")}
     <span class="lbl">Who said it (optional)</span>${growArea("profile.quoteBy", p.quoteBy, "Blackbeard (from One Piece)")}</section>`;
   h += `<section class="paper"><h2>Look</h2>
     <span class="lbl">Photo</span><div style="display:flex;gap:8px;flex-wrap:wrap"><label class="pbtn small">${A.photo ? 'Change photo' : '+ Photo'}<input type="file" accept="image/*" hidden data-up="about"></label>${A.photo ? `<button class="pbtn small ghost" data-act="aPhotoDel">Remove</button>` : ''}</div>
+    <span class="lbl">Country</span><select class="field" data-act-change="aCountry" id="aCountry"><option value="">None</option>${COUNTRIES.map(c => [c, countryName(c)]).sort((x,y) => x[1].localeCompare(y[1])).map(([c,n]) => `<option value="${c}" ${A.country===c?'selected':''}>${esc(n)}</option>`).join('')}</select>
+    ${A.country ? `<span class="lbl">Flag style</span><div class="chips"><button class="chip ${A.flagStyle!=='page'?'on':''}" data-act="aFlag" data-v="real">Real colours</button><button class="chip ${A.flagStyle==='page'?'on':''}" data-act="aFlag" data-v="page">Match page colour</button></div>` : ''}
     <span class="lbl">Page colour</span><div class="colors">${COLORS.map(c => `<button class="sw ${A.accent===c?'on':''}" style="--c:var(--${c})" data-act="aAccent" data-v="${c}" aria-label="${c}"></button>`).join('')}</div>
     <span class="lbl">Robot’s speech bubble</span>${growArea("about.bubble", A.bubble, "that’s me!")}
     <span class="lbl">Sticky note</span>${growArea("about.note", A.note, "I really want my...")}
@@ -1539,6 +1568,8 @@ const A = {
   afAdd(b){ S.about.fields.push({id:uid(), k:b.dataset.v || 'Label', v:''}); save(); },
   afDel(b){ S.about.fields = S.about.fields.filter(x => x.id !== b.dataset.id); save(); },
   aNoteColor(b){ S.about.noteColor = b.dataset.v; save(); },
+  aShow(b){ const H = S.about.hide = S.about.hide || {}; if (H[b.dataset.v]) delete H[b.dataset.v]; else H[b.dataset.v] = true; save(); },
+  aFlag(b){ S.about.flagStyle = b.dataset.v; save(); },
   aAccent(b){ S.about.accent = b.dataset.v; save(); },
   aBoxAdd(b){ S.about.boxes.push({id:uid(), title:b.dataset.v || 'My box', body:'', color:pick(['pink','mint','lilac','yellow','blue','peach','teal'], uid())}); save(); },
   aBoxDel(b){ const id = b.dataset.id; ask('Remove this box?', () => { S.about.boxes = S.about.boxes.filter(x => x.id !== id); }, 'Remove'); return false; },
@@ -1625,7 +1656,9 @@ document.addEventListener('input', e => {
   else if (d.pb && P.list){ const p = P.list.find(x => x.id === view.personId); if (p){ setPath(d.pb, e.target.value, p); p.updated = todayKey(); pSaveSoon(); } }
 });
 document.addEventListener('change', async e => {
-  const el = e.target; if (!el.dataset.up || !el.files.length) return;
+  const el = e.target;
+  if (el.id === 'aCountry'){ S.about.country = el.value || null; save(); render(); return; }
+  if (!el.dataset.up || !el.files.length) return;
   if (el.dataset.up === 'about'){ try { const data = await compress(el.files[0]), id = 'img_'+uid(); await IMG.put(id, data); if (S.about.photo) IMG.del(S.about.photo).catch(()=>{}); S.about.photo = id; save(); render(); } catch(err){ toast('Could not add that photo'); } return; }
   if (el.dataset.up !== 'gp') return;
   const g = S.f1.gps.find(x => x.id === el.dataset.id); if (!g) return;
