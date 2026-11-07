@@ -359,6 +359,8 @@ nav.tabs button.on svg .f{fill:var(--accent)}
 .ni:last-child{border-bottom:0}
 .nrow{display:flex;align-items:flex-start;gap:8px}
 .nrow .nn{flex:none;min-width:22px;font-family:var(--pixel);color:var(--muted);padding-top:5px}
+textarea.inline.grow{display:block;resize:none;overflow:hidden;line-height:1.45;field-sizing:content;min-height:30px}
+.kv textarea.grow{min-height:28px}
 .nrow textarea.grow{flex:1;border-bottom:0;resize:none;overflow:hidden;line-height:1.45;field-sizing:content;min-height:30px}
 .nrow.done textarea{text-decoration:line-through;text-decoration-thickness:2px;color:var(--muted)}
 .subl{margin:0 0 4px 30px;border-left:2px solid var(--line);padding-left:8px}
@@ -368,11 +370,67 @@ nav.tabs button.on svg .f{fill:var(--accent)}
 .tiny{flex:none;width:26px;height:26px;border:1.5px solid var(--line);color:var(--muted);font-family:var(--pixel);font-size:16px;margin-top:2px}
 .tiny:hover{color:var(--accent);border-color:var(--accent)}
 .iconbtn{width:34px;height:34px;border:2px solid var(--ink);background:var(--paper);box-shadow:2px 2px 0 var(--ink);display:grid;place-items:center;color:var(--ink)}
+.iconbtn[hidden]{display:none}
 .iconbtn svg{width:16px;height:16px}
 .sres{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;padding:9px 0;border-bottom:1.5px dashed var(--line)}
 .sres .gpn b{font-weight:500}
 .sres mark{background:var(--yellow);color:#1E2440;padding:0 1px}
 #qres{margin-top:10px;max-height:60vh;overflow:auto}
+.scrap{position:relative;background:var(--paper);border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:18px 16px 22px;margin-bottom:18px;background-image:radial-gradient(var(--line) 1px,transparent 1.3px);background-size:14px 14px;overflow:hidden}
+.scrap-title{font-family:var(--pixel);font-weight:700;font-size:54px;line-height:.95;color:var(--a);text-shadow:3px 3px 0 var(--ink);letter-spacing:2px;margin:4px 0 16px;text-align:right}
+.deco{position:absolute;pointer-events:none}
+.deco svg{display:block}
+.pxs{width:30px;height:30px}.pxh{width:14px;height:12px;flex:none}
+.d1{left:16px;top:22px;transform:rotate(-12deg)}.d2{left:58px;top:64px;transform:rotate(10deg) scale(.7)}
+.d3{right:18px;bottom:16px;transform:scale(1.8)}.d4{left:14px;bottom:20px;transform:scale(1.4) rotate(-10deg)}
+.scrap-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:14px;align-items:start;margin-bottom:16px}
+.polaroid{position:relative;background:#FBFBFE;border:2px solid var(--ink);padding:7px 7px 22px;transform:rotate(-3deg);box-shadow:3px 3px 0 var(--ink)}
+.polaroid img,.polaroid .noimg{width:100%;aspect-ratio:4/5;object-fit:cover;display:block;border:3px dotted var(--a);background:var(--empty)}
+.polaroid .noimg{display:grid;place-items:center;font-family:var(--pixel);font-size:12px;color:var(--muted)}
+.tape{position:absolute;width:44px;height:14px;background:color-mix(in srgb,var(--a) 55%,transparent);border:1px solid rgba(0,0,0,.15)}
+.tape.t1{top:-7px;left:-10px;transform:rotate(-30deg)}.tape.t2{top:-7px;right:-10px;transform:rotate(28deg)}
+.prow .agev{font-family:var(--pixel);font-weight:600;color:var(--a);filter:brightness(.8)}
+.agelive{margin-top:8px;font-size:14px;color:var(--muted)}
+.agelive span{color:var(--ink);font-size:16px;margin-left:4px}
+.rcol{display:flex;flex-direction:column;gap:12px;min-width:0}
+.curbox{border:2px dashed var(--ink);padding:10px 10px 8px;background:color-mix(in srgb,var(--a) 14%,var(--paper));font-size:14px;transform:rotate(1.2deg)}
+.curbox .ptitle{color:var(--ink)}
+.curbox .prow b{color:var(--a);filter:brightness(.75)}
+.robodoodle{display:flex;flex-direction:column;align-items:center;gap:10px;padding:8px 0}
+.robodoodle svg{width:64px;height:auto;transform:rotate(-6deg);margin-right:28px}
+.robodoodle .eyes{transform-box:fill-box;transform-origin:center;animation:blink 5s infinite}
+.bubble{position:relative;max-width:170px;text-align:center;word-break:break-word;background:var(--paper);border:2px solid var(--ink);padding:5px 10px;font-family:var(--pixel);font-size:13px;transform:rotate(5deg);margin-left:34px;box-shadow:2px 2px 0 var(--a)}
+.bubble::after{content:'';position:absolute;left:14px;bottom:-9px;width:10px;height:10px;background:var(--paper);border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:rotate(60deg) skewX(-15deg)}
+.profilebox{border:2px dotted var(--a);padding:10px 10px 8px;background:var(--paper);font-size:14px}
+.ptitle{font-family:var(--pixel);font-size:15px;font-weight:700;color:var(--a);margin-bottom:4px;letter-spacing:1px}
+.prow{line-height:1.45;word-break:break-word;padding:2px 0}.prow b{font-family:var(--pixel);font-weight:600;font-size:13px;text-transform:lowercase;color:var(--a);filter:brightness(.8);margin-right:2px}
+.quotebox{position:relative;border:3px double var(--ink);outline:2px solid var(--a);outline-offset:3px;padding:16px 16px 12px;margin:6px 6px 18px;background:var(--paper);transform:rotate(-.6deg)}
+.quotebox .qt{font-family:var(--pixel);font-size:18px;font-weight:600;line-height:1.35;text-align:center;color:var(--ink)}
+.quotebox .qm{color:var(--a);font-size:30px;line-height:0;vertical-align:-10px;margin:0 4px;font-weight:700}
+.quotebox .qby{font-family:var(--pixel);font-size:13px;color:var(--a);filter:brightness(.8);text-align:right;margin-top:8px}
+.boxgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:16px}
+.sbox{border:2px solid var(--c);padding:10px 10px 8px;background:var(--paper);position:relative}
+.sbox.st0{border-style:dashed}.sbox.st1{border-style:dotted;border-width:3px}.sbox.st2{border-style:double;border-width:4px}
+.sbt{font-family:var(--pixel);font-weight:700;font-size:15px;margin:-20px 0 6px;display:inline-block;background:var(--paper);padding:0 6px;color:var(--ink);box-shadow:inset 0 -6px 0 color-mix(in srgb,var(--c) 55%,transparent)}
+.sbox ul{list-style:none;margin:0;padding:0}
+.sbox li{display:flex;gap:6px;align-items:baseline;font-size:14px;line-height:1.4;padding:1px 0;word-break:break-word}
+.sbox li .pxh{width:10px;height:9px;position:relative;top:1px}
+.favbox{margin-bottom:16px;border-style:dashed}
+.frow{font-size:14px;line-height:1.5;word-break:break-word}.frow b{font-family:var(--pixel);font-size:13px;color:var(--a);font-weight:600;text-transform:lowercase;filter:brightness(.8);margin-right:2px}
+.toptitle{font-family:var(--pixel);font-weight:700;font-size:28px;color:var(--a);text-shadow:2px 2px 0 var(--ink);margin:4px 0 8px}
+.topgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.topcard{border:2px solid var(--ink);background:var(--paper);padding:8px 10px}
+.topcard .tt{font-family:var(--pixel);font-weight:600;font-size:14px;border-bottom:2px solid var(--a);margin-bottom:4px;text-transform:lowercase}
+.topcard .ti{font-size:13px;display:flex;gap:6px;line-height:1.5;word-break:break-word}
+.topcard .tn{font-family:var(--pixel);color:var(--a);filter:brightness(.8)}
+.sticky{background:var(--sc,var(--yellow));color:#1E2440;border:2px solid var(--ink);padding:14px 14px 16px;width:72%;margin:8px auto 4px;transform:rotate(2deg);box-shadow:3px 4px 0 rgba(0,0,0,.25);font-size:15px;text-align:center;white-space:pre-wrap;position:relative}
+.sticky::before{content:'';position:absolute;top:-9px;left:50%;width:56px;height:16px;transform:translateX(-50%) rotate(-3deg);background:color-mix(in srgb,var(--a) 55%,transparent);border:1px solid rgba(0,0,0,.15)}
+@media (min-width:1000px){ #main.r-about > .scrap{grid-column:2 / span 4} .boxgrid{grid-template-columns:repeat(3,minmax(0,1fr))} .scrap{padding:28px 30px 30px} .scrap-title{font-size:72px} }
+.emptyscrap{text-align:center;padding:34px 20px 36px}
+.emptyscrap .scrap-title{text-align:center;margin:10px 0 18px}
+.emptyscrap p{max-width:280px;margin:0 auto 18px}
+.d5{right:22px;top:26px;transform:rotate(14deg) scale(.8)}
+@media (max-width:360px){ .scrap-title{font-size:44px} .boxgrid,.topgrid{grid-template-columns:1fr} }
 .done-on{font-size:11px;font-family:var(--pixel);opacity:.75}
 </style>
 </head>
@@ -386,7 +444,7 @@ nav.tabs button.on svg .f{fill:var(--accent)}
       <g class="eyes"><rect x="3" y="4" width="2" height="3" fill="var(--accent)"/><rect x="7" y="4" width="2" height="3" fill="var(--accent)"/></g>
     </svg>
     <div class="brand">Mi Robo Me</div>
-    <button class="iconbtn" data-act="search" aria-label="Search" title="Search"><svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="1" y="0" width="3" height="1" fill="currentColor"/><rect x="0" y="1" width="1" height="3" fill="currentColor"/><rect x="4" y="1" width="1" height="3" fill="currentColor"/><rect x="1" y="4" width="3" height="1" fill="currentColor"/><rect x="4" y="4" width="1" height="1" fill="currentColor"/><rect x="5" y="5" width="1" height="1" fill="currentColor"/><rect x="6" y="6" width="2" height="2" fill="currentColor"/></svg></button>
+    <button class="iconbtn" id="srchBtn" hidden data-act="search" aria-label="Search" title="Search"><svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="1" y="0" width="3" height="1" fill="currentColor"/><rect x="0" y="1" width="1" height="3" fill="currentColor"/><rect x="4" y="1" width="1" height="3" fill="currentColor"/><rect x="1" y="4" width="3" height="1" fill="currentColor"/><rect x="4" y="4" width="1" height="1" fill="currentColor"/><rect x="5" y="5" width="1" height="1" fill="currentColor"/><rect x="6" y="6" width="2" height="2" fill="currentColor"/></svg></button>
     <button class="instbtn" id="instBtn" hidden aria-label="Install app" title="Install app"><svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="0" width="2" height="4" fill="currentColor"/><rect x="1" y="3" width="6" height="1" fill="currentColor"/><rect x="2" y="4" width="4" height="1" fill="currentColor"/><rect x="3" y="5" width="2" height="1" fill="currentColor"/><rect x="0" y="7" width="8" height="1" fill="currentColor"/></svg></button>
   </header>
   <main id="main"></main>
@@ -427,11 +485,11 @@ function blank(){ return {
   profile:{name:'',birthday:'',from:'',quote:''}, favs:[], tops:[],
   tasks:{}, events:[], habits:[], checks:{}, mood:{},
   daily:{}, wish:[], lists:[], persona:null,
-  f1:{seasons:{}, gps:[]}, jar:[], savings:[], money:{sessions:[]}, salah:{}, logs:[], board:[], map:{factions:[], tiles:{}},
+  f1:{seasons:{}, gps:[]}, jar:[], savings:[], money:{sessions:[]}, salah:{}, logs:[], about:{accent:'pink', photo:null, note:'', fields:[], boxes:[]}, board:[], map:{factions:[], tiles:{}},
   theme:'auto'
 };}
 function load(){
-  try{ const r = localStorage.getItem(KEY); if (r){ const d = Object.assign(blank(), JSON.parse(r)); d.profile = Object.assign(blank().profile, d.profile); d.f1 = Object.assign({seasons:{},gps:[]}, d.f1); d.map = Object.assign({factions:[],tiles:{}}, d.map); d.money = Object.assign({sessions:[]}, d.money); d.salah = d.salah || {}; d.logs = d.logs || [];
+  try{ const r = localStorage.getItem(KEY); if (r){ const d = Object.assign(blank(), JSON.parse(r)); d.profile = Object.assign(blank().profile, d.profile); d.f1 = Object.assign({seasons:{},gps:[]}, d.f1); d.map = Object.assign({factions:[],tiles:{}}, d.map); d.money = Object.assign({sessions:[]}, d.money); d.salah = d.salah || {}; d.logs = d.logs || []; d.about = Object.assign({accent:'pink', photo:null, note:'', fields:[], boxes:[]}, d.about);
     d.lists.forEach(l => { if (!l.type){ l.type = 'list'; l.items = (l.body||'').split('\n').filter(x => x.trim()).map(t => ({id:Math.random().toString(36).slice(2,10), t})); delete l.body; } });
     return d; } }catch(e){}
   return blank();
@@ -785,7 +843,7 @@ function renderPersona(){
     <p class="muted" style="text-align:center">Locks again when you leave this page or close the app.</p>`;
 }
 function renderPerson(p){
-  const inp = (k, label, ph) => `<span class="lbl">${label}</span><input class="inline" data-pb="${k}" value="${esc(p[k])}" placeholder="${esc(ph||'')}">`;
+  const inp = (k, label, ph) => `<span class="lbl">${label}</span><textarea class="inline grow" rows="1" data-pb="${k}" placeholder="${esc(ph||'')}">${esc(p[k])}</textarea>`;
   const area = (k, label, ph, rows) => `<span class="lbl">${label}</span><textarea class="field" data-pb="${k}" rows="${rows||3}" placeholder="${esc(ph||'')}">${esc(p[k])}</textarea>`;
   const usedQ = (p.qa||[]).map(q => q.q);
   return `${roomHead(p.name || 'New person', 'pBack')}
@@ -798,7 +856,7 @@ function renderPerson(p){
     ${area('first','First impression','',3)}${inp('oneline','What they’re like in one line','')}
     ${area('why','Why they caught my attention','',3)}${area('moment','A moment I remember with or about them','',3)}</section>
   <section class="paper"><h2>More questions</h2>
-    ${(p.qa||[]).map(q => `<div class="qa"><div class="qrow"><input class="inline" data-pb="qa.#${q.id}.q" value="${esc(q.q)}" placeholder="Your question"><button class="x" data-act="pQDel" data-id="${q.id}" aria-label="Remove">×</button></div>
+    ${(p.qa||[]).map(q => `<div class="qa"><div class="qrow"><textarea class="inline grow" rows="1" data-pb="qa.#${q.id}.q" placeholder="Your question">${esc(q.q)}</textarea><button class="x" data-act="pQDel" data-id="${q.id}" aria-label="Remove">×</button></div>
       <textarea class="field" data-pb="qa.#${q.id}.a" rows="3" placeholder="Answer">${esc(q.a)}</textarea></div>`).join('')}
     <span class="lbl">Add a question</span><div class="chips">${PERSONA_Q.filter(q => !usedQ.includes(q)).map(q => `<button class="chip" data-act="pQAdd" data-v="${esc(q)}">${esc(q)}</button>`).join('')}<button class="chip" data-act="pQAdd" data-v="">+ My own question</button></div></section>
   <section class="paper"><h2>Extra notes</h2>${area('extra','','Anything else', 6)}</section>
@@ -978,10 +1036,10 @@ function renderF1(){
   let h = roomHead('F1 Journal');
   h += `<section class="monthnav"><button class="arrow" data-act="sprev" aria-label="Previous season">&lsaquo;</button><div class="mid">${yr} season</div><button class="arrow" data-act="snext" aria-label="Next season">&rsaquo;</button></section>`;
   h += `<section class="paper"><h2>My season</h2>
-    <span class="lbl">Rooting for</span><input class="inline" data-b="${base}driver" value="${esc(s.driver)}" placeholder="Driver">
-    <span class="lbl">Favourite team</span><input class="inline" data-b="${base}team" value="${esc(s.team)}" placeholder="Team">
-    <span class="lbl">Drivers’ Champion</span><input class="inline" data-b="${base}champ" value="${esc(s.champ)}" placeholder="Decided at season end">
-    <span class="lbl">Constructors’ Champion</span><input class="inline" data-b="${base}cchamp" value="${esc(s.cchamp)}" placeholder="Team">
+    <span class="lbl">Rooting for</span>${growArea(base+"driver", s.driver, "Driver")}
+    <span class="lbl">Favourite team</span>${growArea(base+"team", s.team, "Team")}
+    <span class="lbl">Drivers’ Champion</span>${growArea(base+"champ", s.champ, "Decided at season end")}
+    <span class="lbl">Constructors’ Champion</span>${growArea(base+"cchamp", s.cchamp, "Team")}
     <span class="lbl">Season thoughts</span>${bindArea(base+'notes', s.notes, 'How this season felt', 3)}
     <div class="row" style="margin-top:10px"><button class="pbtn small" data-act="saveNow">Save</button></div>
     ${gps.length ? `<p class="muted" style="margin:12px 0 0">${gps.length} logged, ${watched} watched, ${missed} missed${best ? '. Favourite so far: '+esc(best.name)+' ('+best.rating+'/10)' : ''}</p>` : ''}</section>`;
@@ -1014,22 +1072,81 @@ function renderGp(g){
 }
 
 /* ---- About Me ---- */
+const pxHeart = c => `<svg class="pxh" viewBox="0 0 7 6" shape-rendering="crispEdges" aria-hidden="true"><path fill="${c}" d="M1 0h2v1h1V0h2v1h1v2H6v1H5v1H4v1H3V5H2V4H1V3H0V1h1z"/></svg>`;
+const STAR_ROWS = [[4,4],[4,4],[3,5],[0,8],[1,7],[2,6],[2,6],[1,3,5,7],[1,2,6,7]];
+const pxStar = c => `<svg class="pxs" viewBox="-0.5 -0.5 10 10" shape-rendering="crispEdges" aria-hidden="true">${STAR_ROWS.map((r,y) => { let o = ''; for (let i = 0; i < r.length; i += 2) o += `<rect x="${r[i]}" y="${y}" width="${r[i+1]-r[i]+1}" height="1" fill="${c}" stroke="#1E2440" stroke-width=".25"/>`; return o; }).join('')}</svg>`;
+function getDob(){
+  if (S.about.dob) return S.about.dob;
+  const t = String(S.profile.birthday||'').replace(/(\d+)(st|nd|rd|th)/i,'$1').trim(); if (!t) return null;
+  const d = new Date(t); return isNaN(d) ? null : keyOf(d);
+}
+function ageYM(k){ const b = parse(k), n = new Date(); let m = (n.getFullYear()-b.getFullYear())*12 + (n.getMonth()-b.getMonth()); if (n.getDate() < b.getDate()) m--; return [Math.floor(m/12), m%12]; }
+function ageText(k, short){ const [y,m] = ageYM(k); return short ? y+' yrs'+(m ? ', '+m+' mo' : '') : y+' year'+(y===1?'':'s')+(m ? ' '+m+' month'+(m===1?'':'s') : ''); }
+function ageOf(k){ const b = parse(k), n = new Date(); let a = n.getFullYear() - b.getFullYear(); if (n.getMonth() < b.getMonth() || (n.getMonth() === b.getMonth() && n.getDate() < b.getDate())) a--; return a; }
+function aboutEmpty(){ const p = S.profile, A = S.about; return !(p.name||p.birthday||p.from||p.quote||A.photo||A.note||A.boxes.some(bx => String(bx.body||'').trim())||A.fields.length||S.favs.length||S.tops.length); }
 function renderAbout(){
-  const p = S.profile;
-  let h = roomHead('About Me');
+  if (view.aboutEdit) return renderAboutEdit();
+  const p = S.profile, A = S.about, ac = `var(--${A.accent||'pink'})`;
+  let h = `<div class="roomhead"><button class="arrow" data-act="roomBack" aria-label="Back">&lsaquo;</button><div class="t">About Me</div><button class="pbtn small ghost" style="margin-left:auto" data-act="aboutEdit">Edit</button></div>`;
+  if (aboutEmpty()) return `<div class="roomhead"><button class="arrow" data-act="roomBack" aria-label="Back">&lsaquo;</button><div class="t">About Me</div></div><section class="scrap emptyscrap" style="--a:${ac}"><span class="deco d1">${pxStar('var(--yellow)')}</span><span class="deco d3">${pxHeart(ac)}</span><span class="deco d4">${pxHeart('var(--cherry)')}</span><span class="deco d5">${pxStar(ac)}</span><div class="scrap-title">ABOUT<br>ME!</div><p class="muted">Your own scrapbook page. Add a photo, likes, dislikes, favourites, a quote.</p><button class="pbtn" data-act="aboutEdit">Make my page</button></section>`;
+  const dob = getDob(), bday = dob ? parse(dob).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : p.birthday;
+  const rows = [['name',p.name],['nickname',p.nickname],['age',dob ? ageText(dob, true) : ''],['from',p.from]].concat(A.fields.map(fd => [fd.k, fd.v])).filter(r => String(r[1]||'').trim());
+  const lines = t => String(t||'').split('\n').map(x => x.trim()).filter(Boolean);
+  const cur = [];
+  let g = `<div class="scrap" style="--a:${ac}">
+    <span class="deco d1">${pxStar('var(--yellow)')}</span><span class="deco d2">${pxStar(ac)}</span><span class="deco d3">${pxHeart(ac)}</span><span class="deco d4">${pxHeart('var(--cherry)')}</span>
+    <div class="scrap-title">ABOUT<br>ME!</div>
+    <div class="scrap-top">
+      <div class="polaroid">${A.photo ? `<img data-img="${A.photo}" alt="Me">` : `<div class="noimg">no photo yet</div>`}<i class="tape t1"></i><i class="tape t2"></i></div>
+      <div class="rcol">${rows.length ? `<div class="profilebox"><div class="ptitle">PROFILE</div>${rows.map(r => `<div class="prow"><b>${esc(r[0])}:</b> <span class="agev">${esc(r[1])}</span></div>`).join('')}</div>` : ''}
+      ${cur.length ? `<div class="curbox"><div class="ptitle">CURRENTLY</div>${cur.map(c => `<div class="prow"><b>${c[0]}</b> ${esc(c[1])}</div>`).join('')}</div>` : ''}
+      ${!rows.length || !cur.length ? `<div class="robodoodle"><div class="bubble">${esc((A.bubble||'').trim() || (rows.length ? 'that’s me!' : 'hi! fill me in'))}</div><svg viewBox="0 0 12 11" shape-rendering="crispEdges" aria-hidden="true"><rect x="5" y="0" width="2" height="1" fill="#1E2440"/><rect x="5.5" y="1" width="1" height="1" fill="#1E2440"/><rect x="1" y="2" width="10" height="8" fill="#1E2440"/><rect x="0" y="4" width="1" height="3" fill="#1E2440"/><rect x="11" y="4" width="1" height="3" fill="#1E2440"/><rect x="2" y="3" width="8" height="6" fill="#FBFBFE"/><g class="eyes"><rect x="3" y="4" width="2" height="3" fill="var(--a)"/><rect x="7" y="4" width="2" height="3" fill="var(--a)"/></g></svg></div>` : ''}</div>
+    </div>`;
+  if (p.quote && p.quote.trim()) g += `<div class="quotebox"><div class="qt"><span class="qm">“</span>${esc(p.quote.trim().replace(/^["“]|["”]$/g,''))}<span class="qm">”</span></div>${(p.quoteBy||'').trim() ? `<div class="qby">- ${esc(p.quoteBy.trim().replace(/^[-–—~\s]+/,''))}</div>` : ''}</div>`;
+  const vboxes = A.boxes.filter(bx => lines(bx.body).length);
+  if (vboxes.length) g += `<div class="boxgrid">${vboxes.map((bx,i) => { const it = lines(bx.body); return `<div class="sbox st${i%3}" style="--c:var(--${bx.color})"><div class="sbt">${esc(bx.title||'Box')}</div>
+    ${it.length ? `<ul>${it.map(x => `<li>${pxHeart(`var(--${bx.color})`)}<span>${esc(x)}</span></li>`).join('')}</ul>` : `<div class="muted">empty</div>`}</div>`; }).join('')}</div>`;
+  const favs = S.favs.filter(f => String(f.v||'').trim());
+  if (favs.length) g += `<div class="sbox favbox" style="--c:${ac}"><div class="sbt">MY FAVOURITES</div>${favs.map(f => `<div class="frow"><b>${esc(f.k)}:</b> ${esc(f.v)}</div>`).join('')}</div>`;
+  const tops = S.tops.filter(t => (t.items||[]).some(x => String(x||'').trim()));
+  if (tops.length) g += `<div class="toptitle">TOP 3</div><div class="topgrid">${tops.map(t => `<div class="topcard"><div class="tt">${esc(t.title)}</div>${(t.items||[]).map((x,i) => String(x||'').trim() ? `<div class="ti"><span class="tn">${i+1}</span>${esc(x)}</div>` : '').join('')}</div>`).join('')}</div>`;
+  if (A.note && A.note.trim()) g += `<div class="sticky" style="--sc:var(--${A.noteColor||'yellow'})">${esc(A.note)}</div>`;
+  g += `</div>`;
+  return h + g;
+}
+function renderAboutEdit(){
+  const p = S.profile, A = S.about;
+  let h = roomHead('Edit my page', 'aboutDone');
   h += `<section class="paper"><h2>Profile</h2>
-    <span class="lbl">Name</span><input class="inline" data-b="profile.name" value="${esc(p.name)}" placeholder="Your name">
-    <span class="lbl">Birthday</span><input class="inline" data-b="profile.birthday" value="${esc(p.birthday)}" placeholder="Day month">
-    <span class="lbl">From</span><input class="inline" data-b="profile.from" value="${esc(p.from)}" placeholder="Hometown">
-    <span class="lbl">A line I live by</span><input class="inline" data-b="profile.quote" value="${esc(p.quote)}" placeholder="Everything you lose is a step you take"></section>`;
+    <span class="lbl">Name</span>${growArea("profile.name", p.name, "Your name")}
+    <span class="lbl">Nickname</span>${growArea("profile.nickname", p.nickname, "What friends call you")}
+    <span class="lbl">Date of birth</span><input class="field" type="date" data-b="about.dob" value="${esc(A.dob || getDob() || '')}">
+    <div class="agelive">Age: <span id="ageLive">${getDob() ? ageText(getDob()) : '?'}</span></div>
+    <span class="lbl">From</span>${growArea("profile.from", p.from, "Hometown")}
+    ${A.fields.map(fd => `<div class="kv">${growArea("about.fields.#"+fd.id+".k", fd.k, "Label", "k")}${growArea("about.fields.#"+fd.id+".v", fd.v, "...")}<button class="x" data-act="afDel" data-id="${fd.id}" aria-label="Remove">×</button></div>`).join('')}
+    <div class="chips" style="margin-top:8px">${['Height','Languages','School','Dream job','Lucky number'].filter(k => !A.fields.some(x => x.k === k)).map(k => `<button class="chip" data-act="afAdd" data-v="${k}">+ ${k}</button>`).join('')}<button class="chip" data-act="afAdd" data-v="">+ Custom</button></div>
+    <span class="lbl">A line I live by</span>${growArea("profile.quote", p.quote, "Everything you lose is a step you take")}
+    <span class="lbl">Who said it (optional)</span>${growArea("profile.quoteBy", p.quoteBy, "Blackbeard (from One Piece)")}</section>`;
+  h += `<section class="paper"><h2>Look</h2>
+    <span class="lbl">Photo</span><div style="display:flex;gap:8px;flex-wrap:wrap"><label class="pbtn small">${A.photo ? 'Change photo' : '+ Photo'}<input type="file" accept="image/*" hidden data-up="about"></label>${A.photo ? `<button class="pbtn small ghost" data-act="aPhotoDel">Remove</button>` : ''}</div>
+    <span class="lbl">Page colour</span><div class="colors">${COLORS.map(c => `<button class="sw ${A.accent===c?'on':''}" style="--c:var(--${c})" data-act="aAccent" data-v="${c}" aria-label="${c}"></button>`).join('')}</div>
+    <span class="lbl">Robot’s speech bubble</span>${growArea("about.bubble", A.bubble, "that’s me!")}
+    <span class="lbl">Sticky note</span>${growArea("about.note", A.note, "I really want my...")}
+    <span class="lbl">Sticky note colour</span><div class="colors">${COLORS.map(c => `<button class="sw ${(A.noteColor||'yellow')===c?'on':''}" style="--c:var(--${c})" data-act="aNoteColor" data-v="${c}" aria-label="${c}"></button>`).join('')}</div></section>`;
+  const usedB = A.boxes.map(x => x.title);
+  h += `<section class="paper full"><h2>Boxes</h2><p class="muted" style="margin:0 0 6px">One thing per line.</p>
+    ${A.boxes.map(bx => `<div class="qa" style="border-color:var(--${bx.color})"><div class="qrow">${growArea("about.boxes.#"+bx.id+".title", bx.title, "Box title")}<button class="x" data-act="aBoxDel" data-id="${bx.id}" aria-label="Remove">×</button></div>
+      <textarea class="field" rows="4" data-b="about.boxes.#${bx.id}.body" placeholder="One per line">${esc(bx.body)}</textarea>
+      <div class="colors" style="margin-top:6px">${COLORS.map(c => `<button class="sw" style="width:22px;height:22px;--c:var(--${c});${bx.color===c?'outline:2px solid var(--ink);outline-offset:2px':''}" data-act="aBoxColor" data-id="${bx.id}" data-v="${c}" aria-label="${c}"></button>`).join('')}</div></div>`).join('')}
+    <span class="lbl">Add a box</span><div class="chips">${['Likes','Dislikes','Hobbies','Fav colours','I’m a fan of','Things I want','Places I love','Brands'].filter(t => !usedB.includes(t)).map(t => `<button class="chip" data-act="aBoxAdd" data-v="${t}">+ ${t}</button>`).join('')}<button class="chip" data-act="aBoxAdd" data-v="">+ Custom</button></div></section>`;
   const usedK = S.favs.map(f => f.k);
   h += `<section class="paper"><h2>My favourites</h2>
-    ${S.favs.map(f => `<div class="kv"><input class="inline k" data-b="favs.#${f.id}.k" value="${esc(f.k)}"><input class="inline" data-b="favs.#${f.id}.v" value="${esc(f.v)}" placeholder="..."><button class="x" data-act="favDel" data-id="${f.id}" aria-label="Remove">×</button></div>`).join('')}
+    ${S.favs.map(f => `<div class="kv">${growArea("favs.#"+f.id+".k", f.k, "", "k")}${growArea("favs.#"+f.id+".v", f.v, "...")}<button class="x" data-act="favDel" data-id="${f.id}" aria-label="Remove">×</button></div>`).join('')}
     <span class="lbl">Add</span><div class="chips">${FAV_KEYS.filter(k => !usedK.includes(k)).map(k => `<button class="chip" data-act="favAdd" data-v="${k}">${k}</button>`).join('')}<button class="chip" data-act="favAdd" data-v="">Custom</button></div></section>`;
   h += `<section class="paper"><h2>Top 3s <button class="pbtn small" data-act="topNew">+ Top 3</button></h2>
     ${S.tops.length ? S.tops.map(t => `<div style="margin-bottom:14px"><div style="display:flex;gap:8px;align-items:center"><input class="inline" style="font-family:var(--pixel);font-size:17px;font-weight:600" data-b="tops.#${t.id}.title" value="${esc(t.title)}"><button class="x" data-act="topDel" data-id="${t.id}" aria-label="Remove">×</button></div>
-      ${[0,1,2].map(i => `<div style="display:flex;gap:8px;align-items:center"><span class="tag">${i+1}</span><input class="inline" data-b="tops.#${t.id}.items.${i}" value="${esc((t.items||[])[i])}"></div>`).join('')}</div>`).join('')
-      : `<div class="empty">Subjects, foods, places, musicians, anything.</div>`}</section><div class="row" style="margin-bottom:18px"><button class="pbtn" data-act="saveNow">Save</button></div>`;
+      ${[0,1,2].map(i => `<div style="display:flex;gap:8px;align-items:center"><span class="tag">${i+1}</span>${growArea("tops.#"+t.id+".items."+i, (t.items||[])[i], "")}</div>`).join('')}</div>`).join('')
+      : `<div class="empty">Subjects, foods, places, musicians, anything.</div>`}</section><div class="row" style="margin-bottom:18px"><button class="pbtn ghost" data-act="saveNow">Save</button><button class="pbtn" data-act="aboutDone">Done</button></div>`;
   return h;
 }
 
@@ -1230,6 +1347,7 @@ function render(){
   $('main').className = 't-'+view.tab + (view.tab==='more' && view.room ? ' r-'+view.room : '') + (view.tab==='journal' ? ' j-'+view.j : '');
   document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === view.tab));
   fillImgs(); growAll();
+  $('srchBtn').hidden = view.tab !== 'journal';
 }
 
 /* ================= sheets & forms ================= */
@@ -1266,7 +1384,7 @@ const A = {
     else if (view.tab === 'more') view.room = null;
     if (b.dataset.j) view.j = b.dataset.j;
     if (view.tab === 'days' && !b.dataset.keep) view.day = todayKey();
-    view.gpId = null; view.jarOpen = null; view.moneyId = null; window.scrollTo(0,0);
+    view.gpId = null; view.jarOpen = null; view.moneyId = null; view.aboutEdit = false; window.scrollTo(0,0);
   },
   roomBack(){ view.room = null; view.jarOpen = null; window.scrollTo(0,0); },
   prev(){ view.day = addDays(view.day,-1); }, next(){ view.day = addDays(view.day,1); }, goToday(){ view.day = todayKey(); },
@@ -1416,6 +1534,16 @@ const A = {
     return false; },
   async saveNow(){ clearTimeout(saveT); save(); if (P.key && P.list){ clearTimeout(pT); pT = null; await pSave(); }
     if (SY.token && SY.gist){ clearTimeout(syncT); await syncPush(); toast(syncState ? 'Saved on this device' : 'Saved and synced'); } else toast('Saved'); return false; },
+  aboutEdit(){ view.aboutEdit = true; window.scrollTo(0,0); },
+  aboutDone(){ view.aboutEdit = false; save(); window.scrollTo(0,0); },
+  afAdd(b){ S.about.fields.push({id:uid(), k:b.dataset.v || 'Label', v:''}); save(); },
+  afDel(b){ S.about.fields = S.about.fields.filter(x => x.id !== b.dataset.id); save(); },
+  aNoteColor(b){ S.about.noteColor = b.dataset.v; save(); },
+  aAccent(b){ S.about.accent = b.dataset.v; save(); },
+  aBoxAdd(b){ S.about.boxes.push({id:uid(), title:b.dataset.v || 'My box', body:'', color:pick(['pink','mint','lilac','yellow','blue','peach','teal'], uid())}); save(); },
+  aBoxDel(b){ const id = b.dataset.id; ask('Remove this box?', () => { S.about.boxes = S.about.boxes.filter(x => x.id !== id); }, 'Remove'); return false; },
+  aBoxColor(b){ const bx = S.about.boxes.find(x => x.id === b.dataset.id); bx.color = b.dataset.v; save(); },
+  aPhotoDel(){ ask('Remove your photo?', () => { IMG.del(S.about.photo).catch(()=>{}); S.about.photo = null; }, 'Remove'); return false; },
   noteNew(){ noteForm(null); return false; }, noteEdit(b){ noteForm(S.board.find(x => x.id === b.dataset.id)); return false; },
   noteMove(b){ const n = S.board.find(x => x.id === b.dataset.id); setNoteCol(n, Math.max(0, Math.min(2, n.col + (+b.dataset.v)))); save(); },
 
@@ -1493,11 +1621,13 @@ document.addEventListener('input', e => {
   if (e.target.id === 'q'){ renderSearchResults(); return; }
   if (e.target.classList && e.target.classList.contains('grow')){ e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight+'px'; }
   const d = e.target.dataset || {};
-  if (d.b){ setPath(d.b, e.target.value); saveSoon(); }
+  if (d.b){ setPath(d.b, e.target.value); saveSoon(); if (d.b === 'about.dob' && $('ageLive')) $('ageLive').textContent = e.target.value ? ageText(e.target.value) : '?'; }
   else if (d.pb && P.list){ const p = P.list.find(x => x.id === view.personId); if (p){ setPath(d.pb, e.target.value, p); p.updated = todayKey(); pSaveSoon(); } }
 });
 document.addEventListener('change', async e => {
-  const el = e.target; if (el.dataset.up !== 'gp' || !el.files.length) return;
+  const el = e.target; if (!el.dataset.up || !el.files.length) return;
+  if (el.dataset.up === 'about'){ try { const data = await compress(el.files[0]), id = 'img_'+uid(); await IMG.put(id, data); if (S.about.photo) IMG.del(S.about.photo).catch(()=>{}); S.about.photo = id; save(); render(); } catch(err){ toast('Could not add that photo'); } return; }
+  if (el.dataset.up !== 'gp') return;
   const g = S.f1.gps.find(x => x.id === el.dataset.id); if (!g) return;
   try { for (const file of el.files){ const data = await compress(file), id = 'img_'+uid(); await IMG.put(id, data); (g.photos = g.photos||[]).push(id); } save(); render(); }
   catch(err){ toast('Could not add that photo'); }
