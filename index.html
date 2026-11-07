@@ -764,7 +764,7 @@ function renderDaily(){
     <span class="lbl">Best part of the day</span>${bindArea(base+'best', e.best, '', 2)}
     <span class="lbl">One thing I learned</span>${bindArea(base+'learned', e.learned, '', 2)}
     <span class="lbl">How do I want to show up tomorrow?</span>${bindArea(base+'tomorrow', e.tomorrow, '', 2)}</section>`;
-  h += `<section class="paper full"><h2>Free write</h2>${bindArea(base+'free', e.free, 'Anything on your mind', 6)}</section>`;
+  h += `<section class="paper full"><h2>Free write</h2>${bindArea(base+'free', e.free, 'Anything on your mind', 6)}<div class="row"><button class="pbtn" data-act="saveNow">Save</button></div></section>`;
   return h;
 }
 function renderPersona(){
@@ -802,7 +802,7 @@ function renderPerson(p){
       <textarea class="field" data-pb="qa.#${q.id}.a" rows="3" placeholder="Answer">${esc(q.a)}</textarea></div>`).join('')}
     <span class="lbl">Add a question</span><div class="chips">${PERSONA_Q.filter(q => !usedQ.includes(q)).map(q => `<button class="chip" data-act="pQAdd" data-v="${esc(q)}">${esc(q)}</button>`).join('')}<button class="chip" data-act="pQAdd" data-v="">+ My own question</button></div></section>
   <section class="paper"><h2>Extra notes</h2>${area('extra','','Anything else', 6)}</section>
-  <div class="row" style="margin-bottom:18px"><button class="pbtn danger" data-act="pDel">Delete person</button></div>`;
+  <div class="row" style="margin-bottom:18px"><button class="pbtn danger" data-act="pDel">Delete person</button><button class="pbtn" data-act="saveNow">Save</button></div>`;
 }
 function renderWish(){
   const done = S.wish.filter(w => w.done).length;
@@ -853,7 +853,7 @@ ${parse(e.date).toLocaleDateString('en-GB',{weekday:'short'})} ${shortDay(e.date
 function renderLog(l){
   const t = todayKey(), cur = logWeek(l, t), last = logLastVal(l);
   let h = roomHead(l.title, 'logBack');
-  h += `<section class="paper full"><div class="wkhead"><div><b>Week ${cur}</b> <span class="muted">${shortDay(weekRange(l,cur)[0])} to ${shortDay(weekRange(l,cur)[1])}</span></div><button class="pbtn small ghost" data-act="logEdit">Edit log</button></div>
+  h += `<section class="paper full"><div class="wkhead"><div><b>Week ${cur}</b> <span class="muted">${shortDay(weekRange(l,cur)[0])} to ${shortDay(weekRange(l,cur)[1])}</span></div><span style="display:flex;gap:8px"><button class="pbtn small ghost" data-act="logEdit">Edit log</button><button class="pbtn small" data-act="saveNow">Save</button></span></div>
     ${last != null ? `<p style="margin:8px 0 0"><span class="muted">${esc(l.unit||'Now')}</span> <b style="font-family:var(--pixel);font-size:30px">${esc(last)}</b></p>` : ''}${sparkline(l)}</section>`;
   h += `<section class="paper full"><h2>New update</h2>
     <div class="addrow" style="margin-top:0">${l.unit ? `<input class="field" id="lgVal" inputmode="decimal" placeholder="${esc(l.unit)}" style="flex:0 0 96px">` : ''}<input class="field" id="lgDate" type="date" value="${t}" style="flex:0 0 150px"></div>
@@ -884,7 +884,7 @@ function renderListDetail(l){
         <button class="x" data-act="subDel" data-id="${sb.id}" data-p="${it.id}" aria-label="Remove">×</button></li>`).join('')}</ol>` : ''}</li>`).join('')}</ol>
     <div class="addrow"><input class="field" id="itemIn" placeholder="Add a point" maxlength="500"><button class="pbtn" data-act="itemAdd">Add</button></div>
     <p class="muted" style="margin:8px 0 0">Tap + on a point to add sub points under it.</p>
-    <div class="row"><button class="pbtn danger" data-act="listDel" data-id="${l.id}">Delete list</button></div></section>`;
+    <div class="row"><button class="pbtn danger" data-act="listDel" data-id="${l.id}">Delete list</button><button class="pbtn" data-act="saveNow">Save</button></div></section>`;
 }
 function renderLists(){
   if (view.logId){ const l = S.logs.find(x => x.id === view.logId); if (l) return renderLog(l); view.logId = null; }
@@ -894,7 +894,7 @@ function renderLists(){
     if (l) return `${roomHead('Page', 'listBack')}<section class="paper full">
       <input class="field" style="font-family:var(--pixel);font-size:20px;font-weight:600" data-b="lists.#${l.id}.title" value="${esc(l.title)}" placeholder="Title">
       <div style="margin-top:12px">${bindArea('lists.#'+l.id+'.body', l.body, 'Write freely', 16)}</div>
-      <div class="row"><button class="pbtn danger" data-act="listDel" data-id="${l.id}">Delete page</button></div></section>`;
+      <div class="row"><button class="pbtn danger" data-act="listDel" data-id="${l.id}">Delete page</button><button class="pbtn" data-act="saveNow">Save</button></div></section>`;
     view.listId = null;
   }
   const folder = (act, id, title, sub, ico) => `<button class="folder" style="--c:var(--${FOLDER_C[hash(id) % FOLDER_C.length]})" data-act="${act}" data-id="${id}"><span class="fi">${ico}</span><b>${esc(title || 'Untitled')}</b><span>${sub}</span></button>`;
@@ -983,6 +983,7 @@ function renderF1(){
     <span class="lbl">Drivers’ Champion</span><input class="inline" data-b="${base}champ" value="${esc(s.champ)}" placeholder="Decided at season end">
     <span class="lbl">Constructors’ Champion</span><input class="inline" data-b="${base}cchamp" value="${esc(s.cchamp)}" placeholder="Team">
     <span class="lbl">Season thoughts</span>${bindArea(base+'notes', s.notes, 'How this season felt', 3)}
+    <div class="row" style="margin-top:10px"><button class="pbtn small" data-act="saveNow">Save</button></div>
     ${gps.length ? `<p class="muted" style="margin:12px 0 0">${gps.length} logged, ${watched} watched, ${missed} missed${best ? '. Favourite so far: '+esc(best.name)+' ('+best.rating+'/10)' : ''}</p>` : ''}</section>`;
   h += `<section class="paper"><h2>Grand Prix <button class="pbtn small" data-act="gpNew">+ GP</button></h2>
     ${gps.length ? gps.map(g => `<button class="gp" data-act="openGp" data-id="${g.id}"><span class="rnd">R${esc(g.round||'?')}</span>
@@ -1028,7 +1029,7 @@ function renderAbout(){
   h += `<section class="paper"><h2>Top 3s <button class="pbtn small" data-act="topNew">+ Top 3</button></h2>
     ${S.tops.length ? S.tops.map(t => `<div style="margin-bottom:14px"><div style="display:flex;gap:8px;align-items:center"><input class="inline" style="font-family:var(--pixel);font-size:17px;font-weight:600" data-b="tops.#${t.id}.title" value="${esc(t.title)}"><button class="x" data-act="topDel" data-id="${t.id}" aria-label="Remove">×</button></div>
       ${[0,1,2].map(i => `<div style="display:flex;gap:8px;align-items:center"><span class="tag">${i+1}</span><input class="inline" data-b="tops.#${t.id}.items.${i}" value="${esc((t.items||[])[i])}"></div>`).join('')}</div>`).join('')
-      : `<div class="empty">Subjects, foods, places, musicians, anything.</div>`}</section>`;
+      : `<div class="empty">Subjects, foods, places, musicians, anything.</div>`}</section><div class="row" style="margin-bottom:18px"><button class="pbtn" data-act="saveNow">Save</button></div>`;
   return h;
 }
 
@@ -1413,6 +1414,8 @@ const A = {
     (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast('Week copied'), () => {
       openSheet(`<h3>Week ${b.dataset.v}</h3><textarea class="field mono" id="bk" readonly>${esc(txt)}</textarea><div class="row"><button class="pbtn ghost" data-act="closeSheet">Close</button><button class="pbtn" data-act="copyBk">Copy</button></div>`); });
     return false; },
+  async saveNow(){ clearTimeout(saveT); save(); if (P.key && P.list){ clearTimeout(pT); pT = null; await pSave(); }
+    if (SY.token && SY.gist){ clearTimeout(syncT); await syncPush(); toast(syncState ? 'Saved on this device' : 'Saved and synced'); } else toast('Saved'); return false; },
   noteNew(){ noteForm(null); return false; }, noteEdit(b){ noteForm(S.board.find(x => x.id === b.dataset.id)); return false; },
   noteMove(b){ const n = S.board.find(x => x.id === b.dataset.id); setNoteCol(n, Math.max(0, Math.min(2, n.col + (+b.dataset.v)))); save(); },
 
