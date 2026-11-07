@@ -473,6 +473,23 @@ textarea.inline.grow{display:block;resize:none;overflow:hidden;line-height:1.45;
 .sname{font-family:var(--pixel);font-weight:600;font-size:13px;line-height:1.15;word-break:normal;overflow-wrap:normal;hyphens:none;white-space:nowrap;overflow:hidden;text-overflow:clip}
 .sname.long{white-space:normal;font-size:11px}
 .smk{position:absolute;right:-14px;top:-14px;width:46px;height:46px;border:2px dashed var(--a);border-radius:50%;opacity:.45}
+.stks{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:4px;margin:12px -2px 0 0}
+.stk{position:relative;width:66px;background:#fff;padding:4px 4px 12px;border:1px solid rgba(0,0,0,.15);box-shadow:2px 3px 0 rgba(0,0,0,.22)}
+.stk img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:var(--empty)}
+.stk.s0{transform:rotate(-7deg)}.stk.s1{transform:rotate(5deg) translateY(5px)}.stk.s2{transform:rotate(-3deg) translateY(-3px)}.stk.s3{transform:rotate(8deg) translateY(3px)}
+.stk.s0::before,.stk.s2::before{content:'';position:absolute;top:-7px;left:50%;width:32px;height:12px;transform:translateX(-50%) rotate(-5deg);background:color-mix(in srgb,var(--c,var(--a)) 55%,transparent);border:1px solid rgba(0,0,0,.12)}
+.stk.s1::before,.stk.s3::before{content:'';position:absolute;top:-5px;right:-6px;width:22px;height:10px;transform:rotate(40deg);background:color-mix(in srgb,var(--c,var(--a)) 55%,transparent);border:1px solid rgba(0,0,0,.12)}
+.stkedit{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.stkth{position:relative;width:54px;height:54px;border:2px solid var(--ink)}
+.stkth img{width:100%;height:100%;object-fit:cover;display:block}
+.stkth button{position:absolute;top:-9px;right:-9px;width:20px;height:20px;background:var(--danger);color:#fff;border:2px solid var(--ink);font-size:12px;line-height:1}
+.stkadd{width:54px;height:54px;border:2px dashed var(--ink);display:grid;place-items:center;font-family:var(--pixel);font-size:22px;cursor:pointer;color:var(--muted)}
+.shot{position:fixed;left:-10000px;top:0;width:430px;padding:18px 14px 12px;background-image:radial-gradient(var(--dot) 1px,transparent 1.4px);background-size:18px 18px}
+.shot .scrap{margin:0;padding:18px 16px 22px}
+.shot .scrap-title{font-size:54px}
+.shot .boxgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.shotfoot{font-family:var(--pixel);font-size:12px;color:var(--muted);text-align:center;margin-top:10px}
+.shotprev{width:100%;max-height:60vh;object-fit:contain;border:2px solid var(--ink);background:var(--bg)}
 .rcol{display:flex;flex-direction:column;gap:12px;min-width:0}
 .curbox{border:2px dashed var(--ink);padding:10px 10px 8px;background:color-mix(in srgb,var(--a) 14%,var(--paper));font-size:14px;transform:rotate(1.2deg)}
 .curbox .ptitle{color:var(--ink)}
@@ -1220,11 +1237,13 @@ function getDob(){
 function ageYM(k){ const b = parse(k), n = new Date(); let m = (n.getFullYear()-b.getFullYear())*12 + (n.getMonth()-b.getMonth()); if (n.getDate() < b.getDate()) m--; return [Math.floor(m/12), m%12]; }
 function ageText(k, short){ const [y,m] = ageYM(k); return short ? y+' yrs'+(m ? ', '+m+' mo' : '') : y+' year'+(y===1?'':'s')+(m ? ' '+m+' month'+(m===1?'':'s') : ''); }
 function ageOf(k){ const b = parse(k), n = new Date(); let a = n.getFullYear() - b.getFullYear(); if (n.getMonth() < b.getMonth() || (n.getMonth() === b.getMonth() && n.getDate() < b.getDate())) a--; return a; }
+const stickers = ids => (ids||[]).length ? `<div class="stks">${ids.map((id,i) => `<span class="stk s${i%4}"><img data-img="${id}" alt=""></span>`).join('')}</div>` : '';
+const stickerEdit = (ids, target) => `<span class="lbl">Sticker photos (optional, up to 4)</span><div class="stkedit">${(ids||[]).map(id => `<span class="stkth"><img data-img="${id}" alt=""><button data-act="aPicDel" data-t="${target}" data-v="${id}" aria-label="Remove">×</button></span>`).join('')}${(ids||[]).length < 4 ? `<label class="stkadd">+<input type="file" accept="image/*" hidden data-up="sticker" data-t="${target}"></label>` : ''}</div>`;
 function aboutEmpty(){ const p = S.profile, A = S.about; return !(p.name||p.birthday||p.from||p.quote||A.photo||A.note||A.boxes.some(bx => String(bx.body||'').trim())||A.fields.length||S.favs.length||S.tops.length); }
 function renderAbout(){
   if (view.aboutEdit) return renderAboutEdit();
   const p = S.profile, A = S.about, ac = `var(--${A.accent||'pink'})`;
-  let h = `<div class="roomhead"><button class="arrow" data-act="roomBack" aria-label="Back">&lsaquo;</button><div class="t">About Me</div><button class="pbtn small ghost" style="margin-left:auto" data-act="aboutEdit">Edit</button></div>`;
+  let h = `<div class="roomhead"><button class="arrow" data-act="roomBack" aria-label="Back">&lsaquo;</button><div class="t">About Me</div><span style="margin-left:auto;display:flex;gap:8px"><button class="pbtn small" data-act="aShare">Share card</button><button class="pbtn small ghost" data-act="aboutEdit">Edit</button></span></div>`;
   if (aboutEmpty()) return `<div class="roomhead"><button class="arrow" data-act="roomBack" aria-label="Back">&lsaquo;</button><div class="t">About Me</div></div><section class="scrap emptyscrap" style="--a:${ac}"><span class="deco d1">${pxStar('var(--yellow)')}</span><span class="deco d3">${pxHeart(ac)}</span><span class="deco d4">${pxHeart('var(--cherry)')}</span><span class="deco d5">${pxStar(ac)}</span><div class="scrap-title">ABOUT<br>ME!</div><p class="muted">Your own scrapbook page. Add a photo, likes, dislikes, favourites, a quote.</p><button class="pbtn" data-act="aboutEdit">Make my page</button></section>`;
   const dob = getDob(), bday = dob ? parse(dob).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : p.birthday;
   const H = A.hide || {};
@@ -1241,11 +1260,11 @@ function renderAbout(){
       ${!rows.length || !cur.length ? `<div class="robodoodle"><div class="bubble">${esc((A.bubble||'').trim() || (rows.length ? 'that’s me!' : 'hi! fill me in'))}</div><svg viewBox="0 0 12 11" shape-rendering="crispEdges" aria-hidden="true"><rect x="5" y="0" width="2" height="1" fill="#1E2440"/><rect x="5.5" y="1" width="1" height="1" fill="#1E2440"/><rect x="1" y="2" width="10" height="8" fill="#1E2440"/><rect x="0" y="4" width="1" height="3" fill="#1E2440"/><rect x="11" y="4" width="1" height="3" fill="#1E2440"/><rect x="2" y="3" width="8" height="6" fill="#FBFBFE"/><g class="eyes"><rect x="3" y="4" width="2" height="3" fill="var(--a)"/><rect x="7" y="4" width="2" height="3" fill="var(--a)"/></g></svg></div>` : ''}</div>
     </div>`;
   if (p.quote && p.quote.trim()) g += `<div class="quotebox"><div class="qt"><span class="qm">“</span>${esc(p.quote.trim().replace(/^["“]|["”]$/g,''))}<span class="qm">”</span></div>${(p.quoteBy||'').trim() ? `<div class="qby">- ${esc(p.quoteBy.trim().replace(/^[-–—~\s]+/,''))}</div>` : ''}</div>`;
-  const vboxes = A.boxes.filter(bx => lines(bx.body).length);
+  const vboxes = A.boxes.filter(bx => lines(bx.body).length || (bx.pics||[]).length);
   if (vboxes.length) g += `<div class="boxgrid">${vboxes.map((bx,i) => { const it = lines(bx.body); return `<div class="sbox st${i%3}" style="--c:var(--${bx.color})"><div class="sbt">${esc(bx.title||'Box')}</div>
-    ${it.length ? `<ul>${it.map(x => `<li>${pxHeart(`var(--${bx.color})`)}<span>${esc(x)}</span></li>`).join('')}</ul>` : `<div class="muted">empty</div>`}</div>`; }).join('')}</div>`;
+    ${it.length ? `<ul>${it.map(x => `<li>${pxHeart(`var(--${bx.color})`)}<span>${esc(x)}</span></li>`).join('')}</ul>` : `<div class="muted">empty</div>`}${stickers(bx.pics)}</div>`; }).join('')}</div>`;
   const favs = S.favs.filter(f => String(f.v||'').trim());
-  if (favs.length) g += `<div class="sbox favbox" style="--c:${ac}"><div class="sbt">MY FAVOURITES</div>${favs.map(f => `<div class="frow"><b>${esc(f.k)}:</b> ${esc(f.v)}</div>`).join('')}</div>`;
+  if (favs.length) g += `<div class="sbox favbox" style="--c:${ac}"><div class="sbt">MY FAVOURITES</div>${favs.map(f => `<div class="frow"><b>${esc(f.k)}:</b> ${esc(f.v)}</div>`).join('')}${stickers(A.favPics)}</div>`;
   const tops = S.tops.filter(t => (t.items||[]).some(x => String(x||'').trim()));
   if (tops.length) g += `<div class="toptitle">TOP 3</div><div class="topgrid">${tops.map(t => `<div class="topcard"><div class="tt">${esc(t.title)}</div>${(t.items||[]).map((x,i) => String(x||'').trim() ? `<div class="ti"><span class="tn">${i+1}</span>${esc(x)}</div>` : '').join('')}</div>`).join('')}</div>`;
   if (A.note && A.note.trim()) g += `<div class="sticky" style="--sc:var(--${A.noteColor||'yellow'})">${esc(A.note)}</div>`;
@@ -1278,12 +1297,12 @@ function renderAboutEdit(){
   h += `<section class="paper full"><h2>Boxes</h2><p class="muted" style="margin:0 0 6px">One thing per line.</p>
     ${A.boxes.map(bx => `<div class="qa" style="border-color:var(--${bx.color})"><div class="qrow">${growArea("about.boxes.#"+bx.id+".title", bx.title, "Box title")}<button class="x" data-act="aBoxDel" data-id="${bx.id}" aria-label="Remove">×</button></div>
       <textarea class="field" rows="4" data-b="about.boxes.#${bx.id}.body" placeholder="One per line">${esc(bx.body)}</textarea>
-      <div class="colors" style="margin-top:6px">${COLORS.map(c => `<button class="sw" style="width:22px;height:22px;--c:var(--${c});${bx.color===c?'outline:2px solid var(--ink);outline-offset:2px':''}" data-act="aBoxColor" data-id="${bx.id}" data-v="${c}" aria-label="${c}"></button>`).join('')}</div></div>`).join('')}
+      <div class="colors" style="margin-top:6px">${COLORS.map(c => `<button class="sw" style="width:22px;height:22px;--c:var(--${c});${bx.color===c?'outline:2px solid var(--ink);outline-offset:2px':''}" data-act="aBoxColor" data-id="${bx.id}" data-v="${c}" aria-label="${c}"></button>`).join('')}</div>${stickerEdit(bx.pics, bx.id)}</div>`).join('')}
     <span class="lbl">Add a box</span><div class="chips">${['Likes','Dislikes','Hobbies','Fav colours','I’m a fan of','Things I want','Places I love','Brands'].filter(t => !usedB.includes(t)).map(t => `<button class="chip" data-act="aBoxAdd" data-v="${t}">+ ${t}</button>`).join('')}<button class="chip" data-act="aBoxAdd" data-v="">+ Custom</button></div></section>`;
   const usedK = S.favs.map(f => f.k);
   h += `<section class="paper"><h2>My favourites</h2>
     ${S.favs.map(f => `<div class="kv">${growArea("favs.#"+f.id+".k", f.k, "", "k")}${growArea("favs.#"+f.id+".v", f.v, "...")}<button class="x" data-act="favDel" data-id="${f.id}" aria-label="Remove">×</button></div>`).join('')}
-    <span class="lbl">Add</span><div class="chips">${FAV_KEYS.filter(k => !usedK.includes(k)).map(k => `<button class="chip" data-act="favAdd" data-v="${k}">${k}</button>`).join('')}<button class="chip" data-act="favAdd" data-v="">Custom</button></div></section>`;
+    <span class="lbl">Add</span><div class="chips">${FAV_KEYS.filter(k => !usedK.includes(k)).map(k => `<button class="chip" data-act="favAdd" data-v="${k}">${k}</button>`).join('')}<button class="chip" data-act="favAdd" data-v="">Custom</button></div>${stickerEdit(S.about.favPics, 'fav')}</section>`;
   h += `<section class="paper"><h2>Top 3s <button class="pbtn small" data-act="topNew">+ Top 3</button></h2>
     ${S.tops.length ? S.tops.map(t => `<div style="margin-bottom:14px"><div style="display:flex;gap:8px;align-items:center"><input class="inline" style="font-family:var(--pixel);font-size:17px;font-weight:600" data-b="tops.#${t.id}.title" value="${esc(t.title)}"><button class="x" data-act="topDel" data-id="${t.id}" aria-label="Remove">×</button></div>
       ${[0,1,2].map(i => `<div style="display:flex;gap:8px;align-items:center"><span class="tag">${i+1}</span>${growArea("tops.#"+t.id+".items."+i, (t.items||[])[i], "")}</div>`).join('')}</div>`).join('')
@@ -1791,6 +1810,27 @@ const A = {
     navigator.geolocation.getCurrentPosition(p => { S.salahCfg = Object.assign(salahCfg(), {mode:'gps', at:Date.now(), lat:+p.coords.latitude.toFixed(4), lng:+p.coords.longitude.toFixed(4), place:'My location'}); save(); A.prayCfg(); render(); toast('Using your GPS location'); },
       () => toast('Location blocked. Pick a city instead'), {enableHighAccuracy:false, timeout:15000, maximumAge:6e5}); return false; },
   praySave(){ S.salahCfg = Object.assign(salahCfg(), {method:$('pm').value, asr:$('pa').value}); save(); closeSheet(); },
+  aPicDel(b){ const t = b.dataset.t, id = b.dataset.v, o = t === 'fav' ? S.about : S.about.boxes.find(x => x.id === t), k = t === 'fav' ? 'favPics' : 'pics';
+    o[k] = (o[k]||[]).filter(x => x !== id); IMG.del(id).catch(()=>{}); save(); },
+  async aShare(){
+    toast('Making your card...');
+    try { await loadScript('https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js'); } catch(e){ toast('Needs internet the first time'); return false; }
+    const src = document.querySelector('.scrap'); if (!src) return false;
+    const wrap = document.createElement('div'); wrap.className = 'shot';
+    wrap.style.background = getComputedStyle(document.body).backgroundColor;
+    const clone = src.cloneNode(true); wrap.appendChild(clone);
+    const foot = document.createElement('div'); foot.className = 'shotfoot'; foot.textContent = 'made with Mi Robo Me'; wrap.appendChild(foot);
+    document.body.appendChild(wrap);
+    await Promise.all([...wrap.querySelectorAll('img')].map(im => im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; })));
+    try {
+      const url = await htmlToImage.toPng(wrap, {pixelRatio:2.5, imagePlaceholder:'data:image/gif;base64,R0lGODlhAQABAAAAACw=', filter: n => !(n.classList && n.classList.contains('smk'))});
+      wrap.remove(); SHOT = url;
+      openSheet(`<h3>Your card</h3><img src="${url}" class="shotprev" alt="About me card"><div class="row"><button class="pbtn ghost" data-act="shotSave">Download</button><button class="pbtn" data-act="shotShare">Share</button></div>`);
+    } catch(e){ wrap.remove(); toast('Could not make the image'); }
+    return false; },
+  async shotShare(){ if (!SHOT) return false; try { const blob = await (await fetch(SHOT)).blob(), file = new File([blob], 'about-me.png', {type:'image/png'});
+      if (navigator.canShare && navigator.canShare({files:[file]})) await navigator.share({files:[file], title:'About me'}); else A.shotSave(); } catch(e){} return false; },
+  shotSave(){ if (!SHOT) return false; const a = document.createElement('a'); a.href = SHOT; a.download = 'about-me.png'; document.body.appendChild(a); a.click(); a.remove(); toast('Saved to downloads'); return false; },
   aAccent(b){ S.about.accent = b.dataset.v; save(); },
   aBoxAdd(b){ S.about.boxes.push({id:uid(), title:b.dataset.v || 'My box', body:'', color:pick(['pink','mint','lilac','yellow','blue','peach','teal'], uid())}); save(); },
   aBoxDel(b){ const id = b.dataset.id; ask('Remove this box?', () => { S.about.boxes = S.about.boxes.filter(x => x.id !== id); }, 'Remove'); return false; },
@@ -1880,6 +1920,8 @@ document.addEventListener('change', async e => {
   const el = e.target;
   if (el.id === 'aCountry'){ S.about.country = el.value || null; save(); render(); return; }
   if (!el.dataset.up || !el.files.length) return;
+  if (el.dataset.up === 'sticker'){ const t = el.dataset.t, arr = t === 'fav' ? (S.about.favPics = S.about.favPics || []) : ((S.about.boxes.find(x => x.id === t) || {}).pics = (S.about.boxes.find(x => x.id === t).pics || []));
+    try { const data = await compress(el.files[0]), id = 'img_'+uid(); await IMG.put(id, data); arr.push(id); save(); render(); } catch(err){ toast('Could not add that photo'); } return; }
   if (el.dataset.up === 'about'){ try { const data = await compress(el.files[0]), id = 'img_'+uid(); await IMG.put(id, data); if (S.about.photo) IMG.del(S.about.photo).catch(()=>{}); S.about.photo = id; save(); render(); } catch(err){ toast('Could not add that photo'); } return; }
   if (el.dataset.up !== 'gp') return;
   const g = S.f1.gps.find(x => x.id === el.dataset.id); if (!g) return;
@@ -1914,6 +1956,8 @@ const startTab = location.hash.slice(1);
 if (['home','days','habits','journal'].includes(startTab)) view.tab = startTab;
 const _render = render;
 render = function(){ _render(); if (location.hash.slice(1) !== view.tab){ try { history.replaceState(null, '', '#'+view.tab); } catch(e){} } };
+let SHOT = null;
+function loadScript(src){ return new Promise((res, rej) => { if (document.querySelector(`script[src="${src}"]`) && window.htmlToImage) return res(); const sc = document.createElement('script'); sc.src = src; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
 let installEvt = null;
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; $('instBtn').hidden = false; });
 window.addEventListener('appinstalled', () => { installEvt = null; $('instBtn').hidden = true; toast('Installed'); });
