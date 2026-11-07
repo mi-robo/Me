@@ -53,8 +53,8 @@ button{cursor:pointer;background:none;border:0;padding:0}
 .logo .eyes{transform-box:fill-box;transform-origin:center;animation:blink 6s infinite}
 @keyframes blink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.15)}}
 @media (prefers-reduced-motion:reduce){.logo .eyes{animation:none}}
-.brand{font-family:var(--pixel);font-weight:700;font-size:22px;letter-spacing:.5px}
-.instbtn{margin-left:auto;width:34px;height:34px;border:2px solid var(--ink);background:var(--paper);box-shadow:2px 2px 0 var(--ink);display:grid;place-items:center;color:var(--accent)}
+.brand{font-family:var(--pixel);font-weight:700;font-size:22px;letter-spacing:.5px;margin-right:auto}
+.instbtn{margin-left:0;width:34px;height:34px;border:2px solid var(--ink);background:var(--paper);box-shadow:2px 2px 0 var(--ink);display:grid;place-items:center;color:var(--accent)}
 .instbtn svg{width:16px;height:16px}
 .instbtn[hidden]{display:none}
 
@@ -304,6 +304,8 @@ nav.tabs button.on svg .f{fill:var(--accent)}
   .dname{font-size:42px}
   .little{grid-template-columns:repeat(4,minmax(0,1fr))}
   .rooms{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .folders{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .top .iconbtn,.top .instbtn{width:30px;height:30px}
   .room{min-height:150px;transition:transform .12s, box-shadow .12s}
   .room:hover,.lt:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink)}
   .gp:hover .gpn b,.listcard:hover b{color:var(--accent)}
@@ -343,6 +345,34 @@ nav.tabs button.on svg .f{fill:var(--accent)}
 .lentry:last-child{border-bottom:0}
 .lentry .tx{flex:1;min-width:0;white-space:pre-wrap;word-break:break-word}
 .vtag{flex:none;font-family:var(--pixel);font-size:13px;background:var(--yellow);color:#1E2440;border:2px solid var(--ink);padding:0 6px}
+.folders{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 14px;margin-top:6px}
+.folder{position:relative;text-align:left;background:var(--c);color:#1E2440;border:2px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:12px 12px 10px;margin-top:14px;min-height:100px;display:flex;flex-direction:column;gap:4px}
+.folder::before{content:'';position:absolute;left:-2px;top:-13px;width:46%;height:13px;background:var(--c);border:2px solid var(--ink);border-bottom:0}
+.folder::after{content:'';position:absolute;right:10px;top:-9px;width:38%;height:9px;background:var(--paper);border:1.5px solid var(--ink);border-bottom:0}
+.folder b{font-family:var(--pixel);font-size:16px;font-weight:600;line-height:1.2;word-break:break-word}
+.folder span{font-size:12px;opacity:.8;line-height:1.35}
+.folder .fi{position:absolute;right:10px;bottom:8px;font-family:var(--pixel);font-size:18px;opacity:.35}
+.folder:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.lopts{display:flex;align-items:center;gap:10px;margin:12px 0 4px}
+.nlist,.subl{list-style:none;margin:0;padding:0}
+.ni{border-bottom:1.5px dashed var(--line);padding:4px 0}
+.ni:last-child{border-bottom:0}
+.nrow{display:flex;align-items:flex-start;gap:8px}
+.nrow .nn{flex:none;min-width:22px;font-family:var(--pixel);color:var(--muted);padding-top:5px}
+.nrow textarea.grow{flex:1;border-bottom:0;resize:none;overflow:hidden;line-height:1.45;field-sizing:content;min-height:30px}
+.nrow.done textarea{text-decoration:line-through;text-decoration-thickness:2px;color:var(--muted)}
+.subl{margin:0 0 4px 30px;border-left:2px solid var(--line);padding-left:8px}
+.nrow.sub .nn{min-width:18px;font-size:13px}
+.nrow.sub textarea{font-size:14px}
+.box.sm{width:20px;height:20px;margin-top:5px}
+.tiny{flex:none;width:26px;height:26px;border:1.5px solid var(--line);color:var(--muted);font-family:var(--pixel);font-size:16px;margin-top:2px}
+.tiny:hover{color:var(--accent);border-color:var(--accent)}
+.iconbtn{width:34px;height:34px;border:2px solid var(--ink);background:var(--paper);box-shadow:2px 2px 0 var(--ink);display:grid;place-items:center;color:var(--ink)}
+.iconbtn svg{width:16px;height:16px}
+.sres{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;padding:9px 0;border-bottom:1.5px dashed var(--line)}
+.sres .gpn b{font-weight:500}
+.sres mark{background:var(--yellow);color:#1E2440;padding:0 1px}
+#qres{margin-top:10px;max-height:60vh;overflow:auto}
 .done-on{font-size:11px;font-family:var(--pixel);opacity:.75}
 </style>
 </head>
@@ -356,6 +386,7 @@ nav.tabs button.on svg .f{fill:var(--accent)}
       <g class="eyes"><rect x="3" y="4" width="2" height="3" fill="var(--accent)"/><rect x="7" y="4" width="2" height="3" fill="var(--accent)"/></g>
     </svg>
     <div class="brand">Mi Robo Me</div>
+    <button class="iconbtn" data-act="search" aria-label="Search" title="Search"><svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="1" y="0" width="3" height="1" fill="currentColor"/><rect x="0" y="1" width="1" height="3" fill="currentColor"/><rect x="4" y="1" width="1" height="3" fill="currentColor"/><rect x="1" y="4" width="3" height="1" fill="currentColor"/><rect x="4" y="4" width="1" height="1" fill="currentColor"/><rect x="5" y="5" width="1" height="1" fill="currentColor"/><rect x="6" y="6" width="2" height="2" fill="currentColor"/></svg></button>
     <button class="instbtn" id="instBtn" hidden aria-label="Install app" title="Install app"><svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="0" width="2" height="4" fill="currentColor"/><rect x="1" y="3" width="6" height="1" fill="currentColor"/><rect x="2" y="4" width="4" height="1" fill="currentColor"/><rect x="3" y="5" width="2" height="1" fill="currentColor"/><rect x="0" y="7" width="8" height="1" fill="currentColor"/></svg></button>
   </header>
   <main id="main"></main>
@@ -837,36 +868,75 @@ function renderLog(l){
         return head + `<button class="lentry" data-act="logEntry" data-id="${e.id}">${e.val !== '' && e.val != null ? `<span class="vtag">${esc(e.val)}</span>` : ''}<span class="tx">${esc(e.text)}</span></button>`; }).join('')}</section>`; });
   return h;
 }
+const FOLDER_C = ['yellow','peach','mint','blue','lilac','pink','lime','teal'];
+const growArea = (path, val, ph, cls) => `<textarea class="inline grow ${cls||''}" rows="1" data-b="${path}" placeholder="${esc(ph||'')}">${esc(val)}</textarea>`;
+function listCounts(l){ let n = 0, d = 0; (l.items||[]).forEach(it => { n++; if (it.done) d++; (it.subs||[]).forEach(s => { n++; if (s.done) d++; }); }); return {n, d}; }
+function renderListDetail(l){
+  const base = 'lists.#'+l.id+'.items.#', c = listCounts(l), letter = j => String.fromCharCode(97 + (j % 26));
+  const box = (on, act, id, p) => l.checks ? `<button class="box sm ${on?'on':''}" data-act="${act}" data-id="${id}" ${p?`data-p="${p}"`:''} aria-label="Tick"></button>` : '';
+  return `${roomHead('List', 'listBack')}<section class="paper full">
+    <input class="field" style="font-family:var(--pixel);font-size:20px;font-weight:600" data-b="lists.#${l.id}.title" value="${esc(l.title)}" placeholder="Title">
+    <div class="lopts"><button class="chip ${l.checks?'on':''}" data-act="listChecks">${l.checks ? 'Tick boxes on' : 'Tick boxes off'}</button>${l.checks && c.n ? `<span class="muted">${c.d} of ${c.n} done</span>` : ''}</div>
+    <ol class="nlist">${(l.items||[]).map((it,i) => `<li class="ni">
+      <div class="nrow ${it.done?'done':''}">${box(it.done,'itemTick',it.id)}<span class="nn">${i+1}.</span>${growArea(base+it.id+'.t', it.t)}
+        <button class="tiny" data-act="subAdd" data-id="${it.id}" title="Add a sub point" aria-label="Add a sub point">+</button><button class="x" data-act="itemDel" data-id="${it.id}" aria-label="Remove">×</button></div>
+      ${(it.subs||[]).length ? `<ol class="subl">${it.subs.map((sb,j) => `<li class="nrow sub ${sb.done?'done':''}">${box(sb.done,'subTick',sb.id,it.id)}<span class="nn">${letter(j)}.</span>${growArea(base+it.id+'.subs.#'+sb.id+'.t', sb.t, 'Sub point')}
+        <button class="x" data-act="subDel" data-id="${sb.id}" data-p="${it.id}" aria-label="Remove">×</button></li>`).join('')}</ol>` : ''}</li>`).join('')}</ol>
+    <div class="addrow"><input class="field" id="itemIn" placeholder="Add a point" maxlength="500"><button class="pbtn" data-act="itemAdd">Add</button></div>
+    <p class="muted" style="margin:8px 0 0">Tap + on a point to add sub points under it.</p>
+    <div class="row"><button class="pbtn danger" data-act="listDel" data-id="${l.id}">Delete list</button></div></section>`;
+}
 function renderLists(){
   if (view.logId){ const l = S.logs.find(x => x.id === view.logId); if (l) return renderLog(l); view.logId = null; }
   if (view.listId){
     const l = S.lists.find(x => x.id === view.listId);
-    if (l && l.type === 'list') return `${roomHead('List', 'listBack')}<section class="paper full">
-      <input class="field" style="font-family:var(--pixel);font-size:20px;font-weight:600" data-b="lists.#${l.id}.title" value="${esc(l.title)}" placeholder="Title">
-      <ol class="olist" style="margin-top:12px">${(l.items||[]).map(it => `<li><input class="inline" data-b="lists.#${l.id}.items.#${it.id}.t" value="${esc(it.t)}"><button class="x" data-act="itemDel" data-id="${it.id}" aria-label="Remove">×</button></li>`).join('')}</ol>
-      <div class="addrow"><input class="field" id="itemIn" placeholder="Add an item" maxlength="300"><button class="pbtn" data-act="itemAdd">Add</button></div>
-      <div class="row"><button class="pbtn danger" data-act="listDel" data-id="${l.id}">Delete list</button></div></section>`;
+    if (l && l.type === 'list') return renderListDetail(l);
     if (l) return `${roomHead('Page', 'listBack')}<section class="paper full">
       <input class="field" style="font-family:var(--pixel);font-size:20px;font-weight:600" data-b="lists.#${l.id}.title" value="${esc(l.title)}" placeholder="Title">
       <div style="margin-top:12px">${bindArea('lists.#'+l.id+'.body', l.body, 'Write freely', 16)}</div>
       <div class="row"><button class="pbtn danger" data-act="listDel" data-id="${l.id}">Delete page</button></div></section>`;
     view.listId = null;
   }
-  const used = S.lists.map(l => l.title);
-  const card = l => { const prev = l.type === 'list' ? (l.items||[]).map(i => i.t).filter(Boolean).slice(0,3).join(', ') : (l.body||'').trim().split('\n')[0];
-    return `<button class="gp listcard" data-act="listOpen" data-id="${l.id}"><b>${esc(l.title||'Untitled')}</b><span>${prev ? esc(prev) : 'Empty'}</span></button>`; };
-  const lists = S.lists.filter(l => l.type === 'list'), pages = S.lists.filter(l => l.type === 'page');
-  const logCard = l => { const last = logLastVal(l); const wk = logWeek(l, todayKey());
-    return `<button class="gp listcard" data-act="logOpen" data-id="${l.id}"><b>${esc(l.title)}</b><span>Week ${wk}${last != null ? ', '+esc(l.unit||'now')+' '+last : ''}, ${l.entries.length} update${l.entries.length===1?'':'s'}</span></button>`; };
-  return `<section class="paper full"><h2>Logs <button class="pbtn small" data-act="logNew">+ Log</button></h2>
-    ${S.logs.length ? S.logs.map(logCard).join('') : `<div class="empty">Keep weekly updates on anything, like chess, Duolingo or a project, ready for your Saturday video.</div>`}</section>
-  <section class="paper"><h2>Lists <button class="pbtn small" data-act="listNew" data-v="list">+ List</button></h2>
-    ${lists.length ? lists.map(card).join('') : `<div class="empty">Numbered lists of anything.</div>`}
-    <div class="sec">Ideas</div><div class="chips">${LIST_IDEAS.filter(i => !used.includes(i)).map(i => `<button class="chip" data-act="listIdea" data-type="list" data-v="${esc(i)}">${esc(i)}</button>`).join('')}</div></section>
-  <section class="paper"><h2>Pages <button class="pbtn small" data-act="listNew" data-v="page">+ Page</button></h2>
-    ${pages.length ? pages.map(card).join('') : `<div class="empty">Essay style writing, no numbers.</div>`}
-    <div class="sec">Ideas</div><div class="chips">${PAGE_IDEAS.filter(i => !used.includes(i)).map(i => `<button class="chip" data-act="listIdea" data-type="page" data-v="${esc(i)}">${esc(i)}</button>`).join('')}</div></section>`;
+  const folder = (act, id, title, sub, ico) => `<button class="folder" style="--c:var(--${FOLDER_C[hash(id) % FOLDER_C.length]})" data-act="${act}" data-id="${id}"><span class="fi">${ico}</span><b>${esc(title || 'Untitled')}</b><span>${sub}</span></button>`;
+  const logs = S.logs.map(l => { const last = logLastVal(l); return folder('logOpen', l.id, l.title, 'Week '+logWeek(l, todayKey())+(last != null ? ', '+esc(l.unit||'')+' '+esc(last) : '')+'<br>'+l.entries.length+' update'+(l.entries.length===1?'':'s'), '≡'); }).join('');
+  const lists = S.lists.filter(l => l.type === 'list').map(l => { const c = listCounts(l); return folder('listOpen', l.id, l.title, c.n ? c.n+' point'+(c.n>1?'s':'')+(l.checks ? ', '+c.d+' done' : '') : 'Empty', '1.'); }).join('');
+  const pages = S.lists.filter(l => l.type === 'page').map(l => { const w = (l.body||'').trim().split(/\s+/).filter(Boolean).length; return folder('listOpen', l.id, l.title, w ? w+' word'+(w>1?'s':'') : 'Empty', '¶'); }).join('');
+  const sec = (title, add, items, empty, ideas) => `<section class="paper full"><h2>${title} <span style="display:flex;gap:8px">${ideas ? `<button class="pbtn small ghost" data-act="ideas" data-v="${ideas}">Ideas</button>` : ''}${add}</span></h2>
+    ${items ? `<div class="folders">${items}</div>` : `<div class="empty">${empty}</div>`}</section>`;
+  return sec('Logs', `<button class="pbtn small" data-act="logNew">+ Log</button>`, logs, 'Weekly updates on anything, ready for your Saturday video.')
+    + sec('Lists', `<button class="pbtn small" data-act="listNew" data-v="list">+ List</button>`, lists, 'Numbered points, sub points and tick boxes.', 'list')
+    + sec('Pages', `<button class="pbtn small" data-act="listNew" data-v="page">+ Page</button>`, pages, 'Essay style writing.', 'page');
 }
+
+/* ---- Search ---- */
+function snip(txt, q){ const t = String(txt||''), i = t.toLowerCase().indexOf(q); if (i < 0) return esc(t.slice(0,80));
+  const a = Math.max(0, i-30), part = t.slice(a, i+q.length+50);
+  const j = part.toLowerCase().indexOf(q);
+  return (a ? '…' : '') + esc(part.slice(0,j)) + '<mark>' + esc(part.slice(j, j+q.length)) + '</mark>' + esc(part.slice(j+q.length)) + (i+q.length+50 < t.length ? '…' : ''); }
+function searchAll(q){
+  q = q.trim().toLowerCase(); if (q.length < 2) return [];
+  const out = [], has = v => String(v||'').toLowerCase().includes(q);
+  const add = (kind, title, txt, data) => out.push({kind, title, txt, data});
+  S.lists.forEach(l => { const body = l.type === 'list' ? (l.items||[]).flatMap(it => [it.t].concat((it.subs||[]).map(s => s.t))).join('\n') : l.body;
+    if (has(l.title) || has(body)) add(l.type === 'list' ? 'List' : 'Page', l.title || 'Untitled', has(body) ? snip(body.split('\n').find(x => has(x)), q) : '', `data-act="srList" data-id="${l.id}"`); });
+  S.logs.forEach(l => { if (has(l.title)) add('Log', l.title, '', `data-act="srLog" data-id="${l.id}"`);
+    l.entries.forEach(e => { if (has(e.text)) add('Log', l.title+', '+shortDay(e.date), snip(e.text, q), `data-act="srLog" data-id="${l.id}"`); }); });
+  Object.keys(S.tasks).sort().reverse().forEach(k => S.tasks[k].forEach(x => { if (has(x.text)) add('Task', shortDay(k)+' '+k.slice(0,4), snip(x.text, q), `data-act="srDay" data-k="${k}"`); }));
+  S.events.forEach(e => { if (has(e.title)) add('Plan', shortDay(e.date), snip(e.title, q), `data-act="srDay" data-k="${e.date}"`); });
+  Object.keys(S.daily).sort().reverse().forEach(k => { const v = Object.values(S.daily[k]).filter(x => typeof x === 'string').join('\n'); if (has(v)) add('Journal', shortDay(k)+' '+k.slice(0,4), snip(v.split('\n').find(x => has(x)), q), `data-act="srDaily" data-k="${k}"`); });
+  S.wish.forEach(w => { if (has(w.text)) add('Wishlist', 'Before I die', snip(w.text, q), `data-act="srWish"`); });
+  S.board.forEach(n => { if (has(n.text)) add('Board', ['To do','Current','Done'][n.col], snip(n.text, q), `data-act="go" data-tab="more" data-room="board"`); });
+  S.f1.gps.forEach(g => { const v = [g.name,g.rooted,g.loved,g.hated,g.notes,g.dotd].join('\n'); if (has(v)) add('F1', g.name+' '+g.season, snip(v.split('\n').find(x => has(x)), q), `data-act="openGp" data-id="${g.id}"`); });
+  S.habits.forEach(h => { if (has(h.name)) add('Habit', h.name, '', `data-act="go" data-tab="habits"`); });
+  return out.slice(0, 60);
+}
+function renderSearchResults(){
+  const q = $('q') ? $('q').value : '', r = searchAll(q), box = $('qres'); if (!box) return;
+  box.innerHTML = q.trim().length < 2 ? `<div class="empty">Type at least 2 letters. Searches tasks, plans, journal, notebook, logs, wishlist, board and F1.</div>`
+    : r.length ? r.map(x => `<button class="sres" ${x.data}><span class="tag">${x.kind}</span><span class="gpn"><b>${esc(x.title)}</b>${x.txt ? `<span class="muted">${x.txt}</span>` : ''}</span></button>`).join('')
+    : `<div class="empty">Nothing found.</div>`;
+}
+function growAll(){ document.querySelectorAll('textarea.grow').forEach(t => { t.style.height = 'auto'; t.style.height = t.scrollHeight+'px'; }); }
 
 /* ================= ROOMS ================= */
 function roomTile(room, name, sub, colors){
@@ -1158,7 +1228,7 @@ function render(){
   $('main').innerHTML = R[view.tab]();
   $('main').className = 't-'+view.tab + (view.tab==='more' && view.room ? ' r-'+view.room : '') + (view.tab==='journal' ? ' j-'+view.j : '');
   document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === view.tab));
-  fillImgs();
+  fillImgs(); growAll();
 }
 
 /* ================= sheets & forms ================= */
@@ -1188,6 +1258,7 @@ function formVals(){ const o = {}; FORM.fields.forEach(f => { const el = $('f_'+
 /* ================= actions ================= */
 const A = {
   go(b){
+    if ($('veil').classList.contains('open')) closeSheet();
     if (view.tab === 'journal' && view.j === 'persona') pLock();
     view.tab = b.dataset.tab;
     if (b.dataset.room !== undefined) view.room = b.dataset.room || null;
@@ -1226,9 +1297,26 @@ const A = {
   wishToggle(b){ const w = S.wish.find(x => x.id === b.dataset.id); w.done = !w.done; w.doneOn = w.done ? todayKey() : null; save(); },
   wishDel(b){ S.wish = S.wish.filter(x => x.id !== b.dataset.id); save(); },
   listNew(b){ const l = b.dataset.v === 'page' ? {id:uid(), type:'page', title:'', body:''} : {id:uid(), type:'list', title:'', items:[]}; S.lists.unshift(l); view.listId = l.id; save(); window.scrollTo(0,0); },
-  listIdea(b){ const l = b.dataset.type === 'page' ? {id:uid(), type:'page', title:b.dataset.v, body:''} : {id:uid(), type:'list', title:b.dataset.v, items:[]}; S.lists.unshift(l); view.listId = l.id; save(); window.scrollTo(0,0); },
-  itemAdd(){ const v = $('itemIn').value.trim(); if (!v) return false; const l = S.lists.find(x => x.id === view.listId); l.items.push({id:uid(), t:v}); save(); render(); $('itemIn').focus(); return false; },
-  itemDel(b){ const l = S.lists.find(x => x.id === view.listId); l.items = l.items.filter(i => i.id !== b.dataset.id); save(); },
+  listIdea(b){ closeSheet(); const l = b.dataset.type === 'page' ? {id:uid(), type:'page', title:b.dataset.v, body:''} : {id:uid(), type:'list', title:b.dataset.v, items:[], checks:false}; S.lists.unshift(l); view.listId = l.id; save(); window.scrollTo(0,0); },
+  itemAdd(){ const v = $('itemIn').value.trim(); if (!v) return false; const l = S.lists.find(x => x.id === view.listId); l.items.push({id:uid(), t:v, done:false, subs:[]}); save(); render(); $('itemIn').focus(); return false; },
+  listChecks(){ const l = S.lists.find(x => x.id === view.listId); l.checks = !l.checks; save(); },
+  itemTick(b){ const l = S.lists.find(x => x.id === view.listId), it = l.items.find(i => i.id === b.dataset.id); it.done = !it.done; save(); },
+  subTick(b){ const l = S.lists.find(x => x.id === view.listId), it = l.items.find(i => i.id === b.dataset.p), sb = it.subs.find(x => x.id === b.dataset.id); sb.done = !sb.done; save(); },
+  subAdd(b){ const l = S.lists.find(x => x.id === view.listId), it = l.items.find(i => i.id === b.dataset.id), n = {id:uid(), t:'', done:false};
+    (it.subs = it.subs||[]).push(n); save(); render(); const t = document.querySelector(`textarea[data-b$="${n.id}.t"]`); if (t) t.focus(); return false; },
+  subDel(b){ const l = S.lists.find(x => x.id === view.listId), it = l.items.find(i => i.id === b.dataset.p); it.subs = it.subs.filter(x => x.id !== b.dataset.id); save(); },
+  ideas(b){ const used = S.lists.map(l => l.title), arr = b.dataset.v === 'page' ? PAGE_IDEAS : LIST_IDEAS;
+    openSheet(`<h3>${b.dataset.v === 'page' ? 'Page' : 'List'} ideas</h3><p class="muted" style="margin:0 0 10px">Tap one to start it.</p><div class="chips">${arr.filter(i => !used.includes(i)).map(i => `<button class="chip" data-act="listIdea" data-type="${b.dataset.v}" data-v="${esc(i)}">${esc(i)}</button>`).join('')}</div>
+      <div class="row"><button class="pbtn ghost" data-act="closeSheet">Close</button></div>`); return false; },
+  search(){ openSheet(`<h3>Search</h3><input class="field" id="q" placeholder="Search everything" autocomplete="off" enterkeyhint="search"><div id="qres"></div>`); renderSearchResults(); setTimeout(() => $('q').focus(), 60); return false; },
+  srList(b){ closeSheet(); view.tab = 'journal'; view.j = 'lists'; view.logId = null; view.listId = b.dataset.id; window.scrollTo(0,0); },
+  srLog(b){ closeSheet(); view.tab = 'journal'; view.j = 'lists'; view.listId = null; view.logId = b.dataset.id; window.scrollTo(0,0); },
+  srDay(b){ closeSheet(); view.tab = 'days'; view.day = b.dataset.k; window.scrollTo(0,0); },
+  srDaily(b){ closeSheet(); view.tab = 'journal'; view.j = 'daily'; view.jday = b.dataset.k; window.scrollTo(0,0); },
+  srWish(){ closeSheet(); view.tab = 'journal'; view.j = 'wish'; window.scrollTo(0,0); },
+  itemDel(b){ const l = S.lists.find(x => x.id === view.listId), id = b.dataset.id, it = l.items.find(i => i.id === id);
+    if (it && (it.subs||[]).length){ ask('Remove this point and its sub points?', () => { l.items = l.items.filter(i => i.id !== id); }, 'Remove'); return false; }
+    l.items = l.items.filter(i => i.id !== id); save(); },
   listOpen(b){ view.listId = b.dataset.id; window.scrollTo(0,0); },
   listBack(){ S.lists = S.lists.filter(l => (l.title||'').trim() || (l.body||'').trim() || (l.items||[]).length); save(); view.listId = null; },
   listDel(b){ const id = b.dataset.id; ask('Delete this for good?', () => { S.lists = S.lists.filter(l => l.id !== id); view.listId = null; }); return false; },
@@ -1251,7 +1339,7 @@ const A = {
 
   sprev(){ view.season = String(+view.season-1); }, snext(){ view.season = String(+view.season+1); },
   gpNew(){ gpForm(null); return false; }, gpEdit(){ gpForm(S.f1.gps.find(x => x.id === view.gpId)); return false; },
-  openGp(b){ const g = S.f1.gps.find(x => x.id === b.dataset.id); if (!g) return false; view.tab = 'more'; view.room = 'f1'; view.season = g.season; view.gpId = g.id; window.scrollTo(0,0); },
+  openGp(b){ closeSheet(); const g = S.f1.gps.find(x => x.id === b.dataset.id); if (!g) return false; view.tab = 'more'; view.room = 'f1'; view.season = g.season; view.gpId = g.id; window.scrollTo(0,0); },
   gpBack(){ view.gpId = null; },
   gpRate(b){ const g = S.f1.gps.find(x => x.id === view.gpId); g.rating = +g.rating === +b.dataset.v ? 0 : +b.dataset.v; save(); },
   photo(b){ const id = b.dataset.id; openSheet(`<img class="bigimg" data-img="${id}" alt="Race memory"><div class="row"><button class="pbtn danger" data-act="photoDel" data-id="${id}">Delete photo</button><button class="pbtn ghost" data-act="closeSheet">Close</button></div>`); fillImgs(); return false; },
@@ -1399,6 +1487,8 @@ document.addEventListener('click', e => {
   else if (r !== false) render();
 });
 document.addEventListener('input', e => {
+  if (e.target.id === 'q'){ renderSearchResults(); return; }
+  if (e.target.classList && e.target.classList.contains('grow')){ e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight+'px'; }
   const d = e.target.dataset || {};
   if (d.b){ setPath(d.b, e.target.value); saveSoon(); }
   else if (d.pb && P.list){ const p = P.list.find(x => x.id === view.personId); if (p){ setPath(d.pb, e.target.value, p); p.updated = todayKey(); pSaveSoon(); } }
