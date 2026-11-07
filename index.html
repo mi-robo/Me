@@ -500,10 +500,11 @@ textarea.inline.grow{display:block;resize:none;overflow:hidden;line-height:1.45;
 .stkth img{width:100%;height:100%;object-fit:cover;display:block}
 .stkth button{position:absolute;top:-9px;right:-9px;width:20px;height:20px;background:var(--danger);color:#fff;border:2px solid var(--ink);font-size:12px;line-height:1}
 .stkadd{width:54px;height:54px;border:2px dashed var(--ink);display:grid;place-items:center;font-family:var(--pixel);font-size:22px;cursor:pointer;color:var(--muted)}
-.shot{position:absolute;left:0;top:0;z-index:-5;pointer-events:none;opacity:0;width:430px;padding:18px 14px 12px;background-image:radial-gradient(var(--dot) 1px,transparent 1.4px);background-size:18px 18px}
+.shot{position:absolute;left:0;top:0;z-index:-5;pointer-events:none;opacity:0;width:390px;padding:18px 14px 12px;background-image:radial-gradient(var(--dot) 1px,transparent 1.4px);background-size:18px 18px}
 .shot .scrap{margin:0;padding:18px 16px 22px}
 .shot .scrap-title{font-size:54px}
-.shot .boxgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.shot .boxgrid,.shot .topgrid{grid-template-columns:1fr}
+.shot .scrap-title{text-align:right}
 .shotfoot{font-family:var(--pixel);font-size:12px;color:var(--muted);text-align:center;margin-top:10px}
 .shotprev{width:100%;max-height:60vh;object-fit:contain;border:2px solid var(--ink);background:var(--bg)}
 .rcol{display:flex;flex-direction:column;gap:12px;min-width:0}
@@ -1235,11 +1236,20 @@ function renderGp(g){
 function countryName(c){ try { return new Intl.DisplayNames(['en'], {type:'region'}).of(c); } catch(e){ return c; } }
 const flagEmoji = c => String.fromCodePoint(...[...c].map(ch => 0x1F1E6 + ch.charCodeAt(0) - 65));
 const flagHex = c => [...c].map(ch => (0x1F1E6 + ch.charCodeAt(0) - 65).toString(16)).join('-');
+let flagLoading = null;
+function ensureFlag(c){
+  if (flagLoading === c) return; flagLoading = c;
+  const im = new Image(); im.crossOrigin = 'anonymous';
+  im.onload = () => { try { const cv = document.createElement('canvas'); cv.width = 48; cv.height = 36; cv.getContext('2d').drawImage(im, 0, 0, 48, 36);
+    S.about.flagData = {code:c, data:cv.toDataURL('image/png')}; save(); flagLoading = null; if (view.room === 'about') render(); } catch(e){ flagLoading = null; } };
+  im.onerror = () => { flagLoading = null; };
+  im.src = `https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/flags/4x3/${c.toLowerCase()}.svg`;
+}
 function stampHTML(A){
   if (!A.country) return '';
   const c = A.country;
   return `<div class="stamp"><div class="stamp-in"><span class="smk"></span><div class="sfrom">FROM</div>
-    <span class="flagw ${A.flagStyle==='page'?'tint':''}"><img class="flagimg" src="https://flagcdn.com/w80/${c.toLowerCase()}.png" alt="${esc(countryName(c))} flag" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'flagcode',textContent:'${c}'}))"></span>
+    <span class="flagw ${A.flagStyle==='page'?'tint':''}">${A.flagData && A.flagData.code === c ? `<img class="flagimg" src="${A.flagData.data}" alt="${esc(countryName(c))} flag">` : (ensureFlag(c), `<span class="flagcode">${c}</span>`)}</span>
     <div class="sname ${countryName(c).length > 12 ? 'long' : ''}">${esc(countryName(c))}</div></div></div>`;
 }
 const pxHeart = c => `<svg class="pxh" viewBox="0 0 7 6" shape-rendering="crispEdges" aria-hidden="true"><path fill="${c}" d="M1 0h2v1h1V0h2v1h1v2H6v1H5v1H4v1H3V5H2V4H1V3H0V1h1z"/></svg>`;
@@ -1852,10 +1862,11 @@ const A = {
       const u = im.getAttribute('src') || '';
       if (!u || u.startsWith('data:')) return;
       try { const bl = await (await fetch(u, {mode:'cors'})).blob(); im.src = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(bl); }); }
-      catch(e){ const ph = document.createElement('span'); ph.className = 'flagcode'; ph.textContent = im.alt ? im.alt.slice(0,2).toUpperCase() : '?'; im.replaceWith(ph); }
+      catch(e){ const ph = document.createElement('span'); ph.className = 'flagcode'; ph.textContent = S.about.country || '?'; im.replaceWith(ph); }
     }));
     await Promise.all([...wrap.querySelectorAll('img')].map(im => im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; })));
-    const opts = {pixelRatio:2, cacheBust:false, style:{position:'static', left:'0', top:'0', zIndex:'auto', opacity:'1'}, filter: n => !(n.classList && n.classList.contains('smk'))};
+    let fontCSS = null; try { await document.fonts.ready; fontCSS = await buildFontCSS(); } catch(e){}
+    const opts = {pixelRatio:2, cacheBust:false, ...(fontCSS ? {fontEmbedCSS:fontCSS} : {}), style:{position:'static', left:'0', top:'0', zIndex:'auto', opacity:'1'}, filter: n => !(n.classList && n.classList.contains('smk'))};
     let url = null, err = null;
     try { url = await htmlToImage.toPng(wrap, opts); }
     catch(e1){ err = e1; try { url = await htmlToImage.toPng(wrap, Object.assign({}, opts, {skipFonts:true})); } catch(e2){ err = e2; } }
@@ -1995,7 +2006,19 @@ const startTab = location.hash.slice(1);
 if (['home','days','habits','journal'].includes(startTab)) view.tab = startTab;
 const _render = render;
 render = function(){ _render(); if (location.hash.slice(1) !== view.tab){ try { history.replaceState(null, '', '#'+view.tab); } catch(e){} } };
-let SHOT = null;
+let SHOT = null, FONT_CSS = null;
+const blobToData = b => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(b); });
+async function buildFontCSS(){
+  if (FONT_CSS) return FONT_CSS;
+  let out = '';
+  for (const l of document.querySelectorAll('link[rel="stylesheet"][href*="fonts.googleapis"]')){
+    let css = await (await fetch(l.href)).text();
+    const urls = [...new Set([...css.matchAll(/url\((https:[^)]+)\)/g)].map(m => m[1]))];
+    for (const u of urls){ try { css = css.split(u).join(await blobToData(await (await fetch(u)).blob())); } catch(e){} }
+    out += css + '\n';
+  }
+  return FONT_CSS = out;
+}
 function loadScript(src){ return new Promise((res, rej) => { if (document.querySelector(`script[src="${src}"]`) && window.htmlToImage) return res(); const sc = document.createElement('script'); sc.src = src; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
 let installEvt = null;
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; $('instBtn').hidden = false; });
