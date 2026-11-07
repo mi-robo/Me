@@ -351,9 +351,9 @@ nav.tabs button.on svg .f{fill:var(--accent)}
 .pnow.mini b{color:var(--ink);font-family:var(--pixel);font-size:15px}
 .pnow.mini.forbid b{color:var(--danger)}
 @media (min-width:1000px){ .ptimes{grid-template-columns:repeat(6,minmax(0,1fr))} }
-.prayers{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
-.pray{border:2px solid var(--ink);background:var(--paper);padding:12px 2px 8px;text-align:center;font-family:var(--pixel);font-size:14px;display:flex;flex-direction:column;align-items:center;gap:8px}
-.pray i{width:26px;height:26px;border:2px solid var(--ink);background:var(--empty)}
+.prayers{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.pray{border:2px solid var(--ink);background:var(--paper);padding:12px 0 9px;text-align:center;font-family:var(--pixel);font-size:clamp(11px,3.1vw,14px);letter-spacing:-.2px;white-space:nowrap;overflow:hidden;min-width:0;display:flex;flex-direction:column;align-items:center;gap:8px}
+.pray i{width:24px;height:24px;border:2px solid var(--ink);background:var(--empty);flex:none}
 .pray.on{box-shadow:3px 3px 0 var(--ink);background:color-mix(in srgb,var(--teal) 25%,var(--paper));text-decoration:line-through;text-decoration-thickness:2px}
 .pray.on i{background:var(--teal)}
 .pray.miss i{background:repeating-linear-gradient(45deg,var(--empty) 0 3px,var(--line) 3px 6px)}
