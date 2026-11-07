@@ -318,6 +318,39 @@ nav.tabs button.on svg .f{fill:var(--accent)}
   .circles{grid-template-columns:repeat(6,minmax(0,1fr))}
 }
 @media (min-width:1000px) and (prefers-reduced-motion:reduce){ .room,.lt{transition:none} }
+.prayercard{text-align:center}
+.prayercard .plabel{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.prayercard .pbig{font-family:var(--pixel);font-weight:700;font-size:40px;line-height:1.1;color:var(--ink);text-shadow:3px 3px 0 var(--teal);margin:2px 0 4px}
+.prayercard.forbid{background:color-mix(in srgb,var(--cherry) 12%,var(--paper))}
+.prayercard.forbid .pbig{text-shadow:3px 3px 0 var(--cherry)}
+.prayercard .pleft,.prayercard .pnext{font-size:14px}
+.prayercard .pleft b,.prayercard .pnext b{font-family:var(--pixel);font-size:16px}
+.prayercard .pwhy{font-size:13px;color:var(--muted)}
+.ptable,.pforbid{text-align:left}
+.prow2{display:grid;grid-template-columns:76px 1fr;align-items:center;gap:4px 10px;padding:8px 8px;border-bottom:1.5px dashed var(--line)}
+.prow2:last-of-type{border-bottom:0}
+.prow2 .pn{font-family:var(--pixel);font-weight:600;font-size:16px}
+.prow2 .pr{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.prow2 .pr b{font-family:var(--pixel);font-size:16px}
+.prow2 .pr i{font-style:normal;font-size:12px;color:var(--muted)}
+.prow2 .pnote{grid-column:2;font-size:12px;color:var(--muted);margin-top:-2px}
+.prow2.on{background:var(--teal);color:#1E2440;border:2px solid var(--ink);box-shadow:3px 3px 0 var(--ink)}
+.prow2.on .pr i,.prow2.on .pnote{color:#1E2440}
+.pforbid{background:color-mix(in srgb,var(--cherry) 8%,var(--paper))}
+.pforbid .prow2.on{background:var(--cherry)}
+.prow2.past{opacity:.45}
+.psun{font-size:12px;color:var(--muted);margin-top:8px}
+.ptimes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:14px 0 8px}
+.pt{border:2px solid var(--ink);background:var(--paper);padding:5px 2px;display:flex;flex-direction:column;align-items:center;font-size:12px}
+.pt b{font-family:var(--pixel);font-size:14px}
+.pt.on{background:var(--teal);color:#1E2440;box-shadow:2px 2px 0 var(--ink)}
+.pt.sr{border-style:dashed;color:var(--muted)}
+.pforb{font-size:12px;color:var(--muted);margin-top:4px}
+.ploc{margin-bottom:18px;display:flex;justify-content:center;gap:10px;align-items:center;margin-top:10px;font-size:13px}
+.pnow.mini{font-size:13px;margin:-4px 0 10px;color:var(--muted)}
+.pnow.mini b{color:var(--ink);font-family:var(--pixel);font-size:15px}
+.pnow.mini.forbid b{color:var(--danger)}
+@media (min-width:1000px){ .ptimes{grid-template-columns:repeat(6,minmax(0,1fr))} }
 .prayers{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
 .pray{border:2px solid var(--ink);background:var(--paper);padding:12px 2px 8px;text-align:center;font-family:var(--pixel);font-size:14px;display:flex;flex-direction:column;align-items:center;gap:8px}
 .pray i{width:26px;height:26px;border:2px solid var(--ink);background:var(--empty)}
@@ -715,7 +748,7 @@ function renderHome(){
 
   h += `<section class="paper"><h2>Habits</h2>${habitChips(t, true)}</section>`;
   const sst = salahStreak();
-  h += `<section class="paper"><h2>Salah <small>${sst ? sst+' day streak' : salahCount(t)+' of 5'}</small></h2><div class="minipray">${SALAH.map((p,i) => `<button class="${salahDay(t)[i]?'on':''}" data-act="pray" data-k="${t}" data-v="${i}">${p}</button>`).join('')}</div></section>`;
+  h += `<section class="paper"><h2>Salah <small>${sst ? sst+' day streak' : salahCount(t)+' of 5'}</small></h2>${prayerCard(true)}<div class="minipray">${SALAH.map((p,i) => `<button class="${salahDay(t)[i]?'on':''}" data-act="pray" data-k="${t}" data-v="${i}">${p}</button>`).join('')}</div></section>`;
 
   h += `<section class="paper moodrow"><span class="q">How’s today?${mv ? `<span class="muted" style="display:block;font-family:var(--body)">Feeling ${MOODS[mv-1].n.toLowerCase()}</span>` : ''}</span><div class="mini">${MOODS.map((m,i) => `<button class="${mv===i+1?'on':''}" style="--mc:${m.c}" data-act="mood" data-v="${i+1}" aria-label="${m.n}" title="${m.n}"></button>`).join('')}</div></section>`;
 
@@ -1316,6 +1349,96 @@ function renderMoney(){
   return h;
 }
 
+/* ---- Prayer times (PrayTimes algorithm, offline) ---- */
+const PT_METHODS = {
+  karachi:{n:'Karachi (Bangladesh, Pakistan, India)', fajr:18, isha:18},
+  mwl:{n:'Muslim World League', fajr:18, isha:17},
+  isna:{n:'ISNA (North America)', fajr:15, isha:15},
+  egypt:{n:'Egyptian', fajr:19.5, isha:17.5},
+  makkah:{n:'Umm al-Qura (Makkah)', fajr:18.5, ishaMin:90}
+};
+const BD_CITIES = [['Dhaka',23.8103,90.4125],['Chandpur',23.2333,90.6713],['Chattogram',22.3569,91.7832],['Cumilla',23.4607,91.1809],['Sylhet',24.8949,91.8687],['Rajshahi',24.3745,88.6042],['Khulna',22.8456,89.5403],['Barishal',22.7010,90.3535],['Rangpur',25.7439,89.2752],['Mymensingh',24.7471,90.4203]];
+const salahCfg = () => Object.assign({lat:23.8103, lng:90.4125, place:'Dhaka', method:'karachi', asr:'hanafi'}, S.salahCfg || {});
+function prayerTimes(date){
+  const c = salahCfg(), M = PT_METHODS[c.method] || PT_METHODS.karachi, lat = c.lat, lng = c.lng;
+  const d2r = Math.PI/180, r2d = 180/Math.PI;
+  const sin = d => Math.sin(d*d2r), cos = d => Math.cos(d*d2r), tan = d => Math.tan(d*d2r);
+  const asin = x => Math.asin(x)*r2d, acos = x => Math.acos(Math.max(-1, Math.min(1, x)))*r2d, atan2 = (y,x) => Math.atan2(y,x)*r2d, acot = x => Math.atan(1/x)*r2d;
+  const fixA = a => { a -= 360*Math.floor(a/360); return a < 0 ? a+360 : a; }, fixH = h => { h -= 24*Math.floor(h/24); return h < 0 ? h+24 : h; };
+  let y = date.getFullYear(), m = date.getMonth()+1; const dd = date.getDate();
+  if (m <= 2){ y -= 1; m += 12; }
+  const A = Math.floor(y/100), B = 2 - A + Math.floor(A/4);
+  const jd = Math.floor(365.25*(y+4716)) + Math.floor(30.6001*(m+1)) + dd + B - 1524.5 - lng/(15*24);
+  const sun = t => { const D = jd + t - 2451545, g = fixA(357.529 + .98560028*D), q = fixA(280.459 + .98564736*D), L = fixA(q + 1.915*sin(g) + .020*sin(2*g)), e = 23.439 - .00000036*D;
+    return {decl: asin(sin(e)*sin(L)), eqt: q/15 - fixH(atan2(cos(e)*sin(L), cos(L))/15)}; };
+  const noon = t => fixH(12 - sun(t).eqt);
+  const angleTime = (ang, t, ccw) => { const s = sun(t), v = acos((-sin(ang) - sin(s.decl)*sin(lat)) / (cos(s.decl)*cos(lat)))/15; return noon(t) + (ccw ? -v : v); };
+  const asrT = (f, t) => { const s = sun(t); return angleTime(-acot(f + tan(Math.abs(lat - s.decl))), t); };
+  let T = {fajr:5, sunrise:6, dhuhr:12, asr:13, sunset:18, isha:18};
+  for (let i = 0; i < 2; i++){
+    const p = {}; for (const k in T) p[k] = T[k]/24;
+    T = {fajr:angleTime(M.fajr, p.fajr, true), sunrise:angleTime(.833, p.sunrise, true), dhuhr:noon(p.dhuhr), asr:asrT(c.asr === 'hanafi' ? 2 : 1, p.asr), sunset:angleTime(.833, p.sunset), isha:M.ishaMin ? 0 : angleTime(M.isha, p.isha)};
+  }
+  const tz = -date.getTimezoneOffset()/60;
+  for (const k in T) T[k] += tz - lng/15;
+  T.noon = T.dhuhr; T.dhuhr += 1/60; T.maghrib = T.sunset + 1/60;
+  if (M.ishaMin) T.isha = T.maghrib + M.ishaMin/60;
+  const base = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime(), out = {};
+  for (const k in T) out[k] = new Date(base + Math.round(T[k]*3600)*1000);
+  return out;
+}
+const fmtClock = d => d.toLocaleTimeString('en-GB', {hour:'numeric', minute:'2-digit', hour12:true}).replace(' ', '').toLowerCase();
+function fmtLeft(ms){ const m = Math.max(0, Math.round(ms/60000)), h = Math.floor(m/60); return h ? h+'h '+(m%60)+'m' : m+'m'; }
+function salahStatus(now){
+  now = now || new Date();
+  const T = prayerTimes(now), prev = prayerTimes(new Date(now.getTime() - 864e5)), next = prayerTimes(new Date(now.getTime() + 864e5)), min = 60000;
+  const forb = [
+    {a:T.sunrise, b:new Date(T.sunrise.getTime() + 15*min), why:'Sun is rising'},
+    {a:new Date(T.noon.getTime() - 6*min), b:T.dhuhr, why:'Zawal, sun is at its highest'},
+    {a:new Date(T.sunset.getTime() - 15*min), b:T.sunset, why:'Sun is setting'}
+  ];
+  const f = forb.find(x => now >= x.a && now < x.b);
+  const slots = [
+    {n:'Isha', a:prev.isha, b:T.fajr}, {n:'Fajr', a:T.fajr, b:T.sunrise}, {n:'Zohr', a:T.dhuhr, b:T.asr},
+    {n:'Asr', a:T.asr, b:T.maghrib}, {n:'Maghrib', a:T.maghrib, b:T.isha}, {n:'Isha', a:T.isha, b:next.fajr}
+  ];
+  const cur = slots.find(x => now >= x.a && now < x.b);
+  const order = [['Fajr',T.fajr],['Zohr',T.dhuhr],['Asr',T.asr],['Maghrib',T.maghrib],['Isha',T.isha],['Fajr',next.fajr]];
+  const nx = order.find(x => x[1] > now);
+  return {T, forb, f, cur, next:nx, now};
+}
+function prayerCard(compact){
+  const st = salahStatus(), c = salahCfg(), now = st.now, T = st.T, nx = prayerTimes(new Date(now.getTime() + 864e5));
+  if (compact){
+    if (st.f) return `<div class="pnow mini forbid"><b>Forbidden time</b> until ${fmtClock(st.f.b)}</div>`;
+    return st.cur ? `<div class="pnow mini"><b>${st.cur.n}</b> time, ends at ${fmtClock(st.cur.b)}</div>` : `<div class="pnow mini">No fard salah now. <b>Zohr</b> at ${fmtClock(T.dhuhr)}</div>`;
+  }
+  let head;
+  if (st.f) head = `<div class="plabel">Right now</div><div class="pbig">Forbidden time</div><div class="pwhy">${st.f.why}, don’t pray now</div><div class="pleft">Ends in <b>${fmtLeft(st.f.b - now)}</b>, at ${fmtClock(st.f.b)}</div>`;
+  else if (st.cur) head = `<div class="plabel">Right now</div><div class="pbig">${st.cur.n}</div><div class="pleft">Ends in <b>${fmtLeft(st.cur.b - now)}</b>, at ${fmtClock(st.cur.b)}</div>`;
+  else head = `<div class="plabel">Right now</div><div class="pbig">No fard salah</div><div class="pwhy">Ishraq / Duha time</div><div class="pleft">Zohr starts in <b>${fmtLeft(T.dhuhr - now)}</b>, at ${fmtClock(T.dhuhr)}</div>`;
+  const curName = st.f ? '' : st.cur ? st.cur.n : '';
+  const rows = [['Fajr',T.fajr,T.sunrise,''],['Zohr',T.dhuhr,T.asr,''],['Asr',T.asr,T.maghrib,'forbidden from '+fmtClock(st.forb[2].a)],['Maghrib',T.maghrib,T.isha,''],['Isha',T.isha,nx.fajr,'until Fajr']];
+  const forbNames = ['After sunrise','Zawal (midday)','Before sunset'];
+  return `<section class="paper full prayercard ${st.f ? 'forbid' : ''}">${head}
+    ${!st.f && st.next && !(st.cur && st.next[0] === st.cur.n) ? `<div class="pnext">Next: <b>${st.next[0]}</b> at ${fmtClock(st.next[1])}</div>` : ''}</section>
+  <section class="paper ptable"><h2>Today’s times</h2>
+    ${rows.map(r => `<div class="prow2 ${r[0]===curName ? 'on' : ''}"><span class="pn">${r[0]}</span><span class="pr"><b>${fmtClock(r[1])}</b><i>to</i><b>${fmtClock(r[2])}</b></span>${r[3] ? `<span class="pnote">${r[3]}</span>` : ''}</div>`).join('')}
+    <div class="psun">Sunrise ${fmtClock(T.sunrise)}, sunset ${fmtClock(T.sunset)}</div></section>
+  <section class="paper pforbid"><h2>Forbidden times</h2><p class="muted" style="margin:-4px 0 8px">No salah during these.</p>
+    ${st.forb.map((x,i) => `<div class="prow2 ${st.f === x ? 'on' : ''} ${now > x.b ? 'past' : ''}"><span class="pn">${forbNames[i]}</span><span class="pr"><b>${fmtClock(x.a)}</b><i>to</i><b>${fmtClock(x.b)}</b></span></div>`).join('')}</section>
+  <div class="ploc full"><span class="muted">${c.mode === 'gps' ? 'Using your GPS location' : esc(c.place)}, ${c.asr === 'hanafi' ? 'Hanafi' : 'Standard'} Asr</span><button class="link" data-act="prayCfg">Change</button></div>`;
+}
+function maybeGeo(){
+  const c = salahCfg(); if (!navigator.geolocation) return;
+  if (S.salahCfg && c.mode !== 'gps') return;
+  if (c.mode === 'gps' && c.at && Date.now() - c.at < 6*3600e3) return;
+  navigator.geolocation.getCurrentPosition(p => {
+    S.salahCfg = Object.assign(salahCfg(), {mode:'gps', lat:+p.coords.latitude.toFixed(4), lng:+p.coords.longitude.toFixed(4), place:'My location', at:Date.now()}); save();
+    if (view.room === 'salah' && !$('veil').classList.contains('open')) render();
+  }, () => {}, {enableHighAccuracy:false, timeout:15000, maximumAge:6*3600e3});
+}
+
 /* ---- Salah ---- */
 const salahDay = k => S.salah[k] || [0,0,0,0,0];
 const salahCount = k => salahDay(k).filter(Boolean).length;
@@ -1325,7 +1448,8 @@ function salahBest(){ const days = Object.keys(S.salah).filter(k => salahCount(k
 function renderSalah(){
   const d = view.sday || todayKey(), t = todayKey(), day = salahDay(d), past = d < t;
   const st = salahStreak();
-  let h = roomHead('Salah');
+  maybeGeo();
+  let h = roomHead('Salah') + prayerCard();
   h += `<section class="paper full"><div class="streakbig"><div><b>${st}</b><span class="muted">day streak</span></div><div><b style="font-size:28px">${salahBest()}</b><span class="muted">best</span></div></div>
     <p class="muted" style="margin:10px 0 0">${salahCount(t) === 5 ? 'All 5 done today. Alhamdulillah.' : 'Pray all 5 today to '+(st ? 'keep' : 'start')+' your streak.'}</p></section>`;
   h += `<section class="paper"><div class="dayhead" style="margin-bottom:14px"><button class="arrow" data-act="sprevDay" aria-label="Previous day">&lsaquo;</button>
@@ -1570,6 +1694,21 @@ const A = {
   aNoteColor(b){ S.about.noteColor = b.dataset.v; save(); },
   aShow(b){ const H = S.about.hide = S.about.hide || {}; if (H[b.dataset.v]) delete H[b.dataset.v]; else H[b.dataset.v] = true; save(); },
   aFlag(b){ S.about.flagStyle = b.dataset.v; save(); },
+  prayCfg(){ const c = salahCfg();
+    openSheet(`<h3>Prayer time settings</h3>
+      <label>Location</label><div class="chips">${BD_CITIES.map(x => `<button class="chip ${c.mode!=='gps' && c.place===x[0]?'on':''}" data-act="prayCity" data-v="${x[0]}">${x[0]}</button>`).join('')}</div>
+      <div class="row" style="margin-top:10px"><button class="pbtn ${c.mode==='gps'?'':'ghost'}" data-act="prayGeo">${c.mode==='gps' ? '✓ Using GPS, refresh' : 'Use my GPS location'}</button></div>
+      <p class="muted" style="margin:6px 0 0">GPS is the most precise. It updates by itself every few hours when you open Salah.</p>
+      <label for="pm">Calculation method</label><select class="field" id="pm">${Object.entries(PT_METHODS).map(([k,v]) => `<option value="${k}" ${c.method===k?'selected':''}>${esc(v.n)}</option>`).join('')}</select>
+      <label for="pa">Asr</label><select class="field" id="pa"><option value="hanafi" ${c.asr==='hanafi'?'selected':''}>Hanafi (used in Bangladesh)</option><option value="std" ${c.asr!=='hanafi'?'selected':''}>Standard (Shafi'i, Maliki, Hanbali)</option></select>
+      <p class="muted" style="margin:10px 0 0">Times are calculated on your phone, works offline. Your local mosque may differ by 1 to 3 minutes.</p>
+      <div class="row"><button class="pbtn" data-act="praySave">Done</button></div>`); return false; },
+  prayCity(b){ const x = BD_CITIES.find(c => c[0] === b.dataset.v); S.salahCfg = Object.assign(salahCfg(), {mode:'city', place:x[0], lat:x[1], lng:x[2]}); save(); A.prayCfg(); toast(x[0]); return false; },
+  prayGeo(){ if (!navigator.geolocation){ toast('Location not available'); return false; }
+    toast('Finding you...');
+    navigator.geolocation.getCurrentPosition(p => { S.salahCfg = Object.assign(salahCfg(), {mode:'gps', at:Date.now(), lat:+p.coords.latitude.toFixed(4), lng:+p.coords.longitude.toFixed(4), place:'My location'}); save(); A.prayCfg(); render(); toast('Using your GPS location'); },
+      () => toast('Location blocked. Pick a city instead'), {enableHighAccuracy:false, timeout:15000, maximumAge:6e5}); return false; },
+  praySave(){ S.salahCfg = Object.assign(salahCfg(), {method:$('pm').value, asr:$('pa').value}); save(); closeSheet(); },
   aAccent(b){ S.about.accent = b.dataset.v; save(); },
   aBoxAdd(b){ S.about.boxes.push({id:uid(), title:b.dataset.v || 'My box', body:'', color:pick(['pink','mint','lilac','yellow','blue','peach','teal'], uid())}); save(); },
   aBoxDel(b){ const id = b.dataset.id; ask('Remove this box?', () => { S.about.boxes = S.about.boxes.filter(x => x.id !== id); }, 'Remove'); return false; },
@@ -1683,6 +1822,8 @@ document.addEventListener('visibilitychange', () => {
   if (document.hidden){ localStorage.setItem(KEY, JSON.stringify(S)); if (syncT){ clearTimeout(syncT); syncPush(); } if (P.list){ pLock(); if (view.tab === 'journal' && view.j === 'persona'){ closeSheet(); render(); } } return; }
   if (todayKey() !== lastToday){ if (view.day === lastToday) view.day = todayKey(); if (view.jday === lastToday) view.jday = todayKey(); lastToday = todayKey(); render(); }
 });
+setInterval(() => { const a = document.activeElement;
+  if (((view.tab === 'more' && view.room === 'salah') || view.tab === 'home') && !$('veil').classList.contains('open') && !(a && a.matches && a.matches('input,textarea,select'))) render(); }, 30000);
 setInterval(() => { const t = todayKey(); if (t !== lastToday){ if (view.day === lastToday) view.day = t; if (view.jday === lastToday) view.jday = t; lastToday = t;
   const a = document.activeElement; if (!$('veil').classList.contains('open') && !(a && a.matches && a.matches('input,textarea'))) render(); } }, 20000);
 
