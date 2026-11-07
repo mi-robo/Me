@@ -473,9 +473,16 @@ textarea.inline.grow{display:block;resize:none;overflow:hidden;line-height:1.45;
 .sname{font-family:var(--pixel);font-weight:600;font-size:13px;line-height:1.15;word-break:normal;overflow-wrap:normal;hyphens:none;white-space:nowrap;overflow:hidden;text-overflow:clip}
 .sname.long{white-space:normal;font-size:11px}
 .smk{position:absolute;right:-14px;top:-14px;width:46px;height:46px;border:2px dashed var(--a);border-radius:50%;opacity:.45}
-.stks{position:absolute;top:0;right:0;width:0;height:0}
-.sbox.haspics ul,.sbox.haspics .frow,.sbox.haspics .muted{padding-right:64px}
-.stk{position:absolute;width:66px;background:#fff;padding:4px 4px 12px;border:1px solid rgba(0,0,0,.15);box-shadow:2px 3px 0 rgba(0,0,0,.22)}
+.sbox::after{content:'';display:block;clear:both}
+.stkf{float:right;display:flex;align-items:flex-start;margin:-30px -14px 6px 10px;position:relative;z-index:2}
+.stkf.two .stk+.stk{margin-left:-18px;margin-top:16px}
+.stkbr{position:absolute;right:-14px;bottom:-24px;z-index:2}
+.sbox.big2{padding-bottom:44px}
+.stkrow{display:flex;justify-content:flex-end;align-items:flex-start;margin:14px -10px -16px 0;clear:both;position:relative;z-index:2}
+.stkrow .stk+.stk{margin-left:-12px}
+.stkrow.left{justify-content:flex-start;margin-left:10px}
+.stkrow .stk:nth-child(even){margin-top:8px}
+.stk{position:relative;flex:none;width:64px;background:#fff;padding:4px 4px 12px;border:1px solid rgba(0,0,0,.15);box-shadow:2px 3px 0 rgba(0,0,0,.22)}
 .stk img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:var(--empty)}
 .stk.s0{transform:rotate(8deg)}.stk.s1{transform:rotate(-6deg)}.stk.s2{transform:rotate(5deg)}.stk.s3{transform:rotate(-8deg)}
 .stk.s0::before,.stk.s2::before{content:'';position:absolute;top:-7px;left:50%;width:32px;height:12px;transform:translateX(-50%) rotate(-5deg);background:color-mix(in srgb,var(--c,var(--a)) 55%,transparent);border:1px solid rgba(0,0,0,.12)}
@@ -1238,8 +1245,14 @@ function getDob(){
 function ageYM(k){ const b = parse(k), n = new Date(); let m = (n.getFullYear()-b.getFullYear())*12 + (n.getMonth()-b.getMonth()); if (n.getDate() < b.getDate()) m--; return [Math.floor(m/12), m%12]; }
 function ageText(k, short){ const [y,m] = ageYM(k); return short ? y+' yrs'+(m ? ', '+m+' mo' : '') : y+' year'+(y===1?'':'s')+(m ? ' '+m+' month'+(m===1?'':'s') : ''); }
 function ageOf(k){ const b = parse(k), n = new Date(); let a = n.getFullYear() - b.getFullYear(); if (n.getMonth() < b.getMonth() || (n.getMonth() === b.getMonth() && n.getDate() < b.getDate())) a--; return a; }
-const stickers = ids => (ids||[]).length ? `<div class="stks">${ids.map((id,i) => `<span class="stk s${i%4}" style="top:${-14 + i*46}px;right:${-12 + (i%2)*22}px;z-index:${4-i}"><img data-img="${id}" alt=""></span>`).join('')}</div>` : '';
-const stkBoxAttr = ids => { const n = (ids||[]).length; return n ? ` haspics" style="min-height:${70 + n*46}px;` : ''; };
+function stickerLayout(ids, textLen){
+  const n = (ids||[]).length; if (!n) return {top:'', bot:'', attr:''};
+  const st = (id,i) => `<span class="stk s${i%4}"><img data-img="${id}" alt=""></span>`;
+  if (n === 1) return {top:`<div class="stkf">${st(ids[0],0)}</div>`, bot:'', attr:''};
+  if (n === 2) return textLen > 90 ? {top:`<div class="stkf">${st(ids[0],0)}</div>`, bot:`<div class="stkbr">${st(ids[1],1)}</div>`, attr:' big2'} : {top:`<div class="stkf two">${st(ids[0],0)}${st(ids[1],1)}</div>`, bot:'', attr:''};
+  if (n === 3) return {top:`<div class="stkf">${st(ids[0],0)}</div>`, bot:`<div class="stkrow left">${st(ids[1],1)}${st(ids[2],2)}</div>`, attr:''};
+  return {top:'', bot:`<div class="stkrow">${ids.slice(0,4).map(st).join('')}</div>`, attr:''};
+}
 const stickerEdit = (ids, target) => `<span class="lbl">Sticker photos (optional, up to 4)</span><div class="stkedit">${(ids||[]).map(id => `<span class="stkth"><img data-img="${id}" alt=""><button data-act="aPicDel" data-t="${target}" data-v="${id}" aria-label="Remove">×</button></span>`).join('')}${(ids||[]).length < 4 ? `<label class="stkadd">+<input type="file" accept="image/*" hidden data-up="sticker" data-t="${target}"></label>` : ''}</div>`;
 function aboutEmpty(){ const p = S.profile, A = S.about; return !(p.name||p.birthday||p.from||p.quote||A.photo||A.note||A.boxes.some(bx => String(bx.body||'').trim())||A.fields.length||S.favs.length||S.tops.length); }
 function renderAbout(){
@@ -1263,10 +1276,11 @@ function renderAbout(){
     </div>`;
   if (p.quote && p.quote.trim()) g += `<div class="quotebox"><div class="qt"><span class="qm">“</span>${esc(p.quote.trim().replace(/^["“]|["”]$/g,''))}<span class="qm">”</span></div>${(p.quoteBy||'').trim() ? `<div class="qby">- ${esc(p.quoteBy.trim().replace(/^[-–—~\s]+/,''))}</div>` : ''}</div>`;
   const vboxes = A.boxes.filter(bx => lines(bx.body).length || (bx.pics||[]).length);
-  if (vboxes.length) g += `<div class="boxgrid">${vboxes.map((bx,i) => { const it = lines(bx.body); return `<div class="sbox st${i%3}${stkBoxAttr(bx.pics) ? stkBoxAttr(bx.pics) : '" style="'}--c:var(--${bx.color})"><div class="sbt">${esc(bx.title||'Box')}</div>
-    ${it.length ? `<ul>${it.map(x => `<li>${pxHeart(`var(--${bx.color})`)}<span>${esc(x)}</span></li>`).join('')}</ul>` : `<div class="muted">empty</div>`}${stickers(bx.pics)}</div>`; }).join('')}</div>`;
+  if (vboxes.length) g += `<div class="boxgrid">${vboxes.map((bx,i) => { const it = lines(bx.body), L = stickerLayout(bx.pics, (bx.body||'').length); return `<div class="sbox st${i%3}${L.attr}" style="--c:var(--${bx.color})">${L.top}<div class="sbt">${esc(bx.title||'Box')}</div>
+    ${it.length ? `<ul>${it.map(x => `<li>${pxHeart(`var(--${bx.color})`)}<span>${esc(x)}</span></li>`).join('')}</ul>` : `<div class="muted">empty</div>`}${L.bot}</div>`; }).join('')}</div>`;
   const favs = S.favs.filter(f => String(f.v||'').trim());
-  if (favs.length) g += `<div class="sbox favbox${stkBoxAttr(A.favPics) || '" style="'}--c:${ac}"><div class="sbt">MY FAVOURITES</div>${favs.map(f => `<div class="frow"><b>${esc(f.k)}:</b> ${esc(f.v)}</div>`).join('')}${stickers(A.favPics)}</div>`;
+  const FL = stickerLayout(A.favPics, favs.reduce((a,f) => a + 4 + String(f.k).length + String(f.v).length, 0) + favs.length*12);
+  if (favs.length) g += `<div class="sbox favbox${FL.attr}" style="--c:${ac}">${FL.top}<div class="sbt">MY FAVOURITES</div>${favs.map(f => `<div class="frow"><b>${esc(f.k)}:</b> ${esc(f.v)}</div>`).join('')}${FL.bot}</div>`;
   const tops = S.tops.filter(t => (t.items||[]).some(x => String(x||'').trim()));
   if (tops.length) g += `<div class="toptitle">TOP 3</div><div class="topgrid">${tops.map(t => `<div class="topcard"><div class="tt">${esc(t.title)}</div>${(t.items||[]).map((x,i) => String(x||'').trim() ? `<div class="ti"><span class="tn">${i+1}</span>${esc(x)}</div>` : '').join('')}</div>`).join('')}</div>`;
   if (A.note && A.note.trim()) g += `<div class="sticky" style="--sc:var(--${A.noteColor||'yellow'})">${esc(A.note)}</div>`;
