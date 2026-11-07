@@ -518,7 +518,7 @@ textarea.inline.grow{display:block;resize:none;overflow:hidden;line-height:1.45;
 .bubble::after{content:'';position:absolute;left:14px;bottom:-9px;width:10px;height:10px;background:var(--paper);border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:rotate(60deg) skewX(-15deg)}
 .profilebox{border:2px dotted var(--a);padding:10px 10px 8px;background:var(--paper);font-size:14px}
 .ptitle{font-family:var(--pixel);font-size:15px;font-weight:700;color:var(--a);margin-bottom:4px;letter-spacing:1px}
-.prow{line-height:1.45;word-break:break-word;padding:2px 0}.prow b{font-family:var(--pixel);font-weight:600;font-size:13px;text-transform:lowercase;color:var(--a);filter:brightness(.8);margin-right:2px}
+.prow{line-height:1.45;word-break:break-word;overflow-wrap:anywhere;padding:2px 0}.prow b{font-family:var(--pixel);font-weight:600;font-size:13px;text-transform:lowercase;color:var(--a);filter:brightness(.8);margin-right:2px}
 .quotebox{position:relative;border:3px double var(--ink);outline:2px solid var(--a);outline-offset:3px;padding:16px 16px 12px;margin:6px 6px 18px;background:var(--paper);transform:rotate(-.6deg)}
 .quotebox .qt{font-family:var(--pixel);font-size:18px;font-weight:600;line-height:1.35;text-align:center;color:var(--ink)}
 .quotebox .qm{color:var(--a);font-size:30px;line-height:0;vertical-align:-10px;margin:0 4px;font-weight:700}
@@ -526,7 +526,7 @@ textarea.inline.grow{display:block;resize:none;overflow:hidden;line-height:1.45;
 .boxgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:16px}
 .sbox{border:2px solid var(--c);padding:10px 10px 8px;background:var(--paper);position:relative}
 .sbox.st0{border-style:dashed}.sbox.st1{border-style:dotted;border-width:3px}.sbox.st2{border-style:double;border-width:4px}
-.sbt{font-family:var(--pixel);font-weight:700;font-size:15px;margin:-20px 0 6px;display:inline-block;background:var(--paper);padding:0 6px;color:var(--ink);box-shadow:inset 0 -6px 0 color-mix(in srgb,var(--c) 55%,transparent)}
+.sbt{white-space:nowrap;max-width:calc(100% - 10px);overflow:hidden;text-overflow:ellipsis;font-family:var(--pixel);font-weight:700;font-size:15px;margin:-20px 0 6px;display:inline-block;background:var(--paper);padding:0 6px;color:var(--ink);box-shadow:inset 0 -6px 0 color-mix(in srgb,var(--c) 55%,transparent)}
 .sbox ul{list-style:none;margin:0;padding:0}
 .sbox li{display:flex;gap:6px;align-items:baseline;font-size:14px;line-height:1.4;padding:1px 0;word-break:break-word}
 .sbox li .pxh{width:10px;height:9px;position:relative;top:1px}
@@ -1865,10 +1865,10 @@ const A = {
       catch(e){ const ph = document.createElement('span'); ph.className = 'flagcode'; ph.textContent = S.about.country || '?'; im.replaceWith(ph); }
     }));
     await Promise.all([...wrap.querySelectorAll('img')].map(im => im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; })));
-    let fontCSS = null; try { await document.fonts.ready; fontCSS = await buildFontCSS(); } catch(e){}
+    let fontCSS = null; try { await Promise.all(['600 16px "Pixelify Sans"','700 16px "Pixelify Sans"','400 16px Lexend','500 16px Lexend','16px Silkscreen'].map(x => document.fonts.load(x, 'Aa1'))); await document.fonts.ready; fontCSS = await buildFontCSS(); } catch(e){}
     const opts = {pixelRatio:2, cacheBust:false, ...(fontCSS ? {fontEmbedCSS:fontCSS} : {}), style:{position:'static', left:'0', top:'0', zIndex:'auto', opacity:'1'}, filter: n => !(n.classList && n.classList.contains('smk'))};
     let url = null, err = null;
-    try { url = await htmlToImage.toPng(wrap, opts); }
+    try { await htmlToImage.toPng(wrap, opts); await new Promise(r => setTimeout(r, 300)); url = await htmlToImage.toPng(wrap, opts); }
     catch(e1){ err = e1; try { url = await htmlToImage.toPng(wrap, Object.assign({}, opts, {skipFonts:true})); } catch(e2){ err = e2; } }
     wrap.remove();
     if (!url){ toast('Could not make the image: '+((err && (err.message || err.type)) || 'unknown')); return false; }
