@@ -487,6 +487,14 @@ textarea.inline.grow{display:block;resize:none;overflow:hidden;line-height:1.45;
 .stk.s0{transform:rotate(8deg)}.stk.s1{transform:rotate(-6deg)}.stk.s2{transform:rotate(5deg)}.stk.s3{transform:rotate(-8deg)}
 .stk.s0::before,.stk.s2::before{content:'';position:absolute;top:-7px;left:50%;width:32px;height:12px;transform:translateX(-50%) rotate(-5deg);background:color-mix(in srgb,var(--c,var(--a)) 55%,transparent);border:1px solid rgba(0,0,0,.12)}
 .stk.s1::before,.stk.s3::before{content:'';position:absolute;top:-5px;right:-6px;width:22px;height:10px;transform:rotate(40deg);background:color-mix(in srgb,var(--c,var(--a)) 55%,transparent);border:1px solid rgba(0,0,0,.12)}
+.stkrow.more{margin-top:10px}
+.podium3{display:flex;justify-content:center;align-items:flex-end;margin:12px 0 2px}
+.podium3 .stk{width:58px}
+.podium3 .stk.p1{width:68px;z-index:2;margin:0 -6px 10px}
+.podium3 .stk.p2,.podium3 .stk.p3{z-index:1}
+.podium3 .rk{position:absolute;left:50%;bottom:-2px;transform:translateX(-50%);font-family:var(--pixel);font-size:11px;color:#1E2440;line-height:1}
+.stkth.sm,.stkadd.sm{width:38px;height:38px;flex:none;font-size:18px}
+.stkth.sm button{width:18px;height:18px;top:-8px;right:-8px;font-size:11px}
 .stkedit{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .stkth{position:relative;width:54px;height:54px;border:2px solid var(--ink)}
 .stkth img{width:100%;height:100%;object-fit:cover;display:block}
@@ -1251,9 +1259,11 @@ function stickerLayout(ids, textLen){
   if (n === 1) return {top:`<div class="stkf">${st(ids[0],0)}</div>`, bot:'', attr:''};
   if (n === 2) return textLen > 90 ? {top:`<div class="stkf">${st(ids[0],0)}</div>`, bot:`<div class="stkbr">${st(ids[1],1)}</div>`, attr:' big2'} : {top:`<div class="stkf two">${st(ids[0],0)}${st(ids[1],1)}</div>`, bot:'', attr:''};
   if (n === 3) return {top:`<div class="stkf">${st(ids[0],0)}</div>`, bot:`<div class="stkrow sleft">${st(ids[1],1)}${st(ids[2],2)}</div>`, attr:''};
-  return {top:'', bot:`<div class="stkrow">${ids.slice(0,4).map(st).join('')}</div>`, attr:''};
+  if (n <= 4) return {top:'', bot:`<div class="stkrow">${ids.map(st).join('')}</div>`, attr:''};
+  const rows = []; for (let i = 0; i < n; i += 4) rows.push(ids.slice(i, i+4));
+  return {top:'', bot:rows.map((r,ri) => `<div class="stkrow ${ri%2 ? 'sleft' : ''} ${ri ? 'more' : ''}">${r.map((id,j) => st(id, ri*4+j)).join('')}</div>`).join(''), attr:''};
 }
-const stickerEdit = (ids, target) => `<span class="lbl">Sticker photos (optional, up to 4)</span><div class="stkedit">${(ids||[]).map(id => `<span class="stkth"><img data-img="${id}" alt=""><button data-act="aPicDel" data-t="${target}" data-v="${id}" aria-label="Remove">×</button></span>`).join('')}${(ids||[]).length < 4 ? `<label class="stkadd">+<input type="file" accept="image/*" hidden data-up="sticker" data-t="${target}"></label>` : ''}</div>`;
+const stickerEdit = (ids, target, max) => `<span class="lbl">Sticker photos (optional, up to ${max||4})</span><div class="stkedit">${(ids||[]).map(id => `<span class="stkth"><img data-img="${id}" alt=""><button data-act="aPicDel" data-t="${target}" data-v="${id}" aria-label="Remove">×</button></span>`).join('')}${(ids||[]).length < (max||4) ? `<label class="stkadd">+<input type="file" accept="image/*" hidden data-up="sticker" data-t="${target}"></label>` : ''}</div>`;
 function aboutEmpty(){ const p = S.profile, A = S.about; return !(p.name||p.birthday||p.from||p.quote||A.photo||A.note||A.boxes.some(bx => String(bx.body||'').trim())||A.fields.length||S.favs.length||S.tops.length); }
 function renderAbout(){
   if (view.aboutEdit) return renderAboutEdit();
@@ -1282,7 +1292,7 @@ function renderAbout(){
   const FL = stickerLayout(A.favPics, favs.reduce((a,f) => a + 4 + String(f.k).length + String(f.v).length, 0) + favs.length*12);
   if (favs.length) g += `<div class="sbox favbox${FL.attr}" style="--c:${ac}">${FL.top}<div class="sbt">MY FAVOURITES</div>${favs.map(f => `<div class="frow"><b>${esc(f.k)}:</b> ${esc(f.v)}</div>`).join('')}${FL.bot}</div>`;
   const tops = S.tops.filter(t => (t.items||[]).some(x => String(x||'').trim()));
-  if (tops.length) g += `<div class="toptitle">TOP 3</div><div class="topgrid">${tops.map(t => `<div class="topcard"><div class="tt">${esc(t.title)}</div>${(t.items||[]).map((x,i) => String(x||'').trim() ? `<div class="ti"><span class="tn">${i+1}</span>${esc(x)}</div>` : '').join('')}</div>`).join('')}</div>`;
+  if (tops.length) g += `<div class="toptitle">TOP 3</div><div class="topgrid">${tops.map(t => `<div class="topcard"><div class="tt">${esc(t.title)}</div>${(t.items||[]).map((x,i) => String(x||'').trim() ? `<div class="ti"><span class="tn">${i+1}</span>${esc(x)}</div>` : '').join('')}${(t.pics||[]).some(Boolean) ? `<div class="podium3">${[1,0,2].map(i => (t.pics||[])[i] ? `<span class="stk s${i} p${i+1}"><img data-img="${t.pics[i]}" alt=""><b class="rk">${i+1}</b></span>` : '').join('')}</div>` : ''}</div>`).join('')}</div>`;
   if (A.note && A.note.trim()) g += `<div class="sticky" style="--sc:var(--${A.noteColor||'yellow'})">${esc(A.note)}</div>`;
   g += `</div>`;
   return h + g;
@@ -1318,10 +1328,10 @@ function renderAboutEdit(){
   const usedK = S.favs.map(f => f.k);
   h += `<section class="paper"><h2>My favourites</h2>
     ${S.favs.map(f => `<div class="kv">${growArea("favs.#"+f.id+".k", f.k, "", "k")}${growArea("favs.#"+f.id+".v", f.v, "...")}<button class="x" data-act="favDel" data-id="${f.id}" aria-label="Remove">×</button></div>`).join('')}
-    <span class="lbl">Add</span><div class="chips">${FAV_KEYS.filter(k => !usedK.includes(k)).map(k => `<button class="chip" data-act="favAdd" data-v="${k}">${k}</button>`).join('')}<button class="chip" data-act="favAdd" data-v="">Custom</button></div>${stickerEdit(S.about.favPics, 'fav')}</section>`;
+    <span class="lbl">Add</span><div class="chips">${FAV_KEYS.filter(k => !usedK.includes(k)).map(k => `<button class="chip" data-act="favAdd" data-v="${k}">${k}</button>`).join('')}<button class="chip" data-act="favAdd" data-v="">Custom</button></div>${stickerEdit(S.about.favPics, 'fav', 8)}</section>`;
   h += `<section class="paper"><h2>Top 3s <button class="pbtn small" data-act="topNew">+ Top 3</button></h2>
     ${S.tops.length ? S.tops.map(t => `<div style="margin-bottom:14px"><div style="display:flex;gap:8px;align-items:center"><input class="inline" style="font-family:var(--pixel);font-size:17px;font-weight:600" data-b="tops.#${t.id}.title" value="${esc(t.title)}"><button class="x" data-act="topDel" data-id="${t.id}" aria-label="Remove">×</button></div>
-      ${[0,1,2].map(i => `<div style="display:flex;gap:8px;align-items:center"><span class="tag">${i+1}</span>${growArea("tops.#"+t.id+".items."+i, (t.items||[])[i], "")}</div>`).join('')}</div>`).join('')
+      ${[0,1,2].map(i => `<div style="display:flex;gap:8px;align-items:center"><span class="tag">${i+1}</span>${growArea("tops.#"+t.id+".items."+i, (t.items||[])[i], "")}${(t.pics||[])[i] ? `<span class="stkth sm"><img data-img="${t.pics[i]}" alt=""><button data-act="topPicDel" data-id="${t.id}" data-v="${i}" aria-label="Remove photo">×</button></span>` : `<label class="stkadd sm" title="Add photo">+<input type="file" accept="image/*" hidden data-up="top" data-id="${t.id}" data-i="${i}"></label>`}</div>`).join('')}</div>`).join('')
       : `<div class="empty">Subjects, foods, places, musicians, anything.</div>`}</section><div class="row" style="margin-bottom:18px"><button class="pbtn ghost" data-act="saveNow">Save</button><button class="pbtn" data-act="aboutDone">Done</button></div>`;
   return h;
 }
@@ -1857,6 +1867,7 @@ const A = {
   async shotShare(){ if (!SHOT) return false; try { const blob = await (await fetch(SHOT)).blob(), file = new File([blob], 'about-me.png', {type:'image/png'});
       if (navigator.canShare && navigator.canShare({files:[file]})) await navigator.share({files:[file], title:'About me'}); else A.shotSave(); } catch(e){} return false; },
   shotSave(){ if (!SHOT) return false; const a = document.createElement('a'); a.href = SHOT; a.download = 'about-me.png'; document.body.appendChild(a); a.click(); a.remove(); toast('Saved to downloads'); return false; },
+  topPicDel(b){ const t = S.tops.find(x => x.id === b.dataset.id), i = +b.dataset.v; if (t && t.pics && t.pics[i]){ IMG.del(t.pics[i]).catch(()=>{}); t.pics[i] = null; save(); } },
   aAccent(b){ S.about.accent = b.dataset.v; save(); },
   aBoxAdd(b){ S.about.boxes.push({id:uid(), title:b.dataset.v || 'My box', body:'', color:pick(['pink','mint','lilac','yellow','blue','peach','teal'], uid())}); save(); },
   aBoxDel(b){ const id = b.dataset.id; ask('Remove this box?', () => { S.about.boxes = S.about.boxes.filter(x => x.id !== id); }, 'Remove'); return false; },
@@ -1946,6 +1957,8 @@ document.addEventListener('change', async e => {
   const el = e.target;
   if (el.id === 'aCountry'){ S.about.country = el.value || null; save(); render(); return; }
   if (!el.dataset.up || !el.files.length) return;
+  if (el.dataset.up === 'top'){ const t = S.tops.find(x => x.id === el.dataset.id), i = +el.dataset.i; if (!t) return;
+    try { const data = await compress(el.files[0]), id = 'img_'+uid(); await IMG.put(id, data); t.pics = t.pics || [null,null,null]; if (t.pics[i]) IMG.del(t.pics[i]).catch(()=>{}); t.pics[i] = id; save(); render(); } catch(err){ toast('Could not add that photo'); } return; }
   if (el.dataset.up === 'sticker'){ const t = el.dataset.t, arr = t === 'fav' ? (S.about.favPics = S.about.favPics || []) : ((S.about.boxes.find(x => x.id === t) || {}).pics = (S.about.boxes.find(x => x.id === t).pics || []));
     try { const data = await compress(el.files[0]), id = 'img_'+uid(); await IMG.put(id, data); arr.push(id); save(); render(); } catch(err){ toast('Could not add that photo'); } return; }
   if (el.dataset.up === 'about'){ try { const data = await compress(el.files[0]), id = 'img_'+uid(); await IMG.put(id, data); if (S.about.photo) IMG.del(S.about.photo).catch(()=>{}); S.about.photo = id; save(); render(); } catch(err){ toast('Could not add that photo'); } return; }
