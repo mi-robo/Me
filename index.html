@@ -474,13 +474,13 @@ textarea.inline.grow{display:block;resize:none;overflow:hidden;line-height:1.45;
 .sname.long{white-space:normal;font-size:11px}
 .smk{position:absolute;right:-14px;top:-14px;width:46px;height:46px;border:2px dashed var(--a);border-radius:50%;opacity:.45}
 .sbox::after{content:'';display:block;clear:both}
-.stkf{float:right;display:flex;align-items:flex-start;margin:-30px -14px 6px 10px;position:relative;z-index:2}
+.stkf{float:right;display:flex;align-items:flex-start;margin:-6px -14px 6px 10px;position:relative;z-index:2}
 .stkf.two .stk+.stk{margin-left:-18px;margin-top:16px}
-.stkbr{position:absolute;right:-14px;bottom:-24px;z-index:2;display:flex}
-.sbox.big2{padding-bottom:44px}
-.stkrow{display:flex;justify-content:flex-end;align-items:flex-start;margin:14px -10px -16px 0;clear:both;position:relative;z-index:2}
+.stkbr{position:absolute;right:-14px;bottom:-6px;z-index:2;display:flex}
+.sbox.big2{padding-bottom:60px}
+.stkrow{display:flex;justify-content:flex-end;align-items:flex-start;margin:14px -10px -4px 0;clear:both;position:relative;z-index:2}
 .stkrow .stk+.stk{margin-left:-12px}
-.stkrow.left{justify-content:flex-start;margin-left:10px}
+.stkrow.sleft{justify-content:flex-start;margin-left:10px}
 .stkrow .stk:nth-child(even){margin-top:8px}
 .stk{display:block;position:relative;flex:none;width:64px;background:#fff;padding:4px 4px 12px;border:1px solid rgba(0,0,0,.15);box-shadow:2px 3px 0 rgba(0,0,0,.22)}
 .stk img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:var(--empty)}
@@ -1250,7 +1250,7 @@ function stickerLayout(ids, textLen){
   const st = (id,i) => `<span class="stk s${i%4}"><img data-img="${id}" alt=""></span>`;
   if (n === 1) return {top:`<div class="stkf">${st(ids[0],0)}</div>`, bot:'', attr:''};
   if (n === 2) return textLen > 90 ? {top:`<div class="stkf">${st(ids[0],0)}</div>`, bot:`<div class="stkbr">${st(ids[1],1)}</div>`, attr:' big2'} : {top:`<div class="stkf two">${st(ids[0],0)}${st(ids[1],1)}</div>`, bot:'', attr:''};
-  if (n === 3) return {top:`<div class="stkf">${st(ids[0],0)}</div>`, bot:`<div class="stkrow left">${st(ids[1],1)}${st(ids[2],2)}</div>`, attr:''};
+  if (n === 3) return {top:`<div class="stkf">${st(ids[0],0)}</div>`, bot:`<div class="stkrow sleft">${st(ids[1],1)}${st(ids[2],2)}</div>`, attr:''};
   return {top:'', bot:`<div class="stkrow">${ids.slice(0,4).map(st).join('')}</div>`, attr:''};
 }
 const stickerEdit = (ids, target) => `<span class="lbl">Sticker photos (optional, up to 4)</span><div class="stkedit">${(ids||[]).map(id => `<span class="stkth"><img data-img="${id}" alt=""><button data-act="aPicDel" data-t="${target}" data-v="${id}" aria-label="Remove">×</button></span>`).join('')}${(ids||[]).length < 4 ? `<label class="stkadd">+<input type="file" accept="image/*" hidden data-up="sticker" data-t="${target}"></label>` : ''}</div>`;
