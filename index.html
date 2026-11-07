@@ -480,6 +480,7 @@ textarea.inline.grow{display:block;resize:none;overflow:hidden;line-height:1.45;
 .sbox.big2{padding-bottom:60px}
 .stkrow{display:flex;justify-content:flex-end;align-items:flex-start;margin:14px -10px -4px 0;clear:both;position:relative;z-index:2}
 .stkrow .stk+.stk{margin-left:-12px}
+.stkrow .stk{flex:0 1 64px;min-width:0}
 .stkrow.sleft{justify-content:flex-start;margin-left:10px}
 .stkrow .stk:nth-child(even){margin-top:8px}
 .stk{display:block;position:relative;flex:none;width:64px;background:#fff;padding:4px 4px 12px;border:1px solid rgba(0,0,0,.15);box-shadow:2px 3px 0 rgba(0,0,0,.22)}
@@ -523,7 +524,8 @@ textarea.inline.grow{display:block;resize:none;overflow:hidden;line-height:1.45;
 .quotebox .qt{font-family:var(--pixel);font-size:18px;font-weight:600;line-height:1.35;text-align:center;color:var(--ink)}
 .quotebox .qm{color:var(--a);font-size:30px;line-height:0;vertical-align:-10px;margin:0 4px;font-weight:700}
 .quotebox .qby{font-family:var(--pixel);font-size:13px;color:var(--a);filter:brightness(.8);text-align:right;margin-top:8px}
-.boxgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:16px}
+.boxgrid{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:16px}
+@media (min-width:600px){ .boxgrid{grid-template-columns:repeat(2,minmax(0,1fr))} }
 .sbox{border:2px solid var(--c);padding:10px 10px 8px;background:var(--paper);position:relative}
 .sbox.st0{border-style:dashed}.sbox.st1{border-style:dotted;border-width:3px}.sbox.st2{border-style:double;border-width:4px}
 .sbt{white-space:nowrap;max-width:calc(100% - 10px);overflow:hidden;text-overflow:ellipsis;font-family:var(--pixel);font-weight:700;font-size:15px;margin:-20px 0 6px;display:inline-block;background:var(--paper);padding:0 6px;color:var(--ink);box-shadow:inset 0 -6px 0 color-mix(in srgb,var(--c) 55%,transparent)}
@@ -1292,7 +1294,7 @@ function renderAbout(){
       <div class="lcol"><div class="polaroid">${A.photo ? `<img data-img="${A.photo}" alt="Me">` : `<div class="noimg">no photo yet</div>`}<i class="tape t1"></i><i class="tape t2"></i></div>${stampHTML(A)}</div>
       <div class="rcol">${rows.length ? `<div class="profilebox"><div class="ptitle">PROFILE</div>${rows.map(r => `<div class="prow"><b>${esc(r[0])}:</b> <span class="agev">${esc(r[1])}</span></div>`).join('')}</div>` : ''}
       ${cur.length ? `<div class="curbox"><div class="ptitle">CURRENTLY</div>${cur.map(c => `<div class="prow"><b>${c[0]}</b> ${esc(c[1])}</div>`).join('')}</div>` : ''}
-      ${!rows.length || !cur.length ? `<div class="robodoodle"><div class="bubble">${esc((A.bubble||'').trim() || (rows.length ? 'that’s me!' : 'hi! fill me in'))}</div><svg viewBox="0 0 12 11" shape-rendering="crispEdges" aria-hidden="true"><rect x="5" y="0" width="2" height="1" fill="#1E2440"/><rect x="5.5" y="1" width="1" height="1" fill="#1E2440"/><rect x="1" y="2" width="10" height="8" fill="#1E2440"/><rect x="0" y="4" width="1" height="3" fill="#1E2440"/><rect x="11" y="4" width="1" height="3" fill="#1E2440"/><rect x="2" y="3" width="8" height="6" fill="#FBFBFE"/><g class="eyes"><rect x="3" y="4" width="2" height="3" fill="var(--a)"/><rect x="7" y="4" width="2" height="3" fill="var(--a)"/></g></svg></div>` : ''}</div>
+      ${!rows.length || !cur.length ? `<div class="robodoodle"><div class="bubble">${esc((A.bubble||'').trim() || (rows.length ? 'that’s me!' : 'hi! fill me in'))}</div><svg viewBox="0 0 12 11" shape-rendering="crispEdges" aria-hidden="true"><rect x="5" y="0" width="2" height="1" fill="var(--ink)"/><rect x="5.5" y="1" width="1" height="1" fill="var(--ink)"/><rect x="1" y="2" width="10" height="8" fill="var(--ink)"/><rect x="0" y="4" width="1" height="3" fill="var(--ink)"/><rect x="11" y="4" width="1" height="3" fill="var(--ink)"/><rect x="2" y="3" width="8" height="6" fill="var(--paper)"/><g class="eyes"><rect x="3" y="4" width="2" height="3" fill="var(--a)"/><rect x="7" y="4" width="2" height="3" fill="var(--a)"/></g></svg></div>` : ''}</div>
     </div>`;
   if (p.quote && p.quote.trim()) g += `<div class="quotebox"><div class="qt"><span class="qm">“</span>${esc(p.quote.trim().replace(/^["“]|["”]$/g,''))}<span class="qm">”</span></div>${(p.quoteBy||'').trim() ? `<div class="qby">- ${esc(p.quoteBy.trim().replace(/^[-–—~\s]+/,''))}</div>` : ''}</div>`;
   const vboxes = A.boxes.filter(bx => lines(bx.body).length || (bx.pics||[]).length);
@@ -1868,7 +1870,17 @@ const A = {
     let fontCSS = null; try { await Promise.all(['600 16px "Pixelify Sans"','700 16px "Pixelify Sans"','400 16px Lexend','500 16px Lexend','16px Silkscreen'].map(x => document.fonts.load(x, 'Aa1'))); await document.fonts.ready; fontCSS = await buildFontCSS(); } catch(e){}
     const opts = {pixelRatio:2, cacheBust:false, ...(fontCSS ? {fontEmbedCSS:fontCSS} : {}), style:{position:'static', left:'0', top:'0', zIndex:'auto', opacity:'1'}, filter: n => !(n.classList && n.classList.contains('smk'))};
     let url = null, err = null;
-    try { await htmlToImage.toPng(wrap, opts); await new Promise(r => setTimeout(r, 300)); url = await htmlToImage.toPng(wrap, opts); }
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    const draw = async o => {
+      const svg = await htmlToImage.toSvg(wrap, o), W = wrap.offsetWidth, H = wrap.offsetHeight, k = 2;
+      const im = new Image(); im.decoding = 'sync'; im.src = svg;
+      await (im.decode ? im.decode().catch(() => new Promise(r => { im.onload = r; })) : new Promise(r => { im.onload = r; }));
+      const cv = document.createElement('canvas'); cv.width = W*k; cv.height = H*k; const cx = cv.getContext('2d');
+      // the fonts inside the picture finish loading a moment after it opens, so draw it a few times
+      for (let i = 0; i < 4; i++){ await sleep(i ? 450 : 150); cx.clearRect(0, 0, cv.width, cv.height); cx.drawImage(im, 0, 0, cv.width, cv.height); }
+      return cv.toDataURL('image/png');
+    };
+    try { url = await draw(opts); }
     catch(e1){ err = e1; try { url = await htmlToImage.toPng(wrap, Object.assign({}, opts, {skipFonts:true})); } catch(e2){ err = e2; } }
     wrap.remove();
     if (!url){ toast('Could not make the image: '+((err && (err.message || err.type)) || 'unknown')); return false; }
