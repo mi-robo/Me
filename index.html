@@ -335,6 +335,14 @@ nav.tabs button.on svg .f{fill:var(--accent)}
 .sgrid .sd.l5{background:var(--teal);color:#1E2440;border-color:var(--ink)}
 .sgrid .sd.sel{outline:2px solid var(--accent);outline-offset:1px}
 .sgrid .wk{font-size:10px;color:var(--muted);text-align:center;font-family:var(--pixel)}
+.spark{width:100%;height:70px;display:block;margin:6px 0 2px}
+.wkhead{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.wkhead b{font-family:var(--pixel);font-size:20px}
+.wkstat{font-size:13px;color:var(--muted)}
+.lentry{display:flex;gap:10px;padding:8px 0;border-bottom:1.5px dashed var(--line);width:100%;text-align:left;align-items:flex-start}
+.lentry:last-child{border-bottom:0}
+.lentry .tx{flex:1;min-width:0;white-space:pre-wrap;word-break:break-word}
+.vtag{flex:none;font-family:var(--pixel);font-size:13px;background:var(--yellow);color:#1E2440;border:2px solid var(--ink);padding:0 6px}
 .done-on{font-size:11px;font-family:var(--pixel);opacity:.75}
 </style>
 </head>
@@ -388,11 +396,11 @@ function blank(){ return {
   profile:{name:'',birthday:'',from:'',quote:''}, favs:[], tops:[],
   tasks:{}, events:[], habits:[], checks:{}, mood:{},
   daily:{}, wish:[], lists:[], persona:null,
-  f1:{seasons:{}, gps:[]}, jar:[], savings:[], money:{sessions:[]}, salah:{}, board:[], map:{factions:[], tiles:{}},
+  f1:{seasons:{}, gps:[]}, jar:[], savings:[], money:{sessions:[]}, salah:{}, logs:[], board:[], map:{factions:[], tiles:{}},
   theme:'auto'
 };}
 function load(){
-  try{ const r = localStorage.getItem(KEY); if (r){ const d = Object.assign(blank(), JSON.parse(r)); d.profile = Object.assign(blank().profile, d.profile); d.f1 = Object.assign({seasons:{},gps:[]}, d.f1); d.map = Object.assign({factions:[],tiles:{}}, d.map); d.money = Object.assign({sessions:[]}, d.money); d.salah = d.salah || {};
+  try{ const r = localStorage.getItem(KEY); if (r){ const d = Object.assign(blank(), JSON.parse(r)); d.profile = Object.assign(blank().profile, d.profile); d.f1 = Object.assign({seasons:{},gps:[]}, d.f1); d.map = Object.assign({factions:[],tiles:{}}, d.map); d.money = Object.assign({sessions:[]}, d.money); d.salah = d.salah || {}; d.logs = d.logs || [];
     d.lists.forEach(l => { if (!l.type){ l.type = 'list'; l.items = (l.body||'').split('\n').filter(x => x.trim()).map(t => ({id:Math.random().toString(36).slice(2,10), t})); delete l.body; } });
     return d; } }catch(e){}
   return blank();
@@ -774,7 +782,63 @@ function renderWish(){
       <button class="x" data-act="wishDel" data-id="${w.id}" aria-label="Delete">×</button></li>`).join('') : `<li class="empty">Things you want to do someday.</li>`}</ul>
     <div class="addrow"><input class="field" id="wishIn" placeholder="Add a dream" maxlength="200"><button class="pbtn" data-act="wishAdd">Add</button></div></section>`;
 }
+const logDayIdx = (l, k) => dayDiff(k, l.start);
+const logWeek = (l, k) => Math.floor(logDayIdx(l, k)/7) + 1;
+const logSorted = l => l.entries.slice().sort((a,b) => (a.date+a.at).localeCompare(b.date+b.at));
+function logLastVal(l){ const v = logSorted(l).filter(e => e.val !== '' && e.val != null); return v.length ? v[v.length-1].val : null; }
+function sparkline(l){
+  const pts = logSorted(l).filter(e => e.val !== '' && e.val != null && !isNaN(+e.val)).map(e => +e.val);
+  if (pts.length < 2) return '';
+  const min = Math.min(...pts), max = Math.max(...pts), W = 300, H = 70, rng = (max-min) || 1;
+  const xy = pts.map((v,i) => [Math.round(i/(pts.length-1)*(W-8))+4, Math.round(H-6-(v-min)/rng*(H-12))]);
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-label="Progress chart">
+    <polyline points="${xy.map(p => p.join(',')).join(' ')}" fill="none" stroke="var(--accent)" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
+    ${xy.map(p => `<rect x="${p[0]-3}" y="${p[1]-3}" width="6" height="6" fill="var(--paper)" stroke="var(--ink)" stroke-width="1.5" vector-effect="non-scaling-stroke"/>`).join('')}</svg>
+    <div class="muted" style="display:flex;justify-content:space-between"><span>Low ${min}</span><span>High ${max}</span></div>`;
+}
+function weekRange(l, w){ const a = addDays(l.start, (w-1)*7); return [a, addDays(a, 6)]; }
+function weekStats(l, w){
+  const es = logSorted(l).filter(e => logWeek(l, e.date) === w);
+  const vals = es.filter(e => e.val !== '' && e.val != null);
+  const before = logSorted(l).filter(e => logWeek(l, e.date) < w && e.val !== '' && e.val != null);
+  const from = before.length ? +before[before.length-1].val : vals.length ? +vals[0].val : null;
+  const to = vals.length ? +vals[vals.length-1].val : null;
+  return {es, from, to, diff: from != null && to != null && !isNaN(from) && !isNaN(to) ? to - from : null};
+}
+function weekText(l, w){
+  const [a,b] = weekRange(l, w), st = weekStats(l, w);
+  let t = `${l.title}, Week ${w} (${shortDay(a)} to ${shortDay(b)})
+`;
+  if (st.diff != null) t += `${l.unit||'Value'}: ${st.from} → ${st.to} (${st.diff>=0?'+':''}${st.diff})
+`;
+  let lastDay = '';
+  st.es.forEach(e => { if (e.date !== lastDay){ t += `
+${parse(e.date).toLocaleDateString('en-GB',{weekday:'short'})} ${shortDay(e.date)}
+`; lastDay = e.date; }
+    t += `- ${e.val !== '' && e.val != null ? '['+e.val+'] ' : ''}${e.text}
+`; });
+  return t.trim();
+}
+function renderLog(l){
+  const t = todayKey(), cur = logWeek(l, t), last = logLastVal(l);
+  let h = roomHead(l.title, 'logBack');
+  h += `<section class="paper full"><div class="wkhead"><div><b>Week ${cur}</b> <span class="muted">${shortDay(weekRange(l,cur)[0])} to ${shortDay(weekRange(l,cur)[1])}</span></div><button class="pbtn small ghost" data-act="logEdit">Edit log</button></div>
+    ${last != null ? `<p style="margin:8px 0 0"><span class="muted">${esc(l.unit||'Now')}</span> <b style="font-family:var(--pixel);font-size:30px">${esc(last)}</b></p>` : ''}${sparkline(l)}</section>`;
+  h += `<section class="paper full"><h2>New update</h2>
+    <div class="addrow" style="margin-top:0">${l.unit ? `<input class="field" id="lgVal" inputmode="decimal" placeholder="${esc(l.unit)}" style="flex:0 0 96px">` : ''}<input class="field" id="lgDate" type="date" value="${t}" style="flex:0 0 150px"></div>
+    <textarea class="field" id="lgText" rows="4" style="margin-top:8px" placeholder="What happened? G1: blundered early but..."></textarea>
+    <div class="row" style="margin-top:10px"><button class="pbtn" data-act="logAdd">Add update</button></div></section>`;
+  const weeks = [...new Set(l.entries.map(e => logWeek(l, e.date)))].sort((a,b) => b-a);
+  if (!weeks.length) h += `<section class="paper full"><div class="empty">No updates yet. Your first one starts Week 1.</div></section>`;
+  weeks.forEach(w => { const st = weekStats(l, w), [a,b] = weekRange(l, w); let lastDay = '';
+    h += `<section class="paper full"><div class="wkhead"><div><b>Week ${w}</b> <span class="muted">${shortDay(a)} to ${shortDay(b)}</span></div><button class="pbtn small ghost" data-act="logCopy" data-v="${w}">Copy week</button></div>
+      <p class="wkstat" style="margin:4px 0 6px">${st.es.length} update${st.es.length===1?'':'s'}${st.diff != null ? `, ${esc(l.unit||'value')} ${st.from} → ${st.to} <b style="color:${st.diff>=0?'var(--accent)':'var(--danger)'}">(${st.diff>=0?'+':''}${st.diff})</b>` : ''}</p>
+      ${st.es.slice().reverse().map(e => { const head = e.date !== lastDay ? `<div class="mday"><span>${parse(e.date).toLocaleDateString('en-GB',{weekday:'short'})} ${shortDay(e.date)}</span></div>` : ''; lastDay = e.date;
+        return head + `<button class="lentry" data-act="logEntry" data-id="${e.id}">${e.val !== '' && e.val != null ? `<span class="vtag">${esc(e.val)}</span>` : ''}<span class="tx">${esc(e.text)}</span></button>`; }).join('')}</section>`; });
+  return h;
+}
 function renderLists(){
+  if (view.logId){ const l = S.logs.find(x => x.id === view.logId); if (l) return renderLog(l); view.logId = null; }
   if (view.listId){
     const l = S.lists.find(x => x.id === view.listId);
     if (l && l.type === 'list') return `${roomHead('List', 'listBack')}<section class="paper full">
@@ -792,7 +856,11 @@ function renderLists(){
   const card = l => { const prev = l.type === 'list' ? (l.items||[]).map(i => i.t).filter(Boolean).slice(0,3).join(', ') : (l.body||'').trim().split('\n')[0];
     return `<button class="gp listcard" data-act="listOpen" data-id="${l.id}"><b>${esc(l.title||'Untitled')}</b><span>${prev ? esc(prev) : 'Empty'}</span></button>`; };
   const lists = S.lists.filter(l => l.type === 'list'), pages = S.lists.filter(l => l.type === 'page');
-  return `<section class="paper"><h2>Lists <button class="pbtn small" data-act="listNew" data-v="list">+ List</button></h2>
+  const logCard = l => { const last = logLastVal(l); const wk = logWeek(l, todayKey());
+    return `<button class="gp listcard" data-act="logOpen" data-id="${l.id}"><b>${esc(l.title)}</b><span>Week ${wk}${last != null ? ', '+esc(l.unit||'now')+' '+last : ''}, ${l.entries.length} update${l.entries.length===1?'':'s'}</span></button>`; };
+  return `<section class="paper full"><h2>Logs <button class="pbtn small" data-act="logNew">+ Log</button></h2>
+    ${S.logs.length ? S.logs.map(logCard).join('') : `<div class="empty">Keep weekly updates on anything, like chess, Duolingo or a project, ready for your Saturday video.</div>`}</section>
+  <section class="paper"><h2>Lists <button class="pbtn small" data-act="listNew" data-v="list">+ List</button></h2>
     ${lists.length ? lists.map(card).join('') : `<div class="empty">Numbered lists of anything.</div>`}
     <div class="sec">Ideas</div><div class="chips">${LIST_IDEAS.filter(i => !used.includes(i)).map(i => `<button class="chip" data-act="listIdea" data-type="list" data-v="${esc(i)}">${esc(i)}</button>`).join('')}</div></section>
   <section class="paper"><h2>Pages <button class="pbtn small" data-act="listNew" data-v="page">+ Page</button></h2>
@@ -1151,7 +1219,7 @@ const A = {
   mode(b){ view.mode = b.dataset.v; }, yearOf(b){ view.yearOf = b.dataset.id; },
   newHabit(){ habitForm(null); return false; }, editHabit(b){ habitForm(S.habits.find(x => x.id === b.dataset.id)); return false; },
 
-  jtab(b){ if (view.j === 'persona' && b.dataset.v !== 'persona') pLock(); view.j = b.dataset.v; view.listId = null; },
+  jtab(b){ if (view.j === 'persona' && b.dataset.v !== 'persona') pLock(); view.j = b.dataset.v; view.listId = null; view.logId = null; },
   jprev(){ view.jday = addDays(view.jday,-1); }, jnext(){ view.jday = addDays(view.jday,1); }, jToday(){ view.jday = todayKey(); },
   jrate(b){ setPath('daily.'+view.jday+'.rate', +b.dataset.v); save(); },
   wishAdd(){ const v = $('wishIn').value.trim(); if (!v) return false; S.wish.push({id:uid(), text:v, done:false}); save(); render(); $('wishIn').focus(); return false; },
@@ -1238,6 +1306,25 @@ const A = {
   sPick(b){ view.sday = b.dataset.k; },
   smPrev(){ const [y,m] = (view.smonth || todayKey().slice(0,7)).split('-').map(Number); const d = new Date(y, m-2, 1); view.smonth = d.getFullYear()+'-'+pad(d.getMonth()+1); },
   smNext(){ const [y,m] = (view.smonth || todayKey().slice(0,7)).split('-').map(Number); const d = new Date(y, m, 1); view.smonth = d.getFullYear()+'-'+pad(d.getMonth()+1); },
+  logNew(){ openForm({title:'New log', note:'Weeks count in 7 day blocks from the start date, so set it to the day your series began.', fields:[{k:'title',label:'Name',ph:'e.g. Road to 1000'},{k:'unit',label:'Number to track (optional)',ph:'e.g. Rating, Streak, Pages'},{k:'start',label:'Started on',type:'date',value:todayKey()}],
+    onSave:v => { if (!v.title){ toast('Name it'); return false; } const l = {id:uid(), title:v.title, unit:v.unit, start:v.start || todayKey(), entries:[]}; S.logs.push(l); view.logId = l.id; }}); return false; },
+  logEdit(){ const l = S.logs.find(x => x.id === view.logId); openForm({title:'Edit log', fields:[{k:'title',label:'Name',value:l.title},{k:'unit',label:'Number to track (optional)',value:l.unit},{k:'start',label:'Started on',type:'date',value:l.start}],
+    onSave:v => { if (!v.title) return false; l.title = v.title; l.unit = v.unit; l.start = v.start || l.start; },
+    onDelete:() => { S.logs = S.logs.filter(x => x.id !== l.id); view.logId = null; }}); return false; },
+  logOpen(b){ view.logId = b.dataset.id; window.scrollTo(0,0); },
+  logBack(){ view.logId = null; },
+  logAdd(){ const l = S.logs.find(x => x.id === view.logId), text = $('lgText').value.trim(), val = $('lgVal') ? $('lgVal').value.trim() : '', date = $('lgDate').value || todayKey();
+    if (!text && !val){ toast('Write something first'); return false; }
+    if (date < l.start) l.start = date;
+    l.entries.push({id:uid(), date, val, text, at:new Date().toISOString()}); save(); toast('Update added'); },
+  logEntry(b){ const l = S.logs.find(x => x.id === view.logId), e = l.entries.find(x => x.id === b.dataset.id);
+    openForm({title:'Edit update', fields:[...(l.unit ? [{k:'val',label:l.unit,value:e.val}] : []),{k:'date',label:'Date',type:'date',value:e.date},{k:'text',label:'Update',type:'textarea',rows:6,value:e.text}],
+      onSave:v => { if (l.unit) e.val = v.val; e.date = v.date || e.date; e.text = v.text; },
+      onDelete:() => { l.entries = l.entries.filter(x => x.id !== e.id); }}); return false; },
+  logCopy(b){ const l = S.logs.find(x => x.id === view.logId), txt = weekText(l, +b.dataset.v);
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast('Week copied'), () => {
+      openSheet(`<h3>Week ${b.dataset.v}</h3><textarea class="field mono" id="bk" readonly>${esc(txt)}</textarea><div class="row"><button class="pbtn ghost" data-act="closeSheet">Close</button><button class="pbtn" data-act="copyBk">Copy</button></div>`); });
+    return false; },
   noteNew(){ noteForm(null); return false; }, noteEdit(b){ noteForm(S.board.find(x => x.id === b.dataset.id)); return false; },
   noteMove(b){ const n = S.board.find(x => x.id === b.dataset.id); setNoteCol(n, Math.max(0, Math.min(2, n.col + (+b.dataset.v)))); save(); },
 
