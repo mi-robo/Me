@@ -732,9 +732,9 @@ function leftovers(){
   for (let i = 1; i <= 14; i++){ const k = addDays(t,-i); (S.tasks[k]||[]).forEach(x => { if (!x.done && !x.moved && !x.skipped) out.push({k,x}); }); }
   return out;
 }
-function copyTask(k,id){
+function copyTask(k,id,to){
   const x = (S.tasks[k]||[]).find(y => y.id === id); if (!x) return;
-  x.moved = true; const t = todayKey();
+  x.moved = true; const t = to || todayKey();
   (S.tasks[t] = S.tasks[t]||[]).push({id:uid(), text:x.text, done:false});
 }
 function setPath(path, val, root){
@@ -992,6 +992,9 @@ function renderDays(){
     ${active.length ? `<div class="bar" style="margin-bottom:10px">${active.map(x=>`<i class="${x.done?'on':''}"></i>`).join('')}</div>` : ''}
     ${taskList(d, false)}
     ${unfinishedPast ? `<button class="pbtn ghost small" style="margin-top:10px" data-act="copyDay" data-k="${d}">Copy all unfinished to today</button>` : ''}
+    ${(() => { if (d < t) return ''; const p = addDays(d,-1), have = new Set((S.tasks[d]||[]).map(x => x.text.trim().toLowerCase()));
+      const n = (S.tasks[p]||[]).filter(x => !x.done && !x.moved && !x.skipped && !have.has(x.text.trim().toLowerCase())).length;
+      return n ? `<button class="pbtn ghost small" style="margin-top:10px" data-act="carryPrev" data-k="${d}">↪ Bring over ${n} unfinished from ${p === t ? 'today' : p === addDays(t,-1) ? 'yesterday' : shortDay(p)}</button>` : ''; })()}
     ${addTaskRow(d)}</section>`;
   return h + datesCard(d, false);
 }
@@ -1822,6 +1825,9 @@ const A = {
   boardDone(b){ const n = S.board.find(y => y.id === b.dataset.id); if (n) setNoteCol(n, 2); save(); toast('Done and logged'); },
   delTask(b){ S.tasks[b.dataset.k] = (S.tasks[b.dataset.k]||[]).filter(x => x.id !== b.dataset.id); save(); },
   copy(b){ copyTask(b.dataset.k, b.dataset.id); save(); toast('Copied to today'); },
+  carryPrev(b){ const d = b.dataset.k, p = addDays(d,-1), have = new Set((S.tasks[d]||[]).map(x => x.text.trim().toLowerCase()));
+    const list = (S.tasks[p]||[]).filter(x => !x.done && !x.moved && !x.skipped && !have.has(x.text.trim().toLowerCase()));
+    list.forEach(x => copyTask(p, x.id, d)); save(); toast(list.length+' brought over'); },
   copyAll(){ leftovers().forEach(({k,x}) => copyTask(k, x.id)); save(); toast('Copied to today'); },
   copyDay(b){ (S.tasks[b.dataset.k]||[]).filter(x => !x.done && !x.moved && !x.skipped).forEach(x => copyTask(b.dataset.k, x.id)); save(); toast('Copied to today'); },
   dismiss(b){ const x = (S.tasks[b.dataset.k]||[]).find(y => y.id === b.dataset.id); if (x) x.skipped = true; save(); },
