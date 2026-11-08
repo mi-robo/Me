@@ -1,5 +1,5 @@
 // Mi Robo Me service worker: works offline, updates in the background.
-const CACHE = 'mirobome-v44';
+const CACHE = 'mirobome-v45';
 const SHELL = ['./', './index.html', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
@@ -20,6 +20,8 @@ self.addEventListener('fetch', e => {
   }
   // Fonts and app files: cache first
   if (url.pathname.endsWith('.webmanifest')) return;
+  // Outside requests made by the app itself (e.g. building the share card) must not get the offline copy, it can't be read
+  if (url.origin !== location.origin && req.mode === 'cors') return;
   if (url.origin === location.origin || url.hostname.endsWith('fonts.googleapis.com') || url.hostname.endsWith('fonts.gstatic.com') || url.hostname === 'flagcdn.com'){
     e.respondWith(caches.match(req).then(hit => hit || fetch(req).then(res => {
       if (res.ok || res.type === 'opaque'){ const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); }
