@@ -406,6 +406,29 @@ nav.tabs button.on svg .f{fill:var(--accent)}
 .qnta{width:100%;border:0;background:transparent;resize:vertical;color:#1E2440;font-size:15px;line-height:28px;background-image:linear-gradient(transparent 27px, rgba(30,36,64,.18) 27px);background-size:100% 28px;padding:0;min-height:140px}
 .qnta:focus{outline:none}
 .qnta::placeholder{color:rgba(30,36,64,.45)}
+:root{--up:#2E9E5B}
+.dlt,.lnum em,.dgain b{font-style:normal;font-family:var(--pixel);font-size:13px}
+.up{color:var(--up)}.down{color:var(--danger)}
+.vcol{flex:none;display:flex;flex-direction:column;align-items:center;gap:3px}
+.lnums{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.lnum{display:flex;align-items:baseline;gap:6px;border:2px solid var(--ink);border-left:6px solid var(--pc);padding:2px 8px;background:var(--paper)}
+.lnum i{font-style:normal;font-size:11px;color:var(--muted)}
+.lnum b{font-family:var(--pixel);font-size:15px}
+.mday .dwin{font-family:var(--pixel);color:var(--ink);background:var(--yellow);border:1.5px solid var(--ink);padding:0 6px;font-size:12px}
+.dgain{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--muted);margin:-2px 0 4px}
+.dgain i,.lglegend i,.lbn i,.pdot{display:inline-block;width:9px;height:9px;border:1.5px solid var(--ink);margin-right:4px;vertical-align:middle}
+.lglegend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin-top:6px}
+.barlbl{display:flex;font-family:var(--pixel);font-size:9px;color:var(--muted)}.barlbl span{flex:1;text-align:center}
+.lgpeople{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:12px;font-size:13px}
+.lb{margin:10px 0 6px;text-align:left}
+.lbrow{display:grid;grid-template-columns:26px 1fr auto;grid-template-areas:"r n w" "r t t";gap:0 10px;padding:8px;border-bottom:1.5px dashed var(--line)}
+.lbrow.top{background:color-mix(in srgb,var(--yellow) 25%,var(--paper));border:2px solid var(--ink);box-shadow:3px 3px 0 var(--ink)}
+.lbr{grid-area:r;font-family:var(--pixel);font-size:20px;font-weight:700;align-self:center}
+.lbn{grid-area:n;font-family:var(--pixel);font-size:16px;font-weight:600}
+.lbw{grid-area:w;font-size:13px}.lbw b{font-family:var(--pixel);font-size:18px}
+.lbt{grid-area:t;font-size:12px;color:var(--muted)}
+.vshow{font-size:11px;color:var(--muted);margin-top:10px}
+.lentry.compe .lbody{flex:1}
 .vsboard{text-align:center}
 .vshead{display:flex;align-items:center;justify-content:center;gap:12px}
 .vsn{font-family:var(--pixel);font-weight:700;font-size:22px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -642,7 +665,7 @@ function blank(){ return {
   theme:'auto'
 };}
 function load(){
-  try{ const r = localStorage.getItem(KEY); if (r){ const d = Object.assign(blank(), JSON.parse(r)); d.profile = Object.assign(blank().profile, d.profile); d.f1 = Object.assign({seasons:{},gps:[]}, d.f1); d.map = Object.assign({factions:[],tiles:{}}, d.map); d.money = Object.assign({sessions:[]}, d.money); d.salah = d.salah || {}; d.logs = d.logs || []; d.dates = d.dates || []; d.dateOff = d.dateOff || {}; d.moon = d.moon || {}; d.moonSnooze = d.moonSnooze || {}; if (d.showDaily == null) d.showDaily = false; d.about = Object.assign({accent:'pink', photo:null, note:'', fields:[], boxes:[]}, d.about);
+  try{ const r = localStorage.getItem(KEY); if (r){ const d = Object.assign(blank(), JSON.parse(r)); d.profile = Object.assign(blank().profile, d.profile); d.f1 = Object.assign({seasons:{},gps:[]}, d.f1); d.map = Object.assign({factions:[],tiles:{}}, d.map); d.money = Object.assign({sessions:[]}, d.money); d.salah = d.salah || {}; d.logs = d.logs || []; d.logs.forEach(l => { if (l.vs){ const pid = 'p'+Math.random().toString(36).slice(2,9); l.people = [{id:pid, name:l.vs}]; l.type = l.type || 'amount'; l.entries.forEach(e => { if (e.vs != null && e.vs !== ''){ e.others = Object.assign({}, e.others, {[pid]:e.vs}); } delete e.vs; }); delete l.vs; } if (!l.type) l.type = 'progress'; l.people = l.people || []; }); d.dates = d.dates || []; d.dateOff = d.dateOff || {}; d.moon = d.moon || {}; d.moonSnooze = d.moonSnooze || {}; if (d.showDaily == null) d.showDaily = false; d.about = Object.assign({accent:'pink', photo:null, note:'', fields:[], boxes:[]}, d.about);
     d.lists.forEach(l => { if (!l.type){ l.type = 'list'; l.items = (l.body||'').split('\n').filter(x => x.trim()).map(t => ({id:Math.random().toString(36).slice(2,10), t})); delete l.body; } });
     return d; } }catch(e){}
   return blank();
@@ -1120,109 +1143,155 @@ function renderWish(){
       <button class="x" data-act="wishDel" data-id="${w.id}" aria-label="Delete">×</button></li>`).join('') : `<li class="empty">Things you want to do someday.</li>`}</ul>
     <div class="addrow"><input class="field" id="wishIn" placeholder="Add a dream" maxlength="200"><button class="pbtn" data-act="wishAdd">Add</button></div></section>`;
 }
+/* ---- Logs: progress (rating) or amount per day, with any number of rivals ---- */
+const LOG_COL = ['accent','cherry','teal','peach','lilac','lime'];
 const logDayIdx = (l, k) => dayDiff(k, l.start);
 const logWeek = (l, k) => Math.floor(logDayIdx(l, k)/7) + 1;
 const logSorted = l => l.entries.slice().sort((a,b) => (a.date+a.at).localeCompare(b.date+b.at));
-function logLastVal(l){ const v = logSorted(l).filter(e => e.val !== '' && e.val != null); return v.length ? v[v.length-1].val : null; }
-function sparkline(l){
-  const pts = logSorted(l).filter(e => e.val !== '' && e.val != null && !isNaN(+e.val)).map(e => +e.val);
-  if (pts.length < 2) return '';
-  const min = Math.min(...pts), max = Math.max(...pts), W = 300, H = 70, rng = (max-min) || 1;
-  const xy = pts.map((v,i) => [Math.round(i/(pts.length-1)*(W-8))+4, Math.round(H-6-(v-min)/rng*(H-12))]);
-  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-label="Progress chart">
-    <polyline points="${xy.map(p => p.join(',')).join(' ')}" fill="none" stroke="var(--accent)" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
-    ${xy.map(p => `<rect x="${p[0]-3}" y="${p[1]-3}" width="6" height="6" fill="var(--paper)" stroke="var(--ink)" stroke-width="1.5" vector-effect="non-scaling-stroke"/>`).join('')}</svg>
-    <div class="muted" style="display:flex;justify-content:space-between"><span>Low ${min}</span><span>High ${max}</span></div>`;
-}
-function weekRange(l, w){ const a = addDays(l.start, (w-1)*7); return [a, addDays(a, 6)]; }
-function weekStats(l, w){
-  const es = logSorted(l).filter(e => logWeek(l, e.date) === w);
-  const vals = es.filter(e => e.val !== '' && e.val != null);
-  const before = logSorted(l).filter(e => logWeek(l, e.date) < w && e.val !== '' && e.val != null);
-  const from = before.length ? +before[before.length-1].val : vals.length ? +vals[0].val : null;
-  const to = vals.length ? +vals[vals.length-1].val : null;
-  return {es, from, to, diff: from != null && to != null && !isNaN(from) && !isNaN(to) ? to - from : null};
-}
-function weekText(l, w){
-  const [a,b] = weekRange(l, w), st = weekStats(l, w);
-  let t = `${l.title}, Week ${w} (${shortDay(a)} to ${shortDay(b)})
-`;
-  if (l.vs){ const ws = vsStats(l, e => logWeek(l, e.date) === w); t += `${meName()} ${ws.W} - ${ws.L} ${l.vs}${ws.T ? ', '+ws.T+' tie'+(ws.T>1?'s':'') : ''}. Week total ${nf(ws.me)} vs ${nf(ws.them)} ${l.unit||''}\n`; }
-  else if (st.diff != null) t += `${l.unit||'Value'}: ${st.from} → ${st.to} (${st.diff>=0?'+':''}${st.diff})
-`;
-  let lastDay = '';
-  st.es.forEach(e => { if (e.date !== lastDay){ t += `
-${parse(e.date).toLocaleDateString('en-GB',{weekday:'short'})} ${shortDay(e.date)}
-`; lastDay = e.date; }
-    t += l.vs && e.vs != null && e.vs !== '' ? `- ${meName()} ${e.val} vs ${l.vs} ${e.vs}${+e.val > +e.vs ? ' (won)' : +e.val < +e.vs ? ' (lost)' : ' (tie)'}${e.text ? ', '+e.text : ''}
-` : `- ${e.star ? '★ ' : ''}${e.val !== '' && e.val != null ? '['+e.val+'] ' : ''}${e.text}
-`; });
-  return t.trim();
-}
 const meName = () => (S.profile.nickname || S.profile.name || 'Me').trim().split(/\s+/)[0];
 const nf = n => Number(n).toLocaleString('en-IN');
-function logToday(l){ return todayKey(); }
-function vsStats(l, filter){
-  const byDay = {}; logSorted(l).forEach(e => { if (e.val !== '' && e.val != null && e.vs !== '' && e.vs != null && !isNaN(+e.val) && !isNaN(+e.vs) && (!filter || filter(e))) byDay[e.date] = {me:+e.val, them:+e.vs, id:e.id}; });
-  const days = Object.keys(byDay).sort(); let W = 0, L = 0, T = 0, me = 0, them = 0, bestMe = null, bestThem = null, bigWin = null, bigLoss = null;
-  days.forEach(k => { const d = byDay[k]; me += d.me; them += d.them; const m = d.me - d.them;
-    if (m > 0){ W++; if (!bigWin || m > bigWin.m) bigWin = {m, k}; } else if (m < 0){ L++; if (!bigLoss || -m > bigLoss.m) bigLoss = {m:-m, k}; } else T++;
-    if (!bestMe || d.me > bestMe.v) bestMe = {v:d.me, k}; if (!bestThem || d.them > bestThem.v) bestThem = {v:d.them, k}; });
-  let streak = 0, who = null;
-  for (let i = days.length-1; i >= 0; i--){ const d = byDay[days[i]], w = d.me > d.them ? 'me' : d.me < d.them ? 'them' : 'tie'; if (who === null){ who = w; if (w === 'tie') break; } if (w !== who) break; streak++; }
-  return {byDay, days, W, L, T, me, them, bestMe, bestThem, bigWin, bigLoss, streak, who};
+const sgn = n => (n > 0 ? '+' : n < 0 ? '−' : '±') + nf(Math.abs(n));
+function logToday(){ return todayKey(); }
+const isAmount = l => l.type === 'amount';
+const logPeople = l => [{id:'me', name:meName()}].concat(l.people || []);
+const pVal = (e, pid) => { const v = pid === 'me' ? e.val : (e.others || {})[pid]; return v === '' || v == null || isNaN(+v) ? null : +v; };
+const pName = (l, pid) => pid === 'me' ? meName() : ((l.people||[]).find(p => p.id === pid) || {}).name || '?';
+const pCol = (l, pid) => `var(--${LOG_COL[Math.max(0, logPeople(l).findIndex(p => p.id === pid)) % LOG_COL.length]})`;
+function logLastVal(l, pid){ const v = logSorted(l).map(e => pVal(e, pid || 'me')).filter(x => x != null); return v.length ? v[v.length-1] : null; }
+function logDeltas(l){ const out = {}, last = {}; logSorted(l).forEach(e => { out[e.id] = {}; logPeople(l).forEach(p => { const v = pVal(e, p.id); if (v == null) return; if (last[p.id] != null) out[e.id][p.id] = v - last[p.id]; last[p.id] = v; }); }); return out; }
+function dayTable(l, filter){
+  const ppl = logPeople(l), all = logSorted(l), es = all.filter(e => !filter || filter(e));
+  const days = [...new Set(es.map(e => e.date))].sort(), T = {};
+  days.forEach(k => { T[k] = {};
+    ppl.forEach(p => {
+      const today = all.filter(e => e.date === k).map(e => pVal(e, p.id)).filter(v => v != null); if (!today.length) return;
+      if (isAmount(l)) T[k][p.id] = {v: today.reduce((a,b) => a+b, 0), n: today.length};
+      else { const before = all.filter(e => e.date < k).map(e => pVal(e, p.id)).filter(v => v != null), base = before.length ? before[before.length-1] : today[0];
+        T[k][p.id] = {v: today[today.length-1] - base, n: today.length, end: today[today.length-1]}; }
+    }); });
+  return {days, T, ppl};
 }
-function vsBoard(l){
-  const st = vsStats(l), A = meName(), B = esc(l.vs);
-  if (!st.days.length) return `<section class="paper full vsboard"><div class="vshead"><span class="vsn">${esc(A)}</span><span class="vsx">VS</span><span class="vsn">${B}</span></div><div class="empty" style="text-align:center">Log your first day to start the scoreboard.</div></section>`;
-  const lead = st.me - st.them, n = st.days.length, sh = st.me + st.them ? Math.round(st.me/(st.me+st.them)*100) : 50;
-  const row = (lab, a, b, aw, bw) => `<div class="vsr"><b class="${aw?'w':''}">${a}</b><span>${lab}</span><b class="${bw?'w':''}">${b}</b></div>`;
-  const today = st.byDay[logToday(l)];
-  return `<section class="paper full vsboard">
-    <div class="vshead"><span class="vsn ${st.W>st.L?'lead':''}">${esc(A)}${st.W>st.L?' <i>♛</i>':''}</span><span class="vsx">VS</span><span class="vsn ${st.L>st.W?'lead':''}">${B}${st.L>st.W?' <i>♛</i>':''}</span></div>
-    <div class="vsscore"><b>${st.W}</b><span>-</span><b>${st.L}</b></div>
-    <div class="vssub">days won${st.T ? `, ${st.T} tie${st.T>1?'s':''}` : ''} in ${n} day${n>1?'s':''}</div>
-    ${today ? `<div class="vstoday ${today.me>today.them?'win':today.me<today.them?'loss':''}">Today: ${today.me>today.them ? 'you’re ahead by '+nf(today.me-today.them) : today.me<today.them ? B+' is ahead by '+nf(today.them-today.me) : 'tied'}</div>` : ''}
-    <div class="vsbar"><i style="width:${sh}%"></i></div>
-    <div class="vslead">${lead > 0 ? `${esc(A)} leads by <b>${nf(lead)}</b>` : lead < 0 ? `${B} leads by <b>${nf(-lead)}</b>` : 'Totals are level'} ${esc(l.unit||'')}</div>
-    <div class="vsgrid">
-      ${row('Total', nf(st.me), nf(st.them), st.me>st.them, st.them>st.me)}
-      ${row('Per day', nf(Math.round(st.me/n)), nf(Math.round(st.them/n)), st.me>st.them, st.them>st.me)}
-      ${row('Best day', nf(st.bestMe.v), nf(st.bestThem.v), st.bestMe.v>st.bestThem.v, st.bestThem.v>st.bestMe.v)}
-      ${row('Biggest win', st.bigWin ? '+'+nf(st.bigWin.m) : '-', st.bigLoss ? '+'+nf(st.bigLoss.m) : '-', st.bigWin && (!st.bigLoss || st.bigWin.m>st.bigLoss.m), st.bigLoss && (!st.bigWin || st.bigLoss.m>st.bigWin.m))}
-    </div>
-    ${st.streak > 1 && st.who !== 'tie' ? `<div class="vsstreak">${st.who === 'me' ? esc(A) : B} won the last <b>${st.streak}</b> days in a row</div>` : ''}
-  </section>`;
+function dayWinner(l, row){
+  const ids = Object.keys(row); if (ids.length < 2) return null;
+  const sc = id => isAmount(l) ? row[id].v : row[id].v*10000 + row[id].n;
+  let best = null, tie = false;
+  ids.forEach(id => { if (best === null || sc(id) > sc(best)){ best = id; tie = false; } else if (sc(id) === sc(best)) tie = true; });
+  return tie ? 'tie' : best;
+}
+function compStats(l, filter){
+  const {days, T, ppl} = dayTable(l, filter), P = {}; let ties = 0, counted = 0; const winners = [];
+  ppl.forEach(p => P[p.id] = {id:p.id, name:p.name, wins:0, total:0, n:0, days:0, best:null});
+  days.forEach(k => { const row = T[k];
+    Object.keys(row).forEach(id => { const r = row[id]; P[id].total += r.v; P[id].n += r.n; P[id].days++; if (P[id].best == null || r.v > P[id].best) P[id].best = r.v; });
+    const w = dayWinner(l, row); if (w === null) return; counted++; winners.push(w); if (w === 'tie') ties++; else P[w].wins++; });
+  let streak = 0, who = null;
+  for (let i = winners.length-1; i >= 0; i--){ const w = winners[i]; if (who === null){ if (w === 'tie') break; who = w; } if (w !== who) break; streak++; }
+  return {P, ppl, ties, counted, streak, who, T, days};
+}
+function logChart(l){
+  const ppl = logPeople(l), W = 300, H = 90, multi = ppl.length > 1;
+  const legend = multi ? `<div class="lglegend">${ppl.map(p => `<span><i style="background:${pCol(l,p.id)}"></i>${esc(p.name)}</span>`).join('')}</div>` : '';
+  if (!isAmount(l)){
+    const es = logSorted(l), series = ppl.map(p => es.map((e,i) => [i, pVal(e, p.id)]).filter(x => x[1] != null));
+    const vals = series.flat().map(x => x[1]); if (vals.length < 2) return '';
+    const min = Math.min(...vals), max = Math.max(...vals), rng = (max - min) || 1, n = Math.max(1, es.length - 1);
+    const X = i => Math.round(i/n*(W-8))+4, Y = v => Math.round(H-6-(v-min)/rng*(H-12));
+    return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-label="Progress chart">${series.map((sr,si) => sr.length ? `<polyline points="${sr.map(p => X(p[0])+','+Y(p[1])).join(' ')}" fill="none" stroke="${pCol(l, ppl[si].id)}" stroke-width="2.5" vector-effect="non-scaling-stroke"/>${sr.map(p => `<rect x="${X(p[0])-3}" y="${Y(p[1])-3}" width="6" height="6" fill="var(--paper)" stroke="var(--ink)" stroke-width="1.5" vector-effect="non-scaling-stroke"/>`).join('')}` : '').join('')}</svg>
+      <div class="muted" style="display:flex;justify-content:space-between"><span>Low ${nf(min)}</span><span>High ${nf(max)}</span></div>${legend}`;
+  }
+  const {days, T} = dayTable(l), ds = days.slice(-14); if (!ds.length) return '';
+  const max = Math.max(1, ...ds.flatMap(k => Object.values(T[k]).map(r => r.v))), gw = W / ds.length, bw = Math.max(2, (gw - 4) / ppl.length);
+  let bars = '';
+  ds.forEach((k,di) => ppl.forEach((p,pi) => { const r = T[k][p.id]; if (!r) return; const h = Math.max(2, Math.round(r.v/max*(H-6)));
+    bars += `<rect x="${(di*gw + 2 + pi*bw).toFixed(1)}" y="${H-h}" width="${(bw-1).toFixed(1)}" height="${h}" fill="${pCol(l,p.id)}" stroke="var(--ink)" stroke-width="1" vector-effect="non-scaling-stroke"/>`; }));
+  return `<svg class="spark bars" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-label="Daily amounts">${bars}</svg>
+    <div class="barlbl">${ds.map(k => `<span>${+k.slice(8)}</span>`).join('')}</div>
+    <div class="muted" style="display:flex;justify-content:space-between"><span>Last ${ds.length} day${ds.length>1?'s':''}</span><span>Best ${nf(max)}</span></div>${legend}`;
+}
+function weekRange(l, w){ const a = addDays(l.start, (w-1)*7); return [a, addDays(a, 6)]; }
+function weekLine(l, w){
+  const inW = e => logWeek(l, e.date) === w, es = logSorted(l).filter(inW);
+  if ((l.people||[]).length){ const st = compStats(l, inW); return st.counted ? st.ppl.map(p => `${esc(p.name)} <b>${st.P[p.id].wins}</b>`).join(', ') + (st.ties ? `, ${st.ties} tie${st.ties>1?'s':''}` : '') + ` <span class="muted">days won</span>` : `${es.length} update${es.length===1?'':'s'}`; }
+  if (isAmount(l)){ const {days, T} = dayTable(l, inW), tot = days.reduce((a,k) => a + ((T[k].me||{}).v||0), 0); return `Week total <b>${nf(tot)}</b> ${esc(l.unit||'')}, ${days.length} day${days.length===1?'':'s'}`; }
+  const vals = es.map(e => pVal(e,'me')).filter(v => v != null), prev = logSorted(l).filter(e => logWeek(l, e.date) < w).map(e => pVal(e,'me')).filter(v => v != null);
+  const from = prev.length ? prev[prev.length-1] : vals[0], to = vals[vals.length-1];
+  return `${es.length} update${es.length===1?'':'s'}${vals.length ? `, ${esc(l.unit||'value')} ${nf(from)} → ${nf(to)} <b style="color:${to-from>=0?'var(--up)':'var(--danger)'}">(${sgn(to-from)})</b>` : ''}`;
+}
+function weekText(l, w){
+  const [a,b] = weekRange(l, w), inW = e => logWeek(l, e.date) === w, D = logDeltas(l);
+  let t = `${l.title}, Week ${w} (${shortDay(a)} to ${shortDay(b)})\n` + weekLine(l, w).replace(/<[^>]+>/g, '') + '\n';
+  let lastDay = '';
+  logSorted(l).filter(inW).forEach(e => {
+    if (e.date !== lastDay){ t += `\n${parse(e.date).toLocaleDateString('en-GB',{weekday:'short'})} ${shortDay(e.date)}\n`; lastDay = e.date; }
+    const nums = logPeople(l).filter(p => pVal(e, p.id) != null).map(p => `${(l.people||[]).length ? p.name+' ' : ''}${pVal(e,p.id)}${!isAmount(l) && D[e.id][p.id] != null ? ' ('+sgn(D[e.id][p.id])+')' : ''}`).join(', ');
+    t += `- ${e.star ? '★ ' : ''}${nums ? '['+nums+'] ' : ''}${e.text||''}\n`;
+  });
+  return t.trim();
+}
+function compBoard(l){
+  const st = compStats(l), ppl = st.ppl, amt = isAmount(l), unit = esc(l.unit||''), names = ppl.map(p => esc(p.name));
+  const head = ppl.length === 2 ? `<div class="vshead"><span class="vsn ${st.P.me.wins>st.P[ppl[1].id].wins?'lead':''}">${names[0]}${st.P.me.wins>st.P[ppl[1].id].wins?' <i>♛</i>':''}</span><span class="vsx">VS</span><span class="vsn ${st.P[ppl[1].id].wins>st.P.me.wins?'lead':''}">${names[1]}${st.P[ppl[1].id].wins>st.P.me.wins?' <i>♛</i>':''}</span></div>` : `<div class="vshead"><span class="vsx">LEADERBOARD</span></div>`;
+  if (!st.counted) return `<section class="paper full vsboard">${head}<div class="empty" style="text-align:center;margin-top:10px">Log a day with at least two people’s numbers to start the scoreboard.</div></section>`;
+  const tk = todayKey(), trow = st.T[tk], tw = trow ? dayWinner(l, trow) : null;
+  const todayLine = tw && tw !== 'tie' ? `<div class="vstoday ${tw==='me'?'win':'loss'}">Today: ${tw==='me' ? 'you’re ahead' : esc(pName(l,tw))+' is ahead'}</div>` : tw === 'tie' ? `<div class="vstoday">Today: tied</div>` : '';
+  const how = amt ? 'Most '+(unit||'amount')+' that day wins' : 'Most '+(unit||'points')+' gained that day wins, more games breaks a tie';
+  let body;
+  if (ppl.length === 2){
+    const A = st.P.me, B = st.P[ppl[1].id], tot = Math.abs(A.total) + Math.abs(B.total), sh = tot ? Math.round(Math.max(0, A.total)/(Math.max(0,A.total)+Math.max(0,B.total)||1)*100) : 50, lead = A.total - B.total;
+    const row = (lab, a, b, aw, bw) => `<div class="vsr"><b class="${aw?'w':''}">${a}</b><span>${lab}</span><b class="${bw?'w':''}">${b}</b></div>`;
+    const f = v => amt ? nf(v) : sgn(v);
+    body = `<div class="vsscore"><b>${A.wins}</b><span>-</span><b>${B.wins}</b></div><div class="vssub">days won${st.ties ? `, ${st.ties} tie${st.ties>1?'s':''}` : ''} in ${st.counted} day${st.counted>1?'s':''}</div>${todayLine}
+      ${amt ? `<div class="vsbar"><i style="width:${sh}%"></i></div>` : ''}
+      <div class="vslead">${lead > 0 ? `${names[0]} leads by <b>${nf(lead)}</b>` : lead < 0 ? `${names[1]} leads by <b>${nf(-lead)}</b>` : 'Level'} ${unit}${amt ? '' : ' gained'}</div>
+      <div class="vsgrid">${row(amt ? 'Total' : 'Gained', f(A.total), f(B.total), A.total>B.total, B.total>A.total)}
+        ${row('Per day', f(Math.round(A.total/Math.max(1,A.days))), f(Math.round(B.total/Math.max(1,B.days))), A.total/Math.max(1,A.days) > B.total/Math.max(1,B.days), B.total/Math.max(1,B.days) > A.total/Math.max(1,A.days))}
+        ${row('Best day', A.best == null ? '-' : f(A.best), B.best == null ? '-' : f(B.best), A.best > B.best, B.best > A.best)}
+        ${amt ? '' : row('Games', nf(A.n), nf(B.n), A.n > B.n, B.n > A.n)}
+        ${amt ? '' : row('Now', logLastVal(l,'me') == null ? '-' : nf(logLastVal(l,'me')), logLastVal(l,B.id) == null ? '-' : nf(logLastVal(l,B.id)), false, false)}</div>`;
+  } else {
+    const rank = ppl.map(p => st.P[p.id]).sort((a,b) => b.wins - a.wins || b.total - a.total);
+    body = `${todayLine}<div class="lb">${rank.map((r,i) => `<div class="lbrow ${i===0?'top':''}"><span class="lbr">${i+1}</span><span class="lbn"><i style="background:${pCol(l,r.id)}"></i>${esc(r.name)}${i===0 && r.wins ? ' ♛' : ''}</span><span class="lbw"><b>${r.wins}</b> won</span><span class="lbt">${amt ? nf(r.total) : sgn(r.total)}${amt ? '' : ', '+r.n+' games'}</span></div>`).join('')}</div>
+      <div class="vssub">${st.counted} day${st.counted>1?'s':''} played${st.ties ? ', '+st.ties+' tie'+(st.ties>1?'s':'') : ''}</div>`;
+  }
+  return `<section class="paper full vsboard">${head}${body}
+    ${st.streak > 1 ? `<div class="vsstreak">${esc(pName(l, st.who))} won the last <b>${st.streak}</b> days in a row</div>` : ''}<div class="vshow">${how}</div></section>`;
 }
 function renderLog(l){
-  const t = todayKey(), cur = logWeek(l, t), last = logLastVal(l);
+  const t = todayKey(), cur = logWeek(l, t), ppl = logPeople(l), comp = (l.people||[]).length > 0, amt = isAmount(l), D = logDeltas(l);
   let h = roomHead(l.title, 'logBack');
+  const last = logLastVal(l), todayAmt = amt ? logSorted(l).filter(e => e.date === t).map(e => pVal(e,'me')).filter(v => v != null).reduce((a,b) => a+b, 0) : 0;
   h += `<section class="paper full"><div class="wkhead"><div><b>Week ${cur}</b> <span class="muted">${shortDay(weekRange(l,cur)[0])} to ${shortDay(weekRange(l,cur)[1])}</span></div><span style="display:flex;gap:8px"><button class="pbtn small ghost" data-act="logEdit">Edit log</button><button class="pbtn small" data-act="saveNow">Save</button></span></div>
-    ${!l.vs && last != null ? `<p style="margin:8px 0 0"><span class="muted">${esc(l.unit||'Now')}</span> <b style="font-family:var(--pixel);font-size:30px">${esc(last)}</b></p>` : ''}${l.vs ? '' : sparkline(l)}</section>`;
-  if (l.vs) h += vsBoard(l);
-  h += l.vs ? `<section class="paper full"><h2>Log a day</h2>
-    <div class="vsin"><label><span>${esc(meName())}</span><input class="field" id="lgVal" inputmode="numeric" placeholder="${esc(l.unit)}"></label><label><span>${esc(l.vs)}</span><input class="field" id="lgVs" inputmode="numeric" placeholder="${esc(l.unit)}"></label></div>
-    <label class="lbl" for="lgDate">Day</label><input class="field" id="lgDate" type="date" value="${logToday(l)}">
-    <textarea class="field" id="lgText" rows="2" style="margin-top:8px" placeholder="Note (optional)"></textarea>`
-  : `<section class="paper full"><h2>New update</h2>
-    <div class="addrow" style="margin-top:0">${l.unit ? `<input class="field" id="lgVal" inputmode="decimal" placeholder="${esc(l.unit)}" style="flex:0 0 96px">` : ''}<input class="field" id="lgDate" type="date" value="${t}" style="flex:0 0 150px"></div>
-    <textarea class="field" id="lgText" rows="4" style="margin-top:8px" placeholder="What happened? G1: blundered early but..."></textarea>`;
-  h += `
-    <div class="row" style="margin-top:10px"><button class="pbtn" data-act="logAdd">${l.vs ? 'Save day' : 'Add update'}</button></div></section>`;
-  const weeks = [...new Set(l.entries.map(e => logWeek(l, e.date)))].sort((a,b) => b-a);
+    ${!amt && last != null ? `<p style="margin:8px 0 0"><span class="muted">${esc(l.unit||'Now')}</span> <b style="font-family:var(--pixel);font-size:30px">${nf(last)}</b></p>` : ''}
+    ${amt ? `<p style="margin:8px 0 0"><span class="muted">Today</span> <b style="font-family:var(--pixel);font-size:30px">${nf(todayAmt)}</b> <span class="muted">${esc(l.unit||'')}</span></p>` : ''}
+    ${logChart(l)}
+    <div class="lgpeople"><span class="muted">Competing with:</span>${(l.people||[]).map(p => `<button class="chip" data-act="logPerson" data-id="${p.id}"><i class="pdot" style="background:${pCol(l,p.id)}"></i>${esc(p.name)}</button>`).join('')}<button class="chip" data-act="logPersonAdd">+ Add person</button></div></section>`;
+  if (comp) h += compBoard(l);
+  h += `<section class="paper full"><h2>${comp ? (amt ? 'Log a day' : 'Log a game') : 'New update'}</h2>
+    <div class="vsin" style="grid-template-columns:repeat(${Math.min(ppl.length, 3)},minmax(0,1fr))">${ppl.map(p => `<label><span>${comp ? esc(p.name) : esc(l.unit||'Number')}</span><input class="field" id="lgv_${p.id}" inputmode="decimal" placeholder="${esc(l.unit||'')}"></label>`).join('')}</div>
+    ${comp ? `<p class="muted" style="margin:6px 0 0">${amt ? 'Fill whoever you have now. Logging the same day again adds to it, so you can add theirs later.' : 'Rating after this game. Leave someone empty if they didn’t play.'}</p>` : ''}
+    <label class="lbl" for="lgDate">Day</label><input class="field" id="lgDate" type="date" value="${t}">
+    <textarea class="field" id="lgText" rows="${comp ? 2 : 4}" style="margin-top:8px" placeholder="${amt ? 'Note (optional)' : 'What happened?'}"></textarea>
+    <div class="row" style="margin-top:10px"><button class="pbtn" data-act="logAdd">${comp ? 'Save' : 'Add update'}</button></div></section>`;
+  const weeks = [...new Set(l.entries.map(e => logWeek(l, e.date)))].sort((a,b) => b-a), nStar = l.entries.filter(e => e.star).length;
+  if (l.entries.length) h += `<div class="chips full" style="margin-bottom:14px"><button class="chip ${!view.logStar?'on':''}" data-act="logStarF" data-v="">All</button><button class="chip ${view.logStar?'on':''}" data-act="logStarF" data-v="1">★ Starred${nStar ? ' ('+nStar+')' : ''}</button></div>`;
   if (!weeks.length) h += `<section class="paper full"><div class="empty">No updates yet. Your first one starts Week 1.</div></section>`;
-  const nStar = l.entries.filter(e => e.star).length;
-  if (!l.vs && l.entries.length) h += `<div class="chips full" style="margin-bottom:14px"><button class="chip ${!view.logStar?'on':''}" data-act="logStarF" data-v="">All</button><button class="chip ${view.logStar?'on':''}" data-act="logStarF" data-v="1">★ Starred${nStar ? ' ('+nStar+')' : ''}</button></div>`;
-  weeks.forEach(w => { const st = weekStats(l, w), [a,b] = weekRange(l, w); let lastDay = '';
-    if (view.logStar && !l.vs){ st.es = st.es.filter(e => e.star); if (!st.es.length) return; }
+  const {T} = dayTable(l);
+  weeks.forEach(w => { const [a,b] = weekRange(l, w); let es = logSorted(l).filter(e => logWeek(l, e.date) === w);
+    if (view.logStar) es = es.filter(e => e.star); if (!es.length) return;
+    let lastDay = '';
     h += `<section class="paper full"><div class="wkhead"><div><b>Week ${w}</b> <span class="muted">${shortDay(a)} to ${shortDay(b)}</span></div><button class="pbtn small ghost" data-act="logCopy" data-v="${w}">Copy week</button></div>
-      <p class="wkstat" style="margin:4px 0 6px">${l.vs ? (() => { const ws = vsStats(l, e => logWeek(l, e.date) === w); return `${esc(meName())} <b>${ws.W}</b> - <b>${ws.L}</b> ${esc(l.vs)}${ws.T ? ', '+ws.T+' tie'+(ws.T>1?'s':'') : ''}. Week total ${nf(ws.me)} vs ${nf(ws.them)}`; })() : ''}${l.vs ? '' : st.es.length+' update'+(st.es.length===1?'':'s')}${!l.vs && st.diff != null ? `, ${esc(l.unit||'value')} ${st.from} → ${st.to} <b style="color:${st.diff>=0?'var(--accent)':'var(--danger)'}">(${st.diff>=0?'+':''}${st.diff})</b>` : ''}</p>
-      ${st.es.slice().reverse().map(e => { const head = e.date !== lastDay ? `<div class="mday"><span>${parse(e.date).toLocaleDateString('en-GB',{weekday:'short'})} ${shortDay(e.date)}</span></div>` : ''; lastDay = e.date;
-        if (l.vs && e.vs != null && e.vs !== ''){ const a = +e.val, b = +e.vs, w = a > b ? 'me' : a < b ? 'them' : 'tie';
-          return head + `<button class="lentry vsentry" data-act="logEntry" data-id="${e.id}"><span class="vside ${w==='me'?'w':''}"><i>${esc(meName())}</i><b>${nf(a)}</b></span><span class="vmid">${w==='tie' ? 'tie' : (w==='me' ? '◀' : '▶')+' '+nf(Math.abs(a-b))}</span><span class="vside r ${w==='them'?'w':''}"><i>${esc(l.vs)}</i><b>${nf(b)}</b></span>${e.text ? `<span class="tx vnote">${esc(e.text)}</span>` : ''}</button>`; }
+      <p class="wkstat" style="margin:4px 0 6px">${weekLine(l, w)}</p>
+      ${es.slice().reverse().map(e => {
+        let head = '';
+        if (e.date !== lastDay){ lastDay = e.date; const row = T[e.date] || {}, dw = comp ? dayWinner(l, row) : null;
+          head = `<div class="mday"><span>${parse(e.date).toLocaleDateString('en-GB',{weekday:'short'})} ${shortDay(e.date)}</span>${dw ? `<span class="dwin">${dw === 'tie' ? 'Tie' : '♛ '+esc(pName(l,dw))}</span>` : ''}</div>`;
+          if (comp && !amt) head += `<div class="dgain">${ppl.filter(p => row[p.id]).map(p => `<span><i style="background:${pCol(l,p.id)}"></i>${esc(p.name)} <b class="${row[p.id].v>0?'up':row[p.id].v<0?'down':''}">${sgn(row[p.id].v)}</b> in ${row[p.id].n} game${row[p.id].n>1?'s':''}</span>`).join('')}</div>`;
+        }
         const long = (e.text||'').length > 170 || (e.text||'').split('\n').length > 3, open = EXP.has(e.id);
-        return head + `<div class="lentry ${e.star ? 'starred' : ''}">${e.val !== '' && e.val != null ? `<span class="vtag">${esc(e.val)}</span>` : ''}
-          <div class="lbody"><span class="tx ${long && !open ? 'clamp' : ''}">${esc(e.text)}</span>
+        const nums = comp ? `<div class="lnums">${ppl.filter(p => pVal(e,p.id) != null).map(p => `<span class="lnum" style="--pc:${pCol(l,p.id)}"><i>${esc(p.name)}</i><b>${nf(pVal(e,p.id))}</b>${!amt && D[e.id][p.id] != null ? `<em class="${D[e.id][p.id]>0?'up':D[e.id][p.id]<0?'down':''}">${sgn(D[e.id][p.id])}</em>` : ''}</span>`).join('')}</div>`
+          : pVal(e,'me') != null ? `<span class="vcol"><span class="vtag">${nf(pVal(e,'me'))}</span>${!amt && D[e.id].me != null ? `<em class="dlt ${D[e.id].me>0?'up':D[e.id].me<0?'down':''}">${sgn(D[e.id].me)}</em>` : ''}</span>` : '';
+        return head + `<div class="lentry ${e.star ? 'starred' : ''} ${comp ? 'compe' : ''}">${comp ? '' : nums}
+          <div class="lbody">${comp ? nums : ''}${e.text ? `<span class="tx ${long && !open ? 'clamp' : ''}">${esc(e.text)}</span>` : ''}
             <div class="lacts">${long ? `<button class="link" data-act="logMore" data-id="${e.id}">${open ? 'See less' : 'See more'}</button>` : ''}<button class="link" data-act="logEntry" data-id="${e.id}">Edit</button></div></div>
           <button class="starbtn ${e.star ? 'on' : ''}" data-act="logStar" data-id="${e.id}" aria-label="${e.star ? 'Unstar' : 'Star for video'}">${e.star ? '★' : '☆'}</button></div>`; }).join('')}</section>`; });
   return h;
@@ -1257,7 +1326,8 @@ function renderLists(){
     view.listId = null;
   }
   const folder = (act, id, title, sub, ico) => `<button class="folder" style="--c:var(--${FOLDER_C[hash(id) % FOLDER_C.length]})" data-act="${act}" data-id="${id}"><span class="fi">${ico}</span><b>${esc(title || 'Untitled')}</b><span>${sub}</span></button>`;
-  const logs = S.logs.map(l => { if (l.vs){ const v = vsStats(l); return folder('logOpen', l.id, l.title, 'vs '+esc(l.vs)+'<br>'+(v.days.length ? 'Won '+v.W+', lost '+v.L : 'No days yet'), '⚔'); } const last = logLastVal(l); return folder('logOpen', l.id, l.title, 'Week '+logWeek(l, todayKey())+(last != null ? ', '+esc(l.unit||'')+' '+esc(last) : '')+'<br>'+l.entries.length+' update'+(l.entries.length===1?'':'s'), '≡'); }).join('');
+  const logs = S.logs.map(l => { if ((l.people||[]).length){ const v = compStats(l); return folder('logOpen', l.id, l.title, 'vs '+esc(l.people.map(p => p.name).join(', '))+'<br>'+(v.counted ? 'You won '+v.P.me.wins+' of '+v.counted : 'No days yet'), '⚔'); }
+    const last = logLastVal(l); return folder('logOpen', l.id, l.title, 'Week '+logWeek(l, todayKey())+(last != null ? ', '+esc(l.unit||'')+' '+nf(last) : '')+'<br>'+l.entries.length+' update'+(l.entries.length===1?'':'s'), isAmount(l) ? '▤' : '≡'); }).join('');
   const lists = S.lists.filter(l => l.type === 'list').map(l => { const c = listCounts(l); return folder('listOpen', l.id, l.title, c.n ? c.n+' point'+(c.n>1?'s':'')+(l.checks ? ', '+c.d+' done' : '') : 'Empty', '1.'); }).join('');
   const pages = S.lists.filter(l => l.type === 'page').map(l => { const w = (l.body||'').trim().split(/\s+/).filter(Boolean).length; return folder('listOpen', l.id, l.title, w ? w+' word'+(w>1?'s':'') : 'Empty', '¶'); }).join('');
   const sec = (title, add, items, empty, ideas) => `<section class="paper full"><h2>${title} <span style="display:flex;gap:8px">${ideas ? `<button class="pbtn small ghost" data-act="ideas" data-v="${ideas}">Ideas</button>` : ''}${add}</span></h2>
@@ -1945,26 +2015,39 @@ const A = {
   sPick(b){ view.sday = b.dataset.k; },
   smPrev(){ const [y,m] = (view.smonth || todayKey().slice(0,7)).split('-').map(Number); const d = new Date(y, m-2, 1); view.smonth = d.getFullYear()+'-'+pad(d.getMonth()+1); },
   smNext(){ const [y,m] = (view.smonth || todayKey().slice(0,7)).split('-').map(Number); const d = new Date(y, m, 1); view.smonth = d.getFullYear()+'-'+pad(d.getMonth()+1); },
-  logNew(){ openForm({title:'New log', note:'Weeks count in 7 day blocks from the start date, so set it to the day your series began.', fields:[{k:'title',label:'Name',ph:'e.g. Road to 1000, Quranly'},{k:'unit',label:'Number to track (optional)',ph:'e.g. Rating, Hasanah, Pages'},{k:'vs',label:'Compete with (optional)',ph:'e.g. Khadija'},{k:'start',label:'Started on',type:'date',value:todayKey()}],
-    onSave:v => { if (!v.title){ toast('Name it'); return false; } if (v.vs && !v.unit) v.unit = 'Score'; const l = {id:uid(), title:v.title, unit:v.unit, vs:v.vs, start:v.start || todayKey(), entries:[]}; S.logs.push(l); view.logId = l.id; }}); return false; },
-  logEdit(){ const l = S.logs.find(x => x.id === view.logId); openForm({title:'Edit log', fields:[{k:'title',label:'Name',value:l.title},{k:'unit',label:'Number to track (optional)',value:l.unit},{k:'vs',label:'Compete with (optional)',value:l.vs,ph:'e.g. Khadija'},{k:'start',label:'Started on',type:'date',value:l.start}],
-    onSave:v => { if (!v.title) return false; l.title = v.title; l.unit = v.unit || (v.vs ? 'Score' : ''); l.vs = v.vs; l.reset = 0; l.start = v.start || l.start; },
+  logNew(){ openForm({title:'New log', note:'Weeks count in 7 day blocks from the start date. You can add people to compete with after creating it.', fields:[{k:'title',label:'Name',ph:'e.g. Daily reading'},
+      {k:'type',label:'What kind of number?',type:'select',options:[{v:'progress',n:'Progress: a level that goes up and down (rating)'},{v:'amount',n:'Amount: how much each day (pages, points)'}],value:'progress'},
+      {k:'unit',label:'Name of the number',ph:'e.g. Rating, Pages'},{k:'start',label:'Started on',type:'date',value:todayKey()}],
+    onSave:v => { if (!v.title){ toast('Name it'); return false; } const l = {id:uid(), title:v.title, type:v.type, unit:v.unit, people:[], start:v.start || todayKey(), entries:[]}; S.logs.push(l); view.logId = l.id; }}); return false; },
+  logEdit(){ const l = S.logs.find(x => x.id === view.logId); openForm({title:'Edit log', fields:[{k:'title',label:'Name',value:l.title},
+      {k:'type',label:'What kind of number?',type:'select',options:[{v:'progress',n:'Progress: a level that goes up and down (rating)'},{v:'amount',n:'Amount: how much each day (pages, points)'}],value:l.type||'progress'},
+      {k:'unit',label:'Name of the number',value:l.unit},{k:'start',label:'Started on',type:'date',value:l.start}],
+    onSave:v => { if (!v.title) return false; l.title = v.title; l.type = v.type; l.unit = v.unit; l.start = v.start || l.start; },
     onDelete:() => { S.logs = S.logs.filter(x => x.id !== l.id); view.logId = null; }}); return false; },
+  logPersonAdd(){ const l = S.logs.find(x => x.id === view.logId); openForm({title:'Add someone to compete with', fields:[{k:'name',label:'Name',ph:'e.g. A friend'}],
+    onSave:v => { if (!v.name) return false; (l.people = l.people || []).push({id:'p'+uid(), name:v.name}); }}); return false; },
+  logPerson(b){ const l = S.logs.find(x => x.id === view.logId), p = (l.people||[]).find(x => x.id === b.dataset.id); if (!p) return false;
+    openForm({title:'Edit '+p.name, fields:[{k:'name',label:'Name',value:p.name}], onSave:v => { if (!v.name) return false; p.name = v.name; },
+      onDelete:() => { l.people = l.people.filter(x => x.id !== p.id); l.entries.forEach(e => { if (e.others) delete e.others[p.id]; }); }}); return false; },
   logOpen(b){ view.logId = b.dataset.id; window.scrollTo(0,0); },
   logBack(){ view.logId = null; view.logStar = false; },
   logMore(b){ const id = b.dataset.id; if (EXP.has(id)) EXP.delete(id); else EXP.add(id); },
   logStar(b){ const l = S.logs.find(x => x.id === view.logId), e = l && l.entries.find(x => x.id === b.dataset.id); if (!e) return false; e.star = !e.star; save(); toast(e.star ? 'Starred for your video' : 'Unstarred'); },
   logStarF(b){ view.logStar = !!b.dataset.v; },
-  logAdd(){ const l = S.logs.find(x => x.id === view.logId), text = $('lgText').value.trim(), val = $('lgVal') ? $('lgVal').value.trim() : '', vs = $('lgVs') ? $('lgVs').value.trim() : '', date = $('lgDate').value || logToday(l);
-    if (l.vs && (val === '' || vs === '')){ toast('Fill both scores'); return false; }
-    if (!text && !val){ toast('Write something first'); return false; }
+  logAdd(){ const l = S.logs.find(x => x.id === view.logId), ppl = logPeople(l), comp = (l.people||[]).length > 0, vals = {};
+    ppl.forEach(p => { const el = $('lgv_'+p.id); if (el && el.value.trim() !== ''){ if (isNaN(+el.value.trim())){ vals.bad = 1; } else vals[p.id] = el.value.trim(); } });
+    if (vals.bad){ toast('Numbers only in the boxes'); return false; }
+    const text = $('lgText').value.trim(), date = $('lgDate').value || todayKey();
+    if (!Object.keys(vals).length && !text){ toast('Write something first'); return false; }
     if (date < l.start) l.start = date;
-    if (l.vs){ const old = l.entries.find(e => e.date === date && e.vs != null && e.vs !== ''); if (old){ old.val = val; old.vs = vs; if (text) old.text = text; old.at = new Date().toISOString(); save(); toast('Day updated'); return; } }
-    l.entries.push({id:uid(), date, val, vs: l.vs ? vs : undefined, text, at:new Date().toISOString()}); save();
-    if (l.vs){ const a = +val, b = +vs; toast(a > b ? 'You won the day!' : a < b ? esc(l.vs)+' won this one' : 'A tie!'); } else toast('Update added'); },
-  logEntry(b){ const l = S.logs.find(x => x.id === view.logId), e = l.entries.find(x => x.id === b.dataset.id);
-    openForm({title:'Edit update', fields:[...(l.unit ? [{k:'val',label:(l.vs ? meName()+' ' : '')+l.unit,value:e.val}] : []),...(l.vs ? [{k:'vs',label:l.vs+' '+l.unit,value:e.vs}] : []),{k:'date',label:'Date',type:'date',value:e.date},{k:'text',label:'Note',type:'textarea',rows:5,value:e.text}],
-      onSave:v => { if (l.unit) e.val = v.val; if (l.vs) e.vs = v.vs; e.date = v.date || e.date; e.text = v.text; },
+    if (comp && isAmount(l)){ const e = l.entries.find(x => x.date === date);
+      if (e){ Object.keys(vals).forEach(k => { if (k === 'me') e.val = vals.me; else (e.others = e.others || {})[k] = vals[k]; }); if (text) e.text = e.text ? e.text+'\n'+text : text; e.at = new Date().toISOString(); save(); toast('Day updated'); return; } }
+    const others = {}; Object.keys(vals).filter(k => k !== 'me').forEach(k => others[k] = vals[k]);
+    l.entries.push({id:uid(), date, val: vals.me != null ? vals.me : '', others, text, at:new Date().toISOString()}); save();
+    if (comp){ const row = dayTable(l).T[date] || {}, w = dayWinner(l, row); toast(w === 'me' ? 'You’re winning the day!' : w && w !== 'tie' ? pName(l,w)+' is winning the day' : w === 'tie' ? 'Tied for now' : 'Saved'); } else toast('Update added'); },
+  logEntry(b){ const l = S.logs.find(x => x.id === view.logId), e = l.entries.find(x => x.id === b.dataset.id), comp = (l.people||[]).length > 0;
+    openForm({title:'Edit update', fields:[...logPeople(l).map(p => ({k:'p_'+p.id, label:(comp ? p.name+' ' : '')+(l.unit||'Number'), value: p.id === 'me' ? e.val : (e.others||{})[p.id]})),{k:'date',label:'Date',type:'date',value:e.date},{k:'text',label:'Note',type:'textarea',rows:5,value:e.text}],
+      onSave:v => { logPeople(l).forEach(p => { const x = v['p_'+p.id]; if (p.id === 'me') e.val = x; else { e.others = e.others || {}; if (x === '') delete e.others[p.id]; else e.others[p.id] = x; } }); e.date = v.date || e.date; e.text = v.text; },
       onDelete:() => { l.entries = l.entries.filter(x => x.id !== e.id); }}); return false; },
   logCopy(b){ const l = S.logs.find(x => x.id === view.logId), txt = weekText(l, +b.dataset.v);
     (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast('Week copied'), () => {
