@@ -378,6 +378,34 @@ nav.tabs button.on svg .f{fill:var(--accent)}
 .starbtn{flex:none;width:32px;height:32px;font-size:22px;line-height:1;color:var(--muted)}
 .starbtn.on{color:var(--yellow);text-shadow:1px 1px 0 var(--ink)}
 .lentry.starred{background:color-mix(in srgb,var(--yellow) 14%,transparent);box-shadow:inset 3px 0 0 var(--yellow);padding-left:8px;padding-right:4px}
+.moonq{display:flex;gap:14px;align-items:flex-start;background:color-mix(in srgb,var(--blue) 14%,var(--paper))}
+.moonic{flex:none;width:40px;height:40px;border-radius:50%;background:var(--yellow);border:2px solid var(--ink);position:relative;overflow:hidden}
+.moonic i{position:absolute;width:40px;height:40px;border-radius:50%;background:color-mix(in srgb,var(--blue) 14%,var(--paper));left:12px;top:-8px}
+.moonb{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.moonb b{font-family:var(--pixel);font-size:17px}
+.datescard .drow{display:flex;gap:12px;align-items:center;padding:8px 0;border-bottom:1.5px dashed var(--line)}
+.datescard .drow:last-child{border-bottom:0}
+.datescard .drow[data-act]{cursor:pointer}
+.dwhen{flex:none;width:78px;font-family:var(--pixel);font-size:13px;font-weight:600;display:flex;flex-direction:column;line-height:1.2}
+.dwhen i{font-style:normal;font-weight:400;font-size:11px;color:var(--muted)}
+.dname2{flex:1;min-width:0;font-size:14px}
+.drow.today{background:color-mix(in srgb,var(--pink) 22%,var(--paper));border:2px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:8px 10px;margin:4px 0 8px}
+.drow.today .dname2{font-weight:600;font-size:15px}
+.drow.tmr{background:color-mix(in srgb,var(--yellow) 22%,var(--paper));padding:8px 10px;border:2px dashed var(--ink);margin:4px 0}
+.drow.eid.today,.drow.holiday.today{background:color-mix(in srgb,var(--mint) 25%,var(--paper))}
+.hello.party{position:relative;padding:6px 0 4px}
+.hello.party .hgreet{color:var(--accent);text-shadow:3px 3px 0 var(--pink)}
+.confetti{position:absolute;inset:-14px 0 auto 0;height:70px;pointer-events:none;overflow:hidden}
+.confetti i{position:absolute;top:-10px;width:7px;height:7px;background:var(--c);border:1px solid var(--ink);animation:fall 2.6s linear infinite}
+@keyframes fall{to{transform:translateY(80px) rotate(180deg);opacity:0}}
+@media (prefers-reduced-motion:reduce){.confetti i{animation:none;top:auto;bottom:6px}}
+.qnote{position:relative;background:color-mix(in srgb,var(--yellow) 55%,var(--paper));border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:12px 14px 10px;margin:4px 0 18px;transform:rotate(-.4deg)}
+.qnote::before{content:'';position:absolute;top:-10px;left:50%;width:70px;height:18px;transform:translateX(-50%) rotate(-2deg);background:color-mix(in srgb,var(--blue) 55%,transparent);border:1px solid rgba(0,0,0,.15)}
+.qnh{font-family:var(--pixel);font-weight:600;font-size:17px;color:#1E2440;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.qnh .link{color:#1E2440}
+.qnta{width:100%;border:0;background:transparent;resize:vertical;color:#1E2440;font-size:15px;line-height:28px;background-image:linear-gradient(transparent 27px, rgba(30,36,64,.18) 27px);background-size:100% 28px;padding:0;min-height:140px}
+.qnta:focus{outline:none}
+.qnta::placeholder{color:rgba(30,36,64,.45)}
 .vsboard{text-align:center}
 .vshead{display:flex;align-items:center;justify-content:center;gap:12px}
 .vsn{font-family:var(--pixel);font-weight:700;font-size:22px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -610,11 +638,11 @@ function blank(){ return {
   profile:{name:'',birthday:'',from:'',quote:''}, favs:[], tops:[],
   tasks:{}, events:[], habits:[], checks:{}, mood:{},
   daily:{}, wish:[], lists:[], persona:null,
-  f1:{seasons:{}, gps:[]}, jar:[], savings:[], money:{sessions:[]}, salah:{}, logs:[], about:{accent:'pink', photo:null, note:'', fields:[], boxes:[]}, board:[], map:{factions:[], tiles:{}},
+  f1:{seasons:{}, gps:[]}, jar:[], savings:[], money:{sessions:[]}, salah:{}, logs:[], dates:[], dateOff:{}, moon:{}, moonSnooze:{}, quickNote:'', showDaily:false, about:{accent:'pink', photo:null, note:'', fields:[], boxes:[]}, board:[], map:{factions:[], tiles:{}},
   theme:'auto'
 };}
 function load(){
-  try{ const r = localStorage.getItem(KEY); if (r){ const d = Object.assign(blank(), JSON.parse(r)); d.profile = Object.assign(blank().profile, d.profile); d.f1 = Object.assign({seasons:{},gps:[]}, d.f1); d.map = Object.assign({factions:[],tiles:{}}, d.map); d.money = Object.assign({sessions:[]}, d.money); d.salah = d.salah || {}; d.logs = d.logs || []; d.about = Object.assign({accent:'pink', photo:null, note:'', fields:[], boxes:[]}, d.about);
+  try{ const r = localStorage.getItem(KEY); if (r){ const d = Object.assign(blank(), JSON.parse(r)); d.profile = Object.assign(blank().profile, d.profile); d.f1 = Object.assign({seasons:{},gps:[]}, d.f1); d.map = Object.assign({factions:[],tiles:{}}, d.map); d.money = Object.assign({sessions:[]}, d.money); d.salah = d.salah || {}; d.logs = d.logs || []; d.dates = d.dates || []; d.dateOff = d.dateOff || {}; d.moon = d.moon || {}; d.moonSnooze = d.moonSnooze || {}; if (d.showDaily == null) d.showDaily = false; d.about = Object.assign({accent:'pink', photo:null, note:'', fields:[], boxes:[]}, d.about);
     d.lists.forEach(l => { if (!l.type){ l.type = 'list'; l.items = (l.body||'').split('\n').filter(x => x.trim()).map(t => ({id:Math.random().toString(36).slice(2,10), t})); delete l.body; } });
     return d; } }catch(e){}
   return blank();
@@ -767,8 +795,106 @@ function pLock(){ if (pT){ clearTimeout(pT); pT = null; if (P.key) pSave(); } P.
 
 /* ================= view state ================= */
 let view = { tab:'home', room:null, day:todayKey(), month:todayKey().slice(0,7), mode:'month', yearOf:null,
-  j:'daily', jday:todayKey(), listId:null, season:String(new Date().getFullYear()), gpId:null, jarOpen:null, paint:null };
+  j:'lists', jday:todayKey(), listId:null, season:String(new Date().getFullYear()), gpId:null, jarOpen:null, paint:null };
 let lastToday = todayKey();
+
+/* ================= IMPORTANT DATES ================= */
+const BUILTIN_DATES = [
+  {id:'b_newyear', title:'New Year', md:'01-01'},
+  {id:'b_ekushe', title:'International Mother Language Day', md:'02-21'},
+  {id:'b_indep', title:'Independence Day', md:'03-26'},
+  {id:'b_boishakh', title:'Pohela Boishakh', md:'04-14'},
+  {id:'b_mother', title:'Mother’s Day', nth:[4,0,2]},
+  {id:'b_father', title:'Father’s Day', nth:[5,0,3]},
+  {id:'b_victory', title:'Victory Day', md:'12-16'},
+  {id:'b_ramadan', title:'Ramadan begins (approx.)', hijri:[9,1]},
+  {id:'b_fitr', title:'Eid ul-Fitr (approx.)', hijri:[10,1], eid:true},
+  {id:'b_adha', title:'Eid ul-Adha (approx.)', hijri:[12,10], eid:true}
+];
+const HIJRI_CACHE = {};
+function hijriDays(y){
+  if (HIJRI_CACHE[y]) return HIJRI_CACHE[y];
+  const out = {};
+  try { const fmt = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura', {month:'numeric', day:'numeric'});
+    for (let d = new Date(y,0,1); d.getFullYear() === y; d.setDate(d.getDate()+1)){
+      const p = fmt.formatToParts(d), m = +(p.find(x => x.type === 'month')||{}).value, dd = +(p.find(x => x.type === 'day')||{}).value, k = m+'-'+dd;
+      if (!out[k]) out[k] = keyOf(d); } } catch(e){}
+  return HIJRI_CACHE[y] = out;
+}
+function dateOccurrences(y){
+  const out = [], mdKey = md => { let [m,d] = md.split('-').map(Number); if (m === 2 && d === 29 && new Date(y,1,29).getMonth() !== 1) d = 28; return y+'-'+pad(m)+'-'+pad(d); };
+  S.dates.forEach(x => {
+    if (!x.date) return;
+    if (x.repeat === 'once'){ if (+x.date.slice(0,4) === y) out.push({k:x.date, x}); return; }
+    const k = mdKey(x.date.slice(5)); out.push({k, x, years: x.showAge === 'yes' ? y - +x.date.slice(0,4) : null});
+  });
+  const dob = getDob();
+  if (dob) out.push({k:mdKey(dob.slice(5)), me:true, x:{title:'Your birthday', kind:'birthday'}, years:y - +dob.slice(0,4)});
+  BUILTIN_DATES.forEach(b => {
+    if (S.dateOff[b.id]) return;
+    let k = null;
+    if (b.md) k = mdKey(b.md);
+    else if (b.nth){ const first = new Date(y, b.nth[0], 1); k = keyOf(new Date(y, b.nth[0], 1 + (b.nth[1] - first.getDay() + 7) % 7 + (b.nth[2]-1)*7)); }
+    else if (b.hijri){ const conf = S.moon[b.id+'-'+y]; k = conf || hijriDays(y)[b.hijri[0]+'-'+b.hijri[1]]; if (conf){ out.push({k, builtin:true, x:{title:b.title.replace(' (approx.)',''), kind:b.eid ? 'eid' : 'holiday', id:b.id}}); return; } }
+    if (k) out.push({k, builtin:true, x:{title:b.title, kind:b.eid ? 'eid' : 'holiday', id:b.id}});
+  });
+  return out;
+}
+const datesOn = k => dateOccurrences(+k.slice(0,4)).filter(o => o.k === k);
+function upcomingDates(from, days){
+  const y = +from.slice(0,4), end = addDays(from, days);
+  return dateOccurrences(y).concat(dateOccurrences(y+1)).filter(o => o.k >= from && o.k <= end).sort((a,b) => a.k.localeCompare(b.k));
+}
+function dateLabel(o){
+  const n = o.me ? 'Your birthday' : o.x.title;
+  if (o.x.kind === 'birthday' && !o.me) return `${esc(n)}’s birthday${o.years > 0 ? ', turns '+o.years : ''}`;
+  if (o.x.kind === 'anniv') return `${esc(n)}${o.years > 0 ? ', '+o.years+' year'+(o.years>1?'s':'') : ''}`;
+  if (o.me) return `Your birthday${o.years > 0 ? ', you turn '+o.years : ''}`;
+  return esc(n);
+}
+function dateRow(o, from){
+  const dd = dayDiff(o.k, from), when = dd === 0 ? 'Today' : dd === 1 ? 'Tomorrow' : 'In '+dd+' days';
+  return `<div class="drow ${o.x.kind||''} ${dd===0?'today':dd===1?'tmr':''}" ${o.x.id && !o.builtin ? `data-act="dateEdit" data-id="${o.x.id}"` : ''}><span class="dwhen">${when}<i>${shortDay(o.k)}</i></span><span class="dname2">${dateLabel(o)}</span></div>`;
+}
+function datesCard(day, home){
+  const t = todayKey(), list = home ? upcomingDates(t, 30) : datesOn(day);
+  const shown = home ? list.filter((o,i) => dayDiff(o.k, t) <= 1 || i < 4).slice(0, 6) : list;
+  return `<section class="paper datescard"><h2>${home ? 'Dates' : 'Dates on this day'} <span style="display:flex;gap:8px"><button class="pbtn small ghost" data-act="dateNew" data-k="${home ? '' : day}">+ Date</button>${home ? `<button class="link" data-act="go" data-tab="more" data-room="dates">All</button>` : ''}</span></h2>
+    ${shown.length ? shown.map(o => dateRow(o, home ? t : day)).join('') : `<div class="empty">${home ? 'Nothing in the next 30 days.' : 'Nothing special.'}</div>`}</section>`;
+}
+function moonPrompts(){
+  const t = todayKey(), y = +t.slice(0,4), out = [];
+  BUILTIN_DATES.filter(b => b.hijri && !S.dateOff[b.id]).forEach(b => {
+    const key = b.id+'-'+y; if (S.moon[key] || S.moonSnooze[key] === t) return;
+    const calc = hijriDays(y)[b.hijri[0]+'-'+b.hijri[1]]; if (!calc) return;
+    const dd = dayDiff(calc, t); if (dd > 2 || dd < -2) return;
+    out.push({b, key, calc});
+  });
+  return out.map(({b, key, calc}) => { const ram = b.id === 'b_ramadan', name = ram ? 'Ramadan' : b.title.replace(' (approx.)','');
+    return `<section class="paper full moonq"><div class="moonic"><i></i></div><div class="moonb"><b>${ram ? 'Ramadan moon sighted?' : 'Moon sighted for '+esc(name)+'?'}</b>
+      <span class="muted">Expected around ${shortDay(calc)}. Tap once it’s announced.</span>
+      <div class="chips" style="margin-top:8px"><button class="chip on" data-act="moonSet" data-v="${key}" data-k="${t}">${ram ? 'Starts today' : 'Eid is today'}</button><button class="chip on" data-act="moonSet" data-v="${key}" data-k="${addDays(t,1)}">${ram ? 'Starts tomorrow' : 'Eid is tomorrow'}</button><button class="chip" data-act="moonSnooze" data-v="${key}">Not yet</button></div></div></section>`; }).join('');
+}
+function renderDates(){
+  const t = todayKey(), all = upcomingDates(t, 364);
+  let h = roomHead('Dates') + `<button class="pbtn wide" data-act="dateNew" style="margin-bottom:18px">+ Add a date</button>`;
+  const mine = all.filter(o => !o.builtin);
+  h += `<section class="paper full"><h2>Your dates</h2>${mine.length ? mine.map(o => dateRow(o, t)).join('') : `<div class="empty">Birthdays, anniversaries, anything you shouldn’t forget. They show on Home on the day and the day before.</div>`}</section>`;
+  h += `<section class="paper full"><h2>Built in</h2><p class="muted" style="margin:-4px 0 8px">Tap to turn off the ones you don’t want.</p><div class="chips">${BUILTIN_DATES.map(b => `<button class="chip ${S.dateOff[b.id] ? '' : 'on'}" data-act="dateOff" data-v="${b.id}">${S.dateOff[b.id] ? '' : '✓ '}${esc(b.title)}</button>`).join('')}</div>
+    <p class="muted" style="margin:10px 0 0">Eid and Ramadan depend on the moon. A couple of days before, Home asks if the moon was sighted, so the date ends up exact.</p></section>`;
+  return h;
+}
+function dateForm(x, day){
+  openForm({title: x ? 'Edit date' : 'New date', focus: !x,
+    fields:[{k:'title',label:'Name',value:x&&x.title,ph:'e.g. A friend'},
+      {k:'kind',label:'Type',type:'select',options:[{v:'birthday',n:'Birthday'},{v:'anniv',n:'Anniversary'},{v:'event',n:'Other'}],value:x?x.kind:'birthday'},
+      {k:'date',label:'Date',type:'date',value:x ? x.date : (day || todayKey())},
+      {k:'repeat',label:'Repeats',type:'select',options:[{v:'yearly',n:'Every year'},{v:'once',n:'Just once'}],value:x?x.repeat:'yearly'},
+      {k:'showAge',label:'Count the years (age, years together)',type:'select',options:[{v:'no',n:'No'},{v:'yes',n:'Yes, the year above is real'}],value:x?x.showAge:'no'},
+      {k:'greet',label:'Greeting on Home that day (optional)',value:x&&x.greet,ph:'e.g. Happy anniversary!'}],
+    onSave:v => { if (!v.title || !v.date){ toast('Add a name and date'); return false; } if (x) Object.assign(x, v); else S.dates.push(Object.assign({id:uid()}, v)); },
+    onDelete: x ? () => { S.dates = S.dates.filter(d => d.id !== x.id); } : null});
+}
 
 /* ================= HOME ================= */
 const boardPending = () => S.board.filter(n => n.col === 1);
@@ -799,15 +925,19 @@ function habitChips(k, showStreak){
 }
 function renderHome(){
   const t = todayKey(), hr = new Date().getHours();
-  const greet = hr<5 ? 'Up late' : hr<12 ? 'Good morning' : hr<17 ? 'Good afternoon' : hr<21 ? 'Good evening' : 'Good night';
-  const name = S.profile.name.trim();
+  const todayDates = datesOn(t), myBday = todayDates.find(o => o.me), eid = todayDates.find(o => o.x.kind === 'eid'), newYear = todayDates.find(o => o.x.id === 'b_newyear');
+  const custom = !myBday && todayDates.find(o => !o.builtin && !o.me && (o.x.greet||'').trim());
+  const greet = myBday ? 'Happy Birthday' : eid ? 'Eid Mubarak' : newYear ? 'Happy New Year' : hr<5 ? 'Up late' : hr<12 ? 'Good morning' : hr<17 ? 'Good afternoon' : hr<21 ? 'Good evening' : 'Good night';
+  const name = (S.profile.nickname || S.profile.name || '').trim();
   const tasks = (S.tasks[t]||[]).filter(x => !x.skipped && !x.moved).concat(boardPending().map(() => ({done:false}))), done = tasks.filter(x => x.done).length;
   const hDone = S.habits.filter(x => (S.checks[x.id]||{})[t]).length;
   const lo = leftovers(), mv = S.mood[t]||0;
 
-  let h = `<section class="hello"><div class="hgreet">${greet}${name ? ', '+esc(name) : ''}</div>
+  const party = myBday || custom || eid || newYear;
+  let h = `<section class="hello ${party ? 'party' : ''}">${party ? `<div class="confetti">${Array.from({length:14}, (_,i) => `<i style="left:${(i*7.3)%100}%;--c:var(--${COLORS[i%COLORS.length]});animation-delay:${(i%5)*.4}s"></i>`).join('')}</div>` : ''}<div class="hgreet">${custom ? esc(custom.x.greet.trim()) : greet+(name ? ', '+esc(name) : '')+(party ? '!' : '')}</div>
     <div class="ddate">${parse(t).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}</div></section>`;
 
+  h += moonPrompts();
   h += `<section class="paper strip">
     <div class="srow"><span class="sl">Tasks</span><div class="bar">${tasks.length ? tasks.map(x=>`<i class="${x.done?'on':''}"></i>`).join('') : '<i></i>'}</div><span class="sn">${done}/${tasks.length}</span></div>
     <div class="srow"><span class="sl">Habits</span><div class="bar">${S.habits.length ? S.habits.map(x=>`<i class="${(S.checks[x.id]||{})[t]?'on':''}" style="--c:var(--${x.color})"></i>`).join('') : '<i></i>'}</div><span class="sn">${hDone}/${S.habits.length}</span></div>
@@ -817,11 +947,7 @@ function renderHome(){
   if (lo.length) h += `<div class="banner"><span>${lo.length} unfinished from before</span><button class="carry" data-act="copyAll">Copy all</button><button class="carry" data-act="go" data-tab="days">Pick</button></div>`;
   h += taskList(t, true) + addTaskRow(t) + `</section>`;
 
-  const evs = S.events.filter(e => e.date === t).sort((a,b) => (a.time||'').localeCompare(b.time||''));
-  const soon = S.events.filter(e => e.date > t).sort((a,b) => (a.date+(a.time||'')).localeCompare(b.date+(b.time||''))).slice(0,3);
-  h += `<section class="paper"><h2>Plans <button class="pbtn small ghost" data-act="newEvent" data-k="${t}">+ Plan</button></h2>
-    ${evs.length ? evs.map(e => evRow(e)).join('') : `<div class="empty">Nothing planned today.</div>`}
-    ${soon.length ? `<div class="muted" style="margin:12px 0 2px">Next up</div>${soon.map(e => evRow(e,true)).join('')}` : ''}</section>`;
+  h += datesCard(t, true);
 
   h += `<section class="paper"><h2>Habits</h2>${habitChips(t, true)}</section>`;
   const sst = salahStreak();
@@ -831,7 +957,7 @@ function renderHome(){
 
   const tiles = [];
   const jd = S.daily[t]||{}, wrote = Object.values(jd).some(v => String(v).trim());
-  tiles.push(`<button class="lt" style="--c:var(--lilac)" data-act="go" data-tab="journal" data-j="daily"><b><i></i>Journal</b><span>${wrote ? 'Written today. Nice.' : esc(pick(PROMPTS, t))}</span></button>`);
+  if (S.showDaily) tiles.push(`<button class="lt" style="--c:var(--lilac)" data-act="go" data-tab="journal" data-j="daily"><b><i></i>Journal</b><span>${wrote ? 'Written today. Nice.' : esc(pick(PROMPTS, t))}</span></button>`);
   const wl = S.wish.filter(w => !w.done);
   if (wl.length) tiles.push(`<button class="lt" style="--c:var(--peach)" data-act="go" data-tab="journal" data-j="wish"><b><i></i>Someday</b><span>${esc(pick(wl, t).text)}</span></button>`);
   const cur = S.board.filter(n => n.col === 1);
@@ -845,6 +971,7 @@ function renderHome(){
   if (lastGp) tiles.push(`<button class="lt" style="--c:var(--cherry)" data-act="openGp" data-id="${lastGp.id}"><b><i></i>Last GP</b><span>${esc(lastGp.name)}${lastGp.rating ? ', '+lastGp.rating+'/10' : ''}</span></button>`);
   if (S.jar.length) tiles.push(`<button class="lt" style="--c:var(--blue)" data-act="go" data-tab="more" data-room="jar"><b><i></i>Mood jar</b><span>${S.jar.length} note${S.jar.length>1?'s':''} waiting for you</span></button>`);
   h += `<div class="little">${tiles.slice(0,4).join('')}</div>`;
+  h += `<section class="qnote full"><div class="qnh">Quick note${(S.quickNote||'').trim() ? `<button class="link" data-act="qnClear">Clear</button>` : ''}</div><textarea class="qnta" data-b="quickNote" rows="5" placeholder="Jot something down...">${esc(S.quickNote||'')}</textarea></section>`;
   return h;
 }
 
@@ -866,14 +993,7 @@ function renderDays(){
     ${taskList(d, false)}
     ${unfinishedPast ? `<button class="pbtn ghost small" style="margin-top:10px" data-act="copyDay" data-k="${d}">Copy all unfinished to today</button>` : ''}
     ${addTaskRow(d)}</section>`;
-  const evs = S.events.filter(e => e.date === d).sort((a,b) => (a.time||'').localeCompare(b.time||''));
-  h += `<section class="paper"><h2>Plans <button class="pbtn small ghost" data-act="newEvent" data-k="${d}">+ Plan</button></h2>
-    ${evs.length ? evs.map(e => evRow(e)).join('') : `<div class="empty">No plans on this day.</div>`}`;
-  if (isToday){
-    const soon = S.events.filter(e => e.date > d && dayDiff(e.date,d) <= 30).sort((a,b) => (a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));
-    if (soon.length) h += `<div class="muted" style="margin:14px 0 2px">Coming up</div>${soon.map(e => evRow(e,true)).join('')}`;
-  }
-  return h + `</section>`;
+  return h + datesCard(d, false);
 }
 
 /* ================= HABITS ================= */
@@ -925,7 +1045,8 @@ function renderHabits(){
 
 /* ================= JOURNAL ================= */
 function renderJournal(){
-  const tabs = [['daily','Daily'],['persona','Persona'],['wish','Wishlist'],['lists','Notebook']];
+  const tabs = (S.showDaily ? [['daily','Daily']] : []).concat([['persona','Persona'],['wish','Wishlist'],['lists','Notebook']]);
+  if (view.j === 'daily' && !S.showDaily) view.j = 'lists';
   let h = `<div class="seg">${tabs.map(([k,n]) => `<button class="${view.j===k?'on':''}" data-act="jtab" data-v="${k}">${n}</button>`).join('')}</div>`;
   if (view.j === 'daily') h += renderDaily();
   else if (view.j === 'persona') h += renderPersona();
@@ -1185,6 +1306,7 @@ function renderMore(){
   if (view.room === 'save') return renderSave();
   if (view.room === 'money') return renderMoney();
   if (view.room === 'salah') return renderSalah();
+  if (view.room === 'dates') return renderDates();
   if (view.room === 'board') return renderBoard();
   if (view.room === 'settings') return renderSettings();
   const gps = S.f1.gps.filter(g => g.season === view.season).length;
@@ -1193,6 +1315,7 @@ function renderMore(){
     ${roomTile('f1','F1 Journal', gps ? gps+' races in '+view.season : view.season+' season', ['cherry','sand'])}
     ${roomTile('about','About Me', S.profile.name ? esc(S.profile.name) : 'Your page', ['lilac','pink'])}
     ${roomTile('jar','Mood Jar', S.jar.length+' notes', ['blue','mint','yellow'])}
+    ${roomTile('dates','Dates', (() => { const u = upcomingDates(todayKey(), 30); return u.length ? dateLabel(u[0]).replace(/<[^>]+>/g,'').slice(0,26)+', '+(dayDiff(u[0].k, todayKey()) === 0 ? 'today' : 'in '+dayDiff(u[0].k, todayKey())+'d') : 'Birthdays & more'; })(), ['pink','yellow'])}
     ${roomTile('salah','Salah', (() => { const n = salahStreak(); return n ? n+' day streak' : salahCount(todayKey())+' of 5 today'; })(), ['teal','mint'])}
     ${roomTile('money','Money', (() => { const a = activeSessions(); return a.length === 1 ? taka(moneyLeft(a[0]))+' left' : a.length ? a.length+' sessions running' : 'Track a session'; })(), ['lime','mint','yellow'])}
     ${roomTile('save','Savings', S.savings.length ? S.savings.length+' challenge'+(S.savings.length>1?'s':'') : 'Save in circles', ['mint','lime'])}
@@ -1637,7 +1760,7 @@ function syncCard(){
     <div class="row"><button class="pbtn ghost" data-act="syDisconnect">Disconnect</button><button class="pbtn" data-act="syNow">Sync now</button></div></section>`;
 }
 function renderSettings(){
-  return roomHead('Settings') + syncCard() + `<section class="paper"><h2>Your name</h2><input class="inline" data-b="profile.name" value="${esc(S.profile.name)}" placeholder="Shown on Home"></section>
+  return roomHead('Settings') + syncCard() + `<section class="paper"><h2>Daily journal</h2><p class="muted" style="margin:0 0 10px">Hidden by default. Your old entries stay saved either way.</p><div class="seg" style="margin:0"><button class="${S.showDaily?'':'on'}" data-act="dailyToggle" data-v="">Hidden</button><button class="${S.showDaily?'on':''}" data-act="dailyToggle" data-v="1">Shown</button></div></section>` + `<section class="paper"><h2>Your name</h2><input class="inline" data-b="profile.name" value="${esc(S.profile.name)}" placeholder="Shown on Home"></section>
     <section class="paper"><h2>Look</h2><div class="seg" style="margin:0">${['auto','light','dark'].map(v => `<button class="${S.theme===v?'on':''}" data-act="theme" data-v="${v}">${v[0].toUpperCase()+v.slice(1)}</button>`).join('')}</div></section>
     <section class="paper"><h2>Backup</h2><p class="muted" style="margin:0 0 12px">Everything lives on this device for now. Copy a backup now and then. Photos stay on the device and are not in the backup.</p>
     <div class="row" style="margin:0"><button class="pbtn ghost" data-act="backup">Copy backup</button><button class="pbtn ghost" data-act="restore">Restore</button></div></section>`;
@@ -1908,6 +2031,13 @@ const A = {
       if (navigator.canShare && navigator.canShare({files:[file]})) await navigator.share({files:[file], title:'About me'}); else A.shotSave(); } catch(e){} return false; },
   shotSave(){ if (!SHOT) return false; const a = document.createElement('a'); a.href = SHOT; a.download = 'about-me.png'; document.body.appendChild(a); a.click(); a.remove(); toast('Saved to downloads'); return false; },
   topPicDel(b){ const t = S.tops.find(x => x.id === b.dataset.id), i = +b.dataset.v; if (t && t.pics && t.pics[i]){ IMG.del(t.pics[i]).catch(()=>{}); t.pics[i] = null; save(); } },
+  moonSet(b){ S.moon[b.dataset.v] = b.dataset.k; save(); toast(dayDiff(b.dataset.k, todayKey()) === 0 ? 'Mubarak!' : 'Saved, see you tomorrow'); },
+  moonSnooze(b){ S.moonSnooze[b.dataset.v] = todayKey(); save(); },
+  dateNew(b){ dateForm(null, b.dataset.k); return false; },
+  dateEdit(b){ const x = S.dates.find(d => d.id === b.dataset.id); if (x) dateForm(x); return false; },
+  dateOff(b){ const id = b.dataset.v; if (S.dateOff[id]) delete S.dateOff[id]; else S.dateOff[id] = true; save(); },
+  dailyToggle(b){ S.showDaily = !!b.dataset.v; save(); },
+  qnClear(){ ask('Clear your quick note?', () => { S.quickNote = ''; }, 'Clear'); return false; },
   aAccent(b){ S.about.accent = b.dataset.v; save(); },
   aBoxAdd(b){ S.about.boxes.push({id:uid(), title:b.dataset.v || 'My box', body:'', color:pick(['pink','mint','lilac','yellow','blue','peach','teal'], uid())}); save(); },
   aBoxDel(b){ const id = b.dataset.id; ask('Remove this box?', () => { S.about.boxes = S.about.boxes.filter(x => x.id !== id); }, 'Remove'); return false; },
