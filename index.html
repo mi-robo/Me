@@ -371,6 +371,13 @@ nav.tabs button.on svg .f{fill:var(--accent)}
 .sgrid .sd.l5{background:var(--teal);color:#1E2440;border-color:var(--ink)}
 .sgrid .sd.sel{outline:2px solid var(--accent);outline-offset:1px}
 .sgrid .wk{font-size:10px;color:var(--muted);text-align:center;font-family:var(--pixel)}
+.lentry{align-items:flex-start}
+.lentry .lbody{flex:1;min-width:0}
+.lentry .tx.clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.lacts{display:flex;gap:14px;margin-top:4px}
+.starbtn{flex:none;width:32px;height:32px;font-size:22px;line-height:1;color:var(--muted)}
+.starbtn.on{color:var(--yellow);text-shadow:1px 1px 0 var(--ink)}
+.lentry.starred{background:color-mix(in srgb,var(--yellow) 14%,transparent);box-shadow:inset 3px 0 0 var(--yellow);padding-left:8px;padding-right:4px}
 .vsboard{text-align:center}
 .vshead{display:flex;align-items:center;justify-content:center;gap:12px}
 .vsn{font-family:var(--pixel);font-weight:700;font-size:22px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -1024,7 +1031,7 @@ function weekText(l, w){
 ${parse(e.date).toLocaleDateString('en-GB',{weekday:'short'})} ${shortDay(e.date)}
 `; lastDay = e.date; }
     t += l.vs && e.vs != null && e.vs !== '' ? `- ${meName()} ${e.val} vs ${l.vs} ${e.vs}${+e.val > +e.vs ? ' (won)' : +e.val < +e.vs ? ' (lost)' : ' (tie)'}${e.text ? ', '+e.text : ''}
-` : `- ${e.val !== '' && e.val != null ? '['+e.val+'] ' : ''}${e.text}
+` : `- ${e.star ? '★ ' : ''}${e.val !== '' && e.val != null ? '['+e.val+'] ' : ''}${e.text}
 `; });
   return t.trim();
 }
@@ -1080,13 +1087,20 @@ function renderLog(l){
     <div class="row" style="margin-top:10px"><button class="pbtn" data-act="logAdd">${l.vs ? 'Save day' : 'Add update'}</button></div></section>`;
   const weeks = [...new Set(l.entries.map(e => logWeek(l, e.date)))].sort((a,b) => b-a);
   if (!weeks.length) h += `<section class="paper full"><div class="empty">No updates yet. Your first one starts Week 1.</div></section>`;
+  const nStar = l.entries.filter(e => e.star).length;
+  if (!l.vs && l.entries.length) h += `<div class="chips full" style="margin-bottom:14px"><button class="chip ${!view.logStar?'on':''}" data-act="logStarF" data-v="">All</button><button class="chip ${view.logStar?'on':''}" data-act="logStarF" data-v="1">★ Starred${nStar ? ' ('+nStar+')' : ''}</button></div>`;
   weeks.forEach(w => { const st = weekStats(l, w), [a,b] = weekRange(l, w); let lastDay = '';
+    if (view.logStar && !l.vs){ st.es = st.es.filter(e => e.star); if (!st.es.length) return; }
     h += `<section class="paper full"><div class="wkhead"><div><b>Week ${w}</b> <span class="muted">${shortDay(a)} to ${shortDay(b)}</span></div><button class="pbtn small ghost" data-act="logCopy" data-v="${w}">Copy week</button></div>
       <p class="wkstat" style="margin:4px 0 6px">${l.vs ? (() => { const ws = vsStats(l, e => logWeek(l, e.date) === w); return `${esc(meName())} <b>${ws.W}</b> - <b>${ws.L}</b> ${esc(l.vs)}${ws.T ? ', '+ws.T+' tie'+(ws.T>1?'s':'') : ''}. Week total ${nf(ws.me)} vs ${nf(ws.them)}`; })() : ''}${l.vs ? '' : st.es.length+' update'+(st.es.length===1?'':'s')}${!l.vs && st.diff != null ? `, ${esc(l.unit||'value')} ${st.from} → ${st.to} <b style="color:${st.diff>=0?'var(--accent)':'var(--danger)'}">(${st.diff>=0?'+':''}${st.diff})</b>` : ''}</p>
       ${st.es.slice().reverse().map(e => { const head = e.date !== lastDay ? `<div class="mday"><span>${parse(e.date).toLocaleDateString('en-GB',{weekday:'short'})} ${shortDay(e.date)}</span></div>` : ''; lastDay = e.date;
         if (l.vs && e.vs != null && e.vs !== ''){ const a = +e.val, b = +e.vs, w = a > b ? 'me' : a < b ? 'them' : 'tie';
           return head + `<button class="lentry vsentry" data-act="logEntry" data-id="${e.id}"><span class="vside ${w==='me'?'w':''}"><i>${esc(meName())}</i><b>${nf(a)}</b></span><span class="vmid">${w==='tie' ? 'tie' : (w==='me' ? '◀' : '▶')+' '+nf(Math.abs(a-b))}</span><span class="vside r ${w==='them'?'w':''}"><i>${esc(l.vs)}</i><b>${nf(b)}</b></span>${e.text ? `<span class="tx vnote">${esc(e.text)}</span>` : ''}</button>`; }
-        return head + `<button class="lentry" data-act="logEntry" data-id="${e.id}">${e.val !== '' && e.val != null ? `<span class="vtag">${esc(e.val)}</span>` : ''}<span class="tx">${esc(e.text)}</span></button>`; }).join('')}</section>`; });
+        const long = (e.text||'').length > 170 || (e.text||'').split('\n').length > 3, open = EXP.has(e.id);
+        return head + `<div class="lentry ${e.star ? 'starred' : ''}">${e.val !== '' && e.val != null ? `<span class="vtag">${esc(e.val)}</span>` : ''}
+          <div class="lbody"><span class="tx ${long && !open ? 'clamp' : ''}">${esc(e.text)}</span>
+            <div class="lacts">${long ? `<button class="link" data-act="logMore" data-id="${e.id}">${open ? 'See less' : 'See more'}</button>` : ''}<button class="link" data-act="logEntry" data-id="${e.id}">Edit</button></div></div>
+          <button class="starbtn ${e.star ? 'on' : ''}" data-act="logStar" data-id="${e.id}" aria-label="${e.star ? 'Unstar' : 'Star for video'}">${e.star ? '★' : '☆'}</button></div>`; }).join('')}</section>`; });
   return h;
 }
 const FOLDER_C = ['yellow','peach','mint','blue','lilac','pink','lime','teal'];
@@ -1808,7 +1822,10 @@ const A = {
     onSave:v => { if (!v.title) return false; l.title = v.title; l.unit = v.unit || (v.vs ? 'Score' : ''); l.vs = v.vs; l.reset = 0; l.start = v.start || l.start; },
     onDelete:() => { S.logs = S.logs.filter(x => x.id !== l.id); view.logId = null; }}); return false; },
   logOpen(b){ view.logId = b.dataset.id; window.scrollTo(0,0); },
-  logBack(){ view.logId = null; },
+  logBack(){ view.logId = null; view.logStar = false; },
+  logMore(b){ const id = b.dataset.id; if (EXP.has(id)) EXP.delete(id); else EXP.add(id); },
+  logStar(b){ const l = S.logs.find(x => x.id === view.logId), e = l && l.entries.find(x => x.id === b.dataset.id); if (!e) return false; e.star = !e.star; save(); toast(e.star ? 'Starred for your video' : 'Unstarred'); },
+  logStarF(b){ view.logStar = !!b.dataset.v; },
   logAdd(){ const l = S.logs.find(x => x.id === view.logId), text = $('lgText').value.trim(), val = $('lgVal') ? $('lgVal').value.trim() : '', vs = $('lgVs') ? $('lgVs').value.trim() : '', date = $('lgDate').value || logToday(l);
     if (l.vs && (val === '' || vs === '')){ toast('Fill both scores'); return false; }
     if (!text && !val){ toast('Write something first'); return false; }
@@ -2018,7 +2035,7 @@ const startTab = location.hash.slice(1);
 if (['home','days','habits','journal'].includes(startTab)) view.tab = startTab;
 const _render = render;
 render = function(){ _render(); if (location.hash.slice(1) !== view.tab){ try { history.replaceState(null, '', '#'+view.tab); } catch(e){} } };
-let SHOT = null, FONT_CSS = null;
+let SHOT = null, FONT_CSS = null; const EXP = new Set();
 const blobToData = b => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(b); });
 async function buildFontCSS(){
   if (FONT_CSS) return FONT_CSS;
