@@ -383,6 +383,12 @@ nav.tabs button.on svg .f{fill:var(--accent)}
 .moonic i{position:absolute;width:40px;height:40px;border-radius:50%;background:color-mix(in srgb,var(--blue) 14%,var(--paper));left:12px;top:-8px}
 .moonb{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .moonb b{font-family:var(--pixel);font-size:17px}
+.drow2{display:flex;flex-direction:column;gap:2px;padding:10px 0;border-bottom:1.5px dashed var(--line);cursor:pointer}
+.drow2:last-child{border-bottom:0}
+.drow2 b{font-weight:600;font-size:15px}
+.drow2 span{font-size:13px;color:var(--muted)}
+.drow2.past{opacity:.5}
+.drow2.today b{color:var(--accent)}
 .datescard .drow{display:flex;gap:12px;align-items:center;padding:8px 0;border-bottom:1.5px dashed var(--line)}
 .datescard .drow:last-child{border-bottom:0}
 .datescard .drow[data-act]{cursor:pointer}
@@ -901,8 +907,13 @@ function moonPrompts(){
 function renderDates(){
   const t = todayKey(), all = upcomingDates(t, 364);
   let h = roomHead('Dates') + `<button class="pbtn wide" data-act="dateNew" style="margin-bottom:18px">+ Add a date</button>`;
-  const mine = all.filter(o => !o.builtin);
-  h += `<section class="paper full"><h2>Your dates</h2>${mine.length ? mine.map(o => dateRow(o, t)).join('') : `<div class="empty">Birthdays, anniversaries, anything you shouldn’t forget. They show on Home on the day and the day before.</div>`}</section>`;
+  const y = +t.slice(0,4), occ = dateOccurrences(y).concat(dateOccurrences(y+1));
+  const nextOf = x => { if (x.repeat === 'once') return {k:x.date, x, past: x.date < t}; return occ.filter(o => o.x === x && o.k >= t).sort((a,b) => a.k.localeCompare(b.k))[0]; };
+  const meNext = occ.filter(o => o.me && o.k >= t).sort((a,b) => a.k.localeCompare(b.k))[0];
+  const mine = S.dates.map(nextOf).filter(Boolean).concat(meNext ? [meNext] : []).sort((a,b) => (a.past?1:0) - (b.past?1:0) || a.k.localeCompare(b.k));
+  const row2 = o => { const dd = dayDiff(o.k, t), when = o.past ? 'passed' : dd === 0 ? 'today' : dd === 1 ? 'tomorrow' : 'in '+nf(dd)+' days';
+    return `<div class="drow2 ${o.past?'past':''} ${dd===0?'today':''}" ${o.x.id ? `data-act="dateEdit" data-id="${o.x.id}"` : ''}><b>${dateLabel(o)}</b><span>${parse(o.k).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}, ${when}${o.x.repeat === 'once' ? ' (once)' : ''}</span></div>`; };
+  h += `<section class="paper full"><h2>Your dates</h2>${mine.length ? mine.map(row2).join('') : `<div class="empty">Birthdays, anniversaries, anything you shouldn’t forget. They show on Home on the day and the day before.</div>`}</section>`;
   h += `<section class="paper full"><h2>Built in</h2><p class="muted" style="margin:-4px 0 8px">Tap to turn off the ones you don’t want.</p><div class="chips">${BUILTIN_DATES.map(b => `<button class="chip ${S.dateOff[b.id] ? '' : 'on'}" data-act="dateOff" data-v="${b.id}">${S.dateOff[b.id] ? '' : '✓ '}${esc(b.title)}</button>`).join('')}</div>
     <p class="muted" style="margin:10px 0 0">Eid and Ramadan depend on the moon. A couple of days before, Home asks if the moon was sighted, so the date ends up exact.</p></section>`;
   return h;
