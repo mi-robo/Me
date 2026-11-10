@@ -16,15 +16,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Silkscreen&text=0123456789&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Lexend:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Lexend:wght@300;400;500;600&family=Baloo+Da+2:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#E9ECF5; --dot:#C7CCE0; --paper:#FBFBFE; --ink:#1E2440; --muted:#646B8F;
   --line:#D3D8E8; --empty:#E3E6F1; --accent:#5A55D2; --accent-ink:#FFFFFF; --danger:#C2415B; --sea:#D8E2F6;
   --pink:#F49CBB; --yellow:#FFCF6B; --mint:#7FD3BB; --blue:#8FB0F5; --lilac:#BC9CF0; --peach:#FFAA80;
   --cherry:#F2727F; --lime:#A9D86E; --teal:#5EC6D6; --sand:#E3C79A; --orchid:#E08FD8; --slate:#A3ABC9;
-  --pixel:'Silkscreen','Pixelify Sans','Courier New',monospace;
-  --body:'Lexend',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --pixel:'Silkscreen','Pixelify Sans','Baloo Da 2','Courier New',monospace;
+  --body:'Lexend','Baloo Da 2',system-ui,-apple-system,'Segoe UI',sans-serif;
   color-scheme:light; box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
@@ -391,7 +391,11 @@ nav.tabs button.on svg .f{fill:var(--accent)}
 .cbnote{font-size:11px;color:var(--muted);margin-top:4px}
 .drow2{display:flex;flex-direction:column;gap:2px;padding:10px 0;border-bottom:1.5px dashed var(--line);cursor:pointer}
 .drow2:last-child{border-bottom:0}
-.drow2 b{font-weight:600;font-size:15px}
+.drow2 b{font-weight:600;font-size:15px;margin-bottom:2px}
+.drow2 span i{font-style:normal;font-family:var(--pixel);font-size:11px;border:1.5px solid var(--line);padding:0 5px;margin-right:6px;color:var(--ink)}
+.calline{display:flex;flex-direction:column;gap:0;font-size:13px;color:var(--muted);margin-top:2px;line-height:1.45}
+.dayhead .calline{align-items:center}
+.calline.mon{align-items:center;font-family:var(--body);font-weight:400;font-size:12px;margin-top:4px}
 .drow2 span{font-size:13px;color:var(--muted)}
 .drow2.past{opacity:.5}
 .drow2.today b{color:var(--accent)}
@@ -786,7 +790,7 @@ function dayHead(k, actPrev, actNext, actToday){
   return `<section class="dayhead">
     <button class="arrow" data-act="${actPrev}" aria-label="Previous day">&lsaquo;</button>
     <div class="mid"><div class="dname">${date.toLocaleDateString('en-GB',{weekday:'long'})}</div>
-      <div class="ddate">${date.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</div>
+      <div class="ddate">${date.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</div>${calLine(k)}
       ${isToday ? `<span class="rel">Today</span>` : `<button class="rel go" data-act="${actToday}">${relLabel(k)}, back to today</button>`}</div>
     <button class="arrow" data-act="${actNext}" aria-label="Next day">&rsaquo;</button></section>`;
 }
@@ -881,6 +885,7 @@ function banglaOf(k){
   return {d:n+1, m:m+1, y:y-593};
 }
 const banglaText = o => o ? `${toBn(o.d)} ${BN_MONTHS[o.m-1]} ${toBn(o.y)}` : '';
+const calLine = k => { const h = hijriOf(k), b = banglaOf(k); return `<div class="calline">${h ? `<span>${h.d} ${HIJRI_MONTHS[h.m-1]} ${h.y}</span>` : ''}<span>${banglaText(b)}</span></div>`; };
 const hijriTextO = o => o ? `${o.d} ${HIJRI_MONTHS[o.m-1]} ${o.y}` : '';
 const BANGLA_ALL = {};
 function banglaAll(y){ if (BANGLA_ALL[y]) return BANGLA_ALL[y]; const out = {}; for (let d = new Date(y,0,1); d.getFullYear() === y; d.setDate(d.getDate()+1)){ const k = keyOf(d), b = banglaOf(k); (out[b.m+'-'+b.d] = out[b.m+'-'+b.d] || []).push(k); } return BANGLA_ALL[y] = out; }
@@ -958,10 +963,21 @@ function renderDates(){
   let h = roomHead('Dates') + `<button class="pbtn wide" data-act="dateNew" style="margin-bottom:18px">+ Add a date</button>`;
   const y = +t.slice(0,4), occ = dateOccurrences(y).concat(dateOccurrences(y+1));
   const first = f => occ.filter(o => f(o) && o.k >= t).sort((a,b) => a.k.localeCompare(b.k))[0];
-  const nextOf = x => x.repeat === 'once' ? [{k:x.date, x, past: x.date < t}] : [null,'hijri','bangla'].map(c => first(o => o.x === x && (o.cal||null) === c));
-  const mine = S.dates.flatMap(nextOf).concat([null,'hijri','bangla'].map(c => first(o => o.me && (o.cal||null) === c))).filter(Boolean).sort((a,b) => (a.past?1:0) - (b.past?1:0) || a.k.localeCompare(b.k));
-  const row2 = o => { const dd = dayDiff(o.k, t), when = o.past ? 'passed' : dd === 0 ? 'today' : dd === 1 ? 'tomorrow' : 'in '+nf(dd)+' days';
-    return `<div class="drow2 ${o.past?'past':''} ${dd===0?'today':''}" ${o.x.id ? `data-act="dateEdit" data-id="${o.x.id}"` : ''}><b>${dateLabel(o)}</b><span>${parse(o.k).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}${o.cal === 'hijri' ? ' ('+hijriTextO(Object.assign({}, (o.me ? S.myBday : o.x).hijriDate, {y:hijriOf(o.k).y}))+')' : o.cal === 'bangla' ? ' ('+banglaText(Object.assign({}, (o.me ? S.myBday : o.x).banglaDate, {y:banglaOf(o.k).y}))+')' : ''}, ${when}${o.x.repeat === 'once' ? ' (once)' : ''}</span></div>`; };
+  const calStr = (o, cal) => { const src = o.me ? S.myBday : o.x, c = (src||{})[cal+'Date']; if (!c) return ''; return cal === 'hijri' ? hijriTextO(Object.assign({}, c, {y:hijriOf(o.k).y})) : banglaText(Object.assign({}, c, {y:banglaOf(o.k).y})); };
+  const whenOf = (o, k) => { const dd = dayDiff(k, t); return o && o.past ? 'passed' : dd === 0 ? 'today' : dd === 1 ? 'tomorrow' : 'in '+nf(dd)+' days'; };
+  const occOf = f => [null,'hijri','bangla'].map(c => first(o => f(o) && (o.cal||null) === c)).filter(Boolean);
+  const groups = S.dates.map(x => ({id:x.id, occ: x.repeat === 'once' ? [{k:x.date, x, past: x.date < t}] : occOf(o => o.x === x)}))
+    .concat(getDob() ? [{id:'me', occ: occOf(o => o.me)}] : []).filter(g => g.occ.length);
+  groups.forEach(g => { g.soon = g.occ.reduce((a,o) => o.k < a ? o.k : a, g.occ[0].k); g.past = g.occ.every(o => o.past); });
+  const mine = groups.sort((a,b) => (a.past?1:0) - (b.past?1:0) || a.soon.localeCompare(b.soon));
+  const row2 = g => { const en = g.occ.find(o => !o.cal), ar = g.occ.find(o => o.cal === 'hijri'), bn = g.occ.find(o => o.cal === 'bangla'), base = en || g.occ[0];
+    const fmt = k => parse(k).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    const lines = [];
+    if (en) lines.push(`<span><i>Date</i>${fmt(en.k)}${bn && bn.k === en.k ? ' ('+calStr(bn,'bangla')+')' : ''}, ${whenOf(en, en.k)}${en.x.repeat === 'once' ? ' (once)' : ''}</span>`);
+    if (ar) lines.push(`<span><i>Arabic</i>${fmt(ar.k)} (${calStr(ar,'hijri')}), ${whenOf(ar, ar.k)}${ar.years > 0 && (!en || ar.years !== en.years) ? ', '+(ar.me ? 'you turn ' : 'turns ')+ar.years : ''}</span>`);
+    if (bn && (!en || bn.k !== en.k)) lines.push(`<span><i>Bangla</i>${fmt(bn.k)} (${calStr(bn,'bangla')}), ${whenOf(bn, bn.k)}</span>`);
+    const dd = dayDiff(g.soon, t);
+    return `<div class="drow2 ${g.past?'past':''} ${dd===0?'today':''}" data-act="dateEdit" data-id="${g.id}"><b>${dateLabel(Object.assign({}, base, {cal:null}))}</b>${lines.join('')}</div>`; };
   if (!getDob()) h += `<p class="muted" style="margin:-6px 0 14px">Add your date of birth in About Me and your birthday shows up here.</p>`;
   h += `<section class="paper full"><h2>Your dates</h2>${mine.length ? mine.map(row2).join('') : `<div class="empty">Birthdays, anniversaries, anything you shouldn’t forget. They show on Home on the day and the day before.</div>`}</section>`;
   h += `<section class="paper full"><h2>Built in</h2><p class="muted" style="margin:-4px 0 8px">Tap to turn off the ones you don’t want.</p><div class="chips">${BUILTIN_DATES.map(b => `<button class="chip ${S.dateOff[b.id] ? '' : 'on'}" data-act="dateOff" data-v="${b.id}">${S.dateOff[b.id] ? '' : '✓ '}${esc(b.title)}</button>`).join('')}</div>
@@ -1047,7 +1063,7 @@ function renderHome(){
 
   const party = myBday || custom || eid || newYear;
   let h = `<section class="hello ${party ? 'party' : ''}">${party ? `<div class="confetti">${Array.from({length:14}, (_,i) => `<i style="left:${(i*7.3)%100}%;--c:var(--${COLORS[i%COLORS.length]});animation-delay:${(i%5)*.4}s"></i>`).join('')}</div>` : ''}<div class="hgreet">${myBday && (S.myBday||{}).greet ? esc(S.myBday.greet) : custom ? esc(custom.x.greet.trim()) : greet+(name ? ', '+esc(name) : '')+(party ? '!' : '')}</div>
-    <div class="ddate">${parse(t).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}</div></section>`;
+    <div class="ddate">${parse(t).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}</div>${calLine(t)}</section>`;
 
   h += moonPrompts();
   h += `<section class="paper strip">
