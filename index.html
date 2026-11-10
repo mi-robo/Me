@@ -383,6 +383,12 @@ nav.tabs button.on svg .f{fill:var(--accent)}
 .moonic i{position:absolute;width:40px;height:40px;border-radius:50%;background:color-mix(in srgb,var(--blue) 14%,var(--paper));left:12px;top:-8px}
 .moonb{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .moonb b{font-family:var(--pixel);font-size:17px}
+.calbar{border:2px solid var(--ink);padding:8px 8px 6px;margin-top:10px;position:relative;background:color-mix(in srgb,var(--blue) 10%,var(--paper))}
+.calbar .cbl{font-family:var(--pixel);font-size:13px;display:block;margin-bottom:6px}
+.calbar .cbin{display:grid;grid-template-columns:64px 1fr 76px;gap:6px}
+.calbar .cbin .field{padding:7px 6px}
+.calbar .x{position:absolute;top:2px;right:2px}
+.cbnote{font-size:11px;color:var(--muted);margin-top:4px}
 .drow2{display:flex;flex-direction:column;gap:2px;padding:10px 0;border-bottom:1.5px dashed var(--line);cursor:pointer}
 .drow2:last-child{border-bottom:0}
 .drow2 b{font-weight:600;font-size:15px}
@@ -850,15 +856,58 @@ function hijriDays(y){
       if (!out[k]) out[k] = keyOf(d); } } catch(e){}
   return HIJRI_CACHE[y] = out;
 }
+const HIJRI_MONTHS = ['Muharram','Safar','Rabi al-Awwal','Rabi al-Thani','Jumada al-Awwal','Jumada al-Thani','Rajab','Shaban','Ramadan','Shawwal','Dhul Qadah','Dhul Hijjah'];
+const HIJRI_ALL = {};
+let HFMT = null;
+function hijriOf(k){ try { HFMT = HFMT || new Intl.DateTimeFormat('en-u-ca-islamic-umalqura', {day:'numeric', month:'numeric', year:'numeric'}); const p = HFMT.formatToParts(parse(k)), g = t => +(p.find(x => x.type === t)||{}).value; return {d:g('day'), m:g('month'), y:g('year')}; } catch(e){ return null; } }
+const hijriText = k => { const h = hijriOf(k); return h ? `${h.d} ${HIJRI_MONTHS[h.m-1]} ${h.y}` : ''; };
+function hijriAll(y){
+  if (HIJRI_ALL[y]) return HIJRI_ALL[y];
+  const out = {};
+  for (let d = new Date(y,0,1); d.getFullYear() === y; d.setDate(d.getDate()+1)){ const k = keyOf(d), h = hijriOf(k); if (!h) break; (out[h.m+'-'+h.d] = out[h.m+'-'+h.d] || []).push(k); }
+  return HIJRI_ALL[y] = out;
+}
+function hijriYearly(y, srcKey, adj){
+  const h = hijriOf(srcKey); if (!h) return [];
+  const map = hijriAll(y), keys = map[h.m+'-'+h.d] || (h.d === 30 ? map[h.m+'-29'] : null) || [];
+  return keys.map(k => addDays(k, +adj || 0)).filter(k => +k.slice(0,4) === y);
+}
+const BN_MONTHS = ['বৈশাখ','জ্যৈষ্ঠ','আষাঢ়','শ্রাবণ','ভাদ্র','আশ্বিন','কার্তিক','অগ্রহায়ণ','পৌষ','মাঘ','ফাল্গুন','চৈত্র'];
+const toBn = v => String(v).replace(/\d/g, c => '০১২৩৪৫৬৭৮৯'[c]);
+function banglaOf(k){
+  const d = parse(k); let y = d.getFullYear(); if (d < new Date(y,3,14)) y--;
+  let n = Math.round((d - new Date(y,3,14))/864e5); const gy = y+1, leap = (gy%4 === 0 && gy%100 !== 0) || gy%400 === 0;
+  const lens = [31,31,31,31,31,31,30,30,30,30,leap?30:29,30]; let m = 0; while (m < 11 && n >= lens[m]){ n -= lens[m]; m++; }
+  return {d:n+1, m:m+1, y:y-593};
+}
+const banglaText = o => o ? `${toBn(o.d)} ${BN_MONTHS[o.m-1]} ${toBn(o.y)}` : '';
+const hijriTextO = o => o ? `${o.d} ${HIJRI_MONTHS[o.m-1]} ${o.y}` : '';
+const BANGLA_ALL = {};
+function banglaAll(y){ if (BANGLA_ALL[y]) return BANGLA_ALL[y]; const out = {}; for (let d = new Date(y,0,1); d.getFullYear() === y; d.setDate(d.getDate()+1)){ const k = keyOf(d), b = banglaOf(k); (out[b.m+'-'+b.d] = out[b.m+'-'+b.d] || []).push(k); } return BANGLA_ALL[y] = out; }
+function calYearly(y, cal, o){
+  if (!o) return [];
+  const map = cal === 'hijri' ? hijriAll(y) : banglaAll(y);
+  return map[o.m+'-'+o.d] || map[o.m+'-'+(o.d-1)] || [];
+}
+const calYears = (cal, k, o) => { const c = cal === 'hijri' ? hijriOf(k) : banglaOf(k); return c && o ? c.y - o.y : null; };
+function migrateCal(x, date){
+  if (!date) return;
+  if (x.hijri === 'yes' && !x.hijriDate){ x.hijriDate = hijriOf(addDays(date, +x.hijriAdj||0)); } delete x.hijri; delete x.hijriAdj;
+}
 function dateOccurrences(y){
   const out = [], mdKey = md => { let [m,d] = md.split('-').map(Number); if (m === 2 && d === 29 && new Date(y,1,29).getMonth() !== 1) d = 28; return y+'-'+pad(m)+'-'+pad(d); };
   S.dates.forEach(x => {
     if (!x.date) return;
     if (x.repeat === 'once'){ if (+x.date.slice(0,4) === y) out.push({k:x.date, x}); return; }
+    migrateCal(x, x.date);
     const k = mdKey(x.date.slice(5)); out.push({k, x, years: x.showAge === 'yes' ? y - +x.date.slice(0,4) : null});
+    ['hijri','bangla'].forEach(cal => { const o = x[cal+'Date']; calYearly(y, cal, o).forEach(ck => out.push({k:ck, x, cal, years: x.showAge === 'yes' ? calYears(cal, ck, o) : null})); });
   });
-  const dob = getDob();
-  if (dob) out.push({k:mdKey(dob.slice(5)), me:true, x:{title:'Your birthday', kind:'birthday'}, years:y - +dob.slice(0,4)});
+  const dob = getDob(), MB = S.myBday = S.myBday || {};
+  if (dob && S.about.hijriBday && !MB.hijriDate){ MB.hijriDate = hijriOf(addDays(dob, +S.about.hijriAdj||0)); delete S.about.hijriBday; }
+  const meX = {title:'Your birthday', kind:'birthday', id:'me', greet:MB.greet};
+  if (dob){ out.push({k:mdKey(dob.slice(5)), me:true, x:meX, years:y - +dob.slice(0,4)});
+    ['hijri','bangla'].forEach(cal => { const o = MB[cal+'Date']; calYearly(y, cal, o).forEach(ck => out.push({k:ck, me:true, x:meX, cal, years:calYears(cal, ck, o)})); }); }
   BUILTIN_DATES.forEach(b => {
     if (S.dateOff[b.id]) return;
     let k = null;
@@ -875,11 +924,11 @@ function upcomingDates(from, days){
   return dateOccurrences(y).concat(dateOccurrences(y+1)).filter(o => o.k >= from && o.k <= end).sort((a,b) => a.k.localeCompare(b.k));
 }
 function dateLabel(o){
-  const n = o.me ? 'Your birthday' : o.x.title;
-  if (o.x.kind === 'birthday' && !o.me) return `${esc(n)}’s birthday${o.years > 0 ? ', turns '+o.years : ''}`;
-  if (o.x.kind === 'anniv') return `${esc(n)}${o.years > 0 ? ', '+o.years+' year'+(o.years>1?'s':'') : ''}`;
-  if (o.me) return `Your birthday${o.years > 0 ? ', you turn '+o.years : ''}`;
-  return esc(n);
+  const n = o.x.title, ar = o.cal === 'hijri' ? 'Arabic ' : o.cal === 'bangla' ? 'Bangla ' : '', arTag = o.cal === 'hijri' ? ' (Arabic date)' : o.cal === 'bangla' ? ' (Bangla date)' : '';
+  if (o.me) return `Your ${ar}birthday${o.years > 0 ? ', you turn '+o.years : ''}`;
+  if (o.x.kind === 'birthday') return `${esc(n)}’s ${ar}birthday${o.years > 0 ? ', turns '+o.years : ''}`;
+  if (o.x.kind === 'anniv') return `${esc(n)}${o.years > 0 ? ', '+o.years+' year'+(o.years>1?'s':'') : ''}${arTag}`;
+  return esc(n)+arTag;
 }
 function dateRow(o, from){
   const dd = dayDiff(o.k, from), when = dd === 0 ? 'Today' : dd === 1 ? 'Tomorrow' : 'In '+dd+' days';
@@ -908,27 +957,56 @@ function renderDates(){
   const t = todayKey(), all = upcomingDates(t, 364);
   let h = roomHead('Dates') + `<button class="pbtn wide" data-act="dateNew" style="margin-bottom:18px">+ Add a date</button>`;
   const y = +t.slice(0,4), occ = dateOccurrences(y).concat(dateOccurrences(y+1));
-  const nextOf = x => { if (x.repeat === 'once') return {k:x.date, x, past: x.date < t}; return occ.filter(o => o.x === x && o.k >= t).sort((a,b) => a.k.localeCompare(b.k))[0]; };
-  const meNext = occ.filter(o => o.me && o.k >= t).sort((a,b) => a.k.localeCompare(b.k))[0];
-  const mine = S.dates.map(nextOf).filter(Boolean).concat(meNext ? [meNext] : []).sort((a,b) => (a.past?1:0) - (b.past?1:0) || a.k.localeCompare(b.k));
+  const first = f => occ.filter(o => f(o) && o.k >= t).sort((a,b) => a.k.localeCompare(b.k))[0];
+  const nextOf = x => x.repeat === 'once' ? [{k:x.date, x, past: x.date < t}] : [null,'hijri','bangla'].map(c => first(o => o.x === x && (o.cal||null) === c));
+  const mine = S.dates.flatMap(nextOf).concat([null,'hijri','bangla'].map(c => first(o => o.me && (o.cal||null) === c))).filter(Boolean).sort((a,b) => (a.past?1:0) - (b.past?1:0) || a.k.localeCompare(b.k));
   const row2 = o => { const dd = dayDiff(o.k, t), when = o.past ? 'passed' : dd === 0 ? 'today' : dd === 1 ? 'tomorrow' : 'in '+nf(dd)+' days';
-    return `<div class="drow2 ${o.past?'past':''} ${dd===0?'today':''}" ${o.x.id ? `data-act="dateEdit" data-id="${o.x.id}"` : ''}><b>${dateLabel(o)}</b><span>${parse(o.k).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}, ${when}${o.x.repeat === 'once' ? ' (once)' : ''}</span></div>`; };
+    return `<div class="drow2 ${o.past?'past':''} ${dd===0?'today':''}" ${o.x.id ? `data-act="dateEdit" data-id="${o.x.id}"` : ''}><b>${dateLabel(o)}</b><span>${parse(o.k).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}${o.cal === 'hijri' ? ' ('+hijriTextO(Object.assign({}, (o.me ? S.myBday : o.x).hijriDate, {y:hijriOf(o.k).y}))+')' : o.cal === 'bangla' ? ' ('+banglaText(Object.assign({}, (o.me ? S.myBday : o.x).banglaDate, {y:banglaOf(o.k).y}))+')' : ''}, ${when}${o.x.repeat === 'once' ? ' (once)' : ''}</span></div>`; };
+  if (!getDob()) h += `<p class="muted" style="margin:-6px 0 14px">Add your date of birth in About Me and your birthday shows up here.</p>`;
   h += `<section class="paper full"><h2>Your dates</h2>${mine.length ? mine.map(row2).join('') : `<div class="empty">Birthdays, anniversaries, anything you shouldn’t forget. They show on Home on the day and the day before.</div>`}</section>`;
   h += `<section class="paper full"><h2>Built in</h2><p class="muted" style="margin:-4px 0 8px">Tap to turn off the ones you don’t want.</p><div class="chips">${BUILTIN_DATES.map(b => `<button class="chip ${S.dateOff[b.id] ? '' : 'on'}" data-act="dateOff" data-v="${b.id}">${S.dateOff[b.id] ? '' : '✓ '}${esc(b.title)}</button>`).join('')}</div>
     <p class="muted" style="margin:10px 0 0">Eid and Ramadan depend on the moon. A couple of days before, Home asks if the moon was sighted, so the date ends up exact.</p></section>`;
   return h;
 }
+let DF = null;
+const calcCal = (cal, date) => date ? Object.assign(cal === 'hijri' ? hijriOf(date) : banglaOf(date), {manual:false}) : null;
 function dateForm(x, day){
-  openForm({title: x ? 'Edit date' : 'New date', focus: !x,
-    fields:[{k:'title',label:'Name',value:x&&x.title,ph:'e.g. A friend'},
-      {k:'kind',label:'Type',type:'select',options:[{v:'birthday',n:'Birthday'},{v:'anniv',n:'Anniversary'},{v:'event',n:'Other'}],value:x?x.kind:'birthday'},
-      {k:'date',label:'Date',type:'date',value:x ? x.date : (day || todayKey())},
-      {k:'repeat',label:'Repeats',type:'select',options:[{v:'yearly',n:'Every year'},{v:'once',n:'Just once'}],value:x?x.repeat:'yearly'},
-      {k:'showAge',label:'Count the years (age, years together)',type:'select',options:[{v:'no',n:'No'},{v:'yes',n:'Yes, the year above is real'}],value:x?x.showAge:'no'},
-      {k:'greet',label:'Greeting on Home that day (optional)',value:x&&x.greet,ph:'e.g. Happy anniversary!'}],
-    onSave:v => { if (!v.title || !v.date){ toast('Add a name and date'); return false; } if (x) Object.assign(x, v); else S.dates.push(Object.assign({id:uid()}, v)); },
-    onDelete: x ? () => { S.dates = S.dates.filter(d => d.id !== x.id); } : null});
+  const me = x === 'me';
+  const v = me ? Object.assign({title:'Your birthday', kind:'birthday', date:getDob()||''}, JSON.parse(JSON.stringify(S.myBday||{})))
+    : x ? JSON.parse(JSON.stringify(x)) : {title:'', kind:'birthday', date:day||todayKey(), repeat:'yearly', showAge:'no', greet:''};
+  if (!me && x) migrateCal(v, v.date);
+  DF = {me, x: me ? null : x, v}; dfRender(); setTimeout(() => { const el = $('df_title'); if (el && !x) el.focus(); }, 60);
 }
+function dfBars(){
+  const v = DF.v, bar = (cal, label, months, maxd) => { const o = v[cal+'Date'];
+    return `<div class="calbar"><span class="cbl">${label}</span><div class="cbin"><select class="field" id="df_${cal}_d">${Array.from({length:maxd}, (_,i) => `<option value="${i+1}" ${o.d===i+1?'selected':''}>${cal === 'bangla' ? toBn(i+1) : i+1}</option>`).join('')}</select>
+      <select class="field" id="df_${cal}_m">${months.map((n,i) => `<option value="${i+1}" ${o.m===i+1?'selected':''}>${n}</option>`).join('')}</select>
+      <input class="field" id="df_${cal}_y" type="number" value="${o.y}"></div><button class="x" data-act="dfCalDel" data-v="${cal}" aria-label="Remove">×</button>
+      <div class="cbnote">${o.manual ? 'Set by you' : 'Worked out from the date above, change it if needed'}</div></div>`; };
+  return (v.hijriDate ? bar('hijri', 'Arabic (Hijri)', HIJRI_MONTHS, 30) : '') + (v.banglaDate ? bar('bangla', 'বাংলা', BN_MONTHS, 31) : '')
+    + `<div class="chips" style="margin-top:8px">${v.hijriDate ? '' : `<button class="chip" data-act="dfCalAdd" data-v="hijri">+ Add Hijri date</button>`}${v.banglaDate ? '' : `<button class="chip" data-act="dfCalAdd" data-v="bangla">+ Add Bangla date</button>`}</div>`;
+}
+function dfRender(){
+  const v = DF.v, me = DF.me, sel = (id, opts, val) => `<select class="field" id="${id}">${opts.map(([k,n]) => `<option value="${k}" ${val===k?'selected':''}>${n}</option>`).join('')}</select>`;
+  openSheet(`<h3>${me ? 'Your birthday' : DF.x ? 'Edit date' : 'New date'}</h3>
+    ${me ? `<p class="muted" style="margin:0 0 4px">Changing the date here also updates About Me.</p>` : `<label for="df_title">Name</label><input class="field" id="df_title" value="${esc(v.title)}" placeholder="e.g. A friend">
+    <label for="df_kind">Type</label>${sel('df_kind', [['birthday','Birthday'],['anniv','Anniversary'],['event','Other']], v.kind)}`}
+    <label for="df_date">Date</label><input class="field" type="date" id="df_date" value="${v.date||''}">
+    <div id="df_cal">${dfBars()}</div>
+    ${me ? '' : `<label for="df_repeat">Repeats</label>${sel('df_repeat', [['yearly','Every year'],['once','Just once']], v.repeat)}
+    <label for="df_age">Count the years (age, years together)</label>${sel('df_age', [['no','No'],['yes','Yes, the year above is real']], v.showAge)}`}
+    <label for="df_greet">Greeting on Home that day (optional)</label><input class="field" id="df_greet" value="${esc(v.greet||'')}" placeholder="${me ? 'Happy Birthday, '+esc(meName())+'!' : 'e.g. Happy anniversary!'}">
+    <div class="row">${!me && DF.x ? `<button class="pbtn danger" data-act="dfDel">Delete</button>` : ''}<button class="pbtn ghost" data-act="closeSheet">Cancel</button><button class="pbtn" data-act="dfSave">Save</button></div>`);
+}
+function dfSync(){
+  if (!DF) return; const v = DF.v, g = id => $(id) ? $(id).value : null;
+  ['title','kind','date','repeat','greet'].forEach(k => { const x = g('df_'+k); if (x != null) v[k] = k === 'title' || k === 'greet' ? x.trim() : x; });
+  if (g('df_age') != null) v.showAge = g('df_age');
+  ['hijri','bangla'].forEach(cal => { const o = v[cal+'Date']; if (!o || g(`df_${cal}_d`) == null) return;
+    const nd = +g(`df_${cal}_d`), nm = +g(`df_${cal}_m`), ny = +g(`df_${cal}_y`); if (nd !== o.d || nm !== o.m || ny !== o.y){ o.d = nd; o.m = nm; o.y = ny; o.manual = true; } });
+}
+
+
 
 /* ================= HOME ================= */
 const boardPending = () => S.board.filter(n => n.col === 1);
@@ -961,14 +1039,14 @@ function renderHome(){
   const t = todayKey(), hr = new Date().getHours();
   const todayDates = datesOn(t), myBday = todayDates.find(o => o.me), eid = todayDates.find(o => o.x.kind === 'eid'), newYear = todayDates.find(o => o.x.id === 'b_newyear');
   const custom = !myBday && todayDates.find(o => !o.builtin && !o.me && (o.x.greet||'').trim());
-  const greet = myBday ? 'Happy Birthday' : eid ? 'Eid Mubarak' : newYear ? 'Happy New Year' : hr<5 ? 'Up late' : hr<12 ? 'Good morning' : hr<17 ? 'Good afternoon' : hr<21 ? 'Good evening' : 'Good night';
+  const greet = myBday ? 'Happy '+(myBday.cal === 'hijri' ? 'Arabic ' : myBday.cal === 'bangla' ? 'Bangla ' : '')+'Birthday' : eid ? 'Eid Mubarak' : newYear ? 'Happy New Year' : hr<5 ? 'Up late' : hr<12 ? 'Good morning' : hr<17 ? 'Good afternoon' : hr<21 ? 'Good evening' : 'Good night';
   const name = (S.profile.nickname || S.profile.name || '').trim();
   const tasks = (S.tasks[t]||[]).filter(x => !x.skipped && !x.moved).concat(boardPending().map(() => ({done:false}))), done = tasks.filter(x => x.done).length;
   const hDone = S.habits.filter(x => (S.checks[x.id]||{})[t]).length;
   const lo = leftovers(), mv = S.mood[t]||0;
 
   const party = myBday || custom || eid || newYear;
-  let h = `<section class="hello ${party ? 'party' : ''}">${party ? `<div class="confetti">${Array.from({length:14}, (_,i) => `<i style="left:${(i*7.3)%100}%;--c:var(--${COLORS[i%COLORS.length]});animation-delay:${(i%5)*.4}s"></i>`).join('')}</div>` : ''}<div class="hgreet">${custom ? esc(custom.x.greet.trim()) : greet+(name ? ', '+esc(name) : '')+(party ? '!' : '')}</div>
+  let h = `<section class="hello ${party ? 'party' : ''}">${party ? `<div class="confetti">${Array.from({length:14}, (_,i) => `<i style="left:${(i*7.3)%100}%;--c:var(--${COLORS[i%COLORS.length]});animation-delay:${(i%5)*.4}s"></i>`).join('')}</div>` : ''}<div class="hgreet">${myBday && (S.myBday||{}).greet ? esc(S.myBday.greet) : custom ? esc(custom.x.greet.trim()) : greet+(name ? ', '+esc(name) : '')+(party ? '!' : '')}</div>
     <div class="ddate">${parse(t).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}</div></section>`;
 
   h += moonPrompts();
@@ -1538,6 +1616,7 @@ function renderAboutEdit(){
     <span class="lbl">Nickname</span>${growArea("profile.nickname", p.nickname, "What friends call you")}
     <span class="lbl">Date of birth</span><input class="field" type="date" data-b="about.dob" value="${esc(A.dob || getDob() || '')}">
     <div class="agelive">Age: <span id="ageLive">${getDob() ? ageText(getDob()) : '?'}</span></div>
+    <p class="muted" style="margin:6px 0 0">Birthday greeting and Arabic or Bangla birthday: Rooms → Dates → Your birthday.</p>
     <span class="lbl">From</span>${growArea("profile.from", p.from, "Hometown")}
     ${A.fields.map(fd => `<div class="kv">${growArea("about.fields.#"+fd.id+".k", fd.k, "Label", "k")}${growArea("about.fields.#"+fd.id+".v", fd.v, "...")}<button class="x" data-act="afDel" data-id="${fd.id}" aria-label="Remove">×</button></div>`).join('')}
     <div class="chips" style="margin-top:8px">${['Height','Languages','School','Dream job','Lucky number'].filter(k => !A.fields.some(x => x.k === k)).map(k => `<button class="chip" data-act="afAdd" data-v="${k}">+ ${k}</button>`).join('')}<button class="chip" data-act="afAdd" data-v="">+ Custom</button></div>
@@ -2134,10 +2213,21 @@ const A = {
   moonSet(b){ S.moon[b.dataset.v] = b.dataset.k; save(); toast(dayDiff(b.dataset.k, todayKey()) === 0 ? 'Mubarak!' : 'Saved, see you tomorrow'); },
   moonSnooze(b){ S.moonSnooze[b.dataset.v] = todayKey(); save(); },
   dateNew(b){ dateForm(null, b.dataset.k); return false; },
-  dateEdit(b){ const x = S.dates.find(d => d.id === b.dataset.id); if (x) dateForm(x); return false; },
+  dateEdit(b){ if (b.dataset.id === 'me'){ dateForm('me'); return false; } const x = S.dates.find(d => d.id === b.dataset.id); if (x) dateForm(x); return false; },
+  dfCalAdd(b){ dfSync(); if (!DF.v.date){ toast('Pick the date first'); return false; } DF.v[b.dataset.v+'Date'] = calcCal(b.dataset.v, DF.v.date); $('df_cal').innerHTML = dfBars(); return false; },
+  dfCalDel(b){ dfSync(); delete DF.v[b.dataset.v+'Date']; $('df_cal').innerHTML = dfBars(); return false; },
+  dfDel(){ const x = DF.x; ask('Delete this date?', () => { S.dates = S.dates.filter(d => d !== x); DF = null; }); return false; },
+  dfSave(){ dfSync(); const v = DF.v;
+    if (!v.date || (!DF.me && !v.title)){ toast('Add a name and date'); return false; }
+    const cals = {hijriDate: v.hijriDate || null, banglaDate: v.banglaDate || null};
+    if (DF.me){ S.about.dob = v.date; S.myBday = Object.assign({greet:v.greet}, cals); }
+    else { const o = Object.assign({title:v.title, kind:v.kind, date:v.date, repeat:v.repeat, showAge:v.showAge, greet:v.greet}, cals); if (DF.x) Object.assign(DF.x, o); else S.dates.push(Object.assign({id:uid()}, o)); }
+    DF = null; save(); closeSheet(); toast('Saved'); },
   dateOff(b){ const id = b.dataset.v; if (S.dateOff[id]) delete S.dateOff[id]; else S.dateOff[id] = true; save(); },
   dailyToggle(b){ S.showDaily = !!b.dataset.v; save(); },
   qnClear(){ ask('Clear your quick note?', () => { S.quickNote = ''; }, 'Clear'); return false; },
+  aHijri(){ S.about.hijriBday = !S.about.hijriBday; save(); },
+  aHijriAdj(b){ S.about.hijriAdj = +b.dataset.v; save(); },
   aAccent(b){ S.about.accent = b.dataset.v; save(); },
   aBoxAdd(b){ S.about.boxes.push({id:uid(), title:b.dataset.v || 'My box', body:'', color:pick(['pink','mint','lilac','yellow','blue','peach','teal'], uid())}); save(); },
   aBoxDel(b){ const id = b.dataset.id; ask('Remove this box?', () => { S.about.boxes = S.about.boxes.filter(x => x.id !== id); }, 'Remove'); return false; },
@@ -2218,9 +2308,10 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('input', e => {
   if (e.target.id === 'q'){ renderSearchResults(); return; }
+  if (e.target.id === 'df_date' && DF){ dfSync(); ['hijri','bangla'].forEach(cal => { const o = DF.v[cal+'Date']; if (o && !o.manual && DF.v.date) DF.v[cal+'Date'] = calcCal(cal, DF.v.date); }); $('df_cal').innerHTML = dfBars(); return; }
   if (e.target.classList && e.target.classList.contains('grow')){ e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight+'px'; }
   const d = e.target.dataset || {};
-  if (d.b){ setPath(d.b, e.target.value); saveSoon(); if (d.b === 'about.dob' && $('ageLive')) $('ageLive').textContent = e.target.value ? ageText(e.target.value) : '?'; }
+  if (d.b){ setPath(d.b, e.target.value); saveSoon(); if (d.b === 'about.dob' && $('ageLive')){ $('ageLive').textContent = e.target.value ? ageText(e.target.value) : '?'; if ($('hijriLive')) $('hijriLive').textContent = e.target.value ? hijriText(e.target.value) : '?'; } }
   else if (d.pb && P.list){ const p = P.list.find(x => x.id === view.personId); if (p){ setPath(d.pb, e.target.value, p); p.updated = todayKey(); pSaveSoon(); } }
 });
 document.addEventListener('change', async e => {
