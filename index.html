@@ -319,6 +319,20 @@ nav.tabs button.on svg .f{fill:var(--accent)}
 }
 @media (min-width:1000px) and (prefers-reduced-motion:reduce){ .room,.lt{transition:none} }
 .prayercard{text-align:center}
+.pbar{position:relative;height:14px;border:2px solid var(--ink);background:var(--empty);margin:14px 2px 4px}
+.pbar .pfill{height:100%;background:linear-gradient(90deg,var(--mint),var(--teal));transition:width .6s}
+.pbar.warn .pfill{background:linear-gradient(90deg,var(--yellow),var(--peach))}
+.pbar.urgent .pfill{background:var(--cherry);animation:pulse 1.4s ease-in-out infinite}
+.pbar.forbid .pfill{background:var(--cherry)}
+.pbar.wait .pfill{background:linear-gradient(90deg,var(--lilac),var(--blue))}
+.pbar .pknob{position:absolute;top:50%;width:14px;height:14px;background:var(--paper);border:2px solid var(--ink);transform:translate(-50%,-50%);box-shadow:2px 2px 0 var(--ink)}
+.pbar .pmark{position:absolute;top:-6px;bottom:-6px;width:3px;background:var(--danger);transform:translateX(-50%)}
+.pbar.mini{height:9px;margin:4px 0 10px;border-width:1.5px}
+.pbar.mini .pknob{width:9px;height:9px;border-width:1.5px;box-shadow:none}
+.pends{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted)}
+.pends .pmk{color:var(--danger)}
+@keyframes pulse{50%{opacity:.55}}
+@media (prefers-reduced-motion:reduce){.pbar .pfill{transition:none;animation:none}}
 .prayercard .plabel{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
 .prayercard .pbig{font-family:var(--pixel);font-weight:700;font-size:40px;line-height:1.1;color:var(--ink);text-shadow:3px 3px 0 var(--teal);margin:2px 0 4px}
 .prayercard.forbid{background:color-mix(in srgb,var(--cherry) 12%,var(--paper))}
@@ -1859,21 +1873,27 @@ function salahStatus(now){
   const nx = order.find(x => x[1] > now);
   return {T, forb, f, cur, next:nx, now};
 }
+function pbar(a, b, now, cls, mk, mini){
+  const span = b - a, p = Math.max(0, Math.min(100, (now - a)/span*100)), left = b - now;
+  const warn = cls === 'forbid' ? '' : left <= 15*60000 ? 'urgent' : p >= 80 ? 'warn' : '';
+  const m = mk && mk > a && mk < b ? ((mk - a)/span*100) : null;
+  return `<div class="pbar ${cls||''} ${warn} ${mini?'mini':''}"><div class="pfill" style="width:${p.toFixed(1)}%"></div>${m != null ? `<i class="pmark" style="left:${m.toFixed(1)}%"></i>` : ''}<span class="pknob" style="left:${p.toFixed(1)}%"></span></div>${mini ? '' : `<div class="pends"><span>${fmtClock(a)}</span>${m != null ? `<span class="pmk">forbidden from ${fmtClock(mk)}</span>` : ''}<span>${fmtClock(b)}</span></div>`}`;
+}
 function prayerCard(compact){
   const st = salahStatus(), c = salahCfg(), now = st.now, T = st.T, nx = prayerTimes(new Date(now.getTime() + 864e5));
   if (compact){
-    if (st.f) return `<div class="pnow mini forbid"><b>Forbidden time</b> until ${fmtClock(st.f.b)}</div>`;
-    return st.cur ? `<div class="pnow mini"><b>${st.cur.n}</b> time, ends at ${fmtClock(st.cur.b)}</div>` : `<div class="pnow mini">No fard salah now. <b>Zohr</b> at ${fmtClock(T.dhuhr)}</div>`;
+    if (st.f) return `<div class="pnow mini forbid"><b>Forbidden time</b> until ${fmtClock(st.f.b)}</div>${pbar(st.f.a, st.f.b, now, 'forbid', null, true)}`;
+    return st.cur ? `<div class="pnow mini"><b>${st.cur.n}</b> time, ${fmtLeft(st.cur.b - now)} left (ends ${fmtClock(st.cur.b)})</div>${pbar(st.cur.a, st.cur.b, now, '', st.cur.n === 'Asr' ? st.forb[2].a : null, true)}` : `<div class="pnow mini">No fard salah now. <b>Zohr</b> at ${fmtClock(T.dhuhr)}</div>${pbar(st.forb[0].b, T.dhuhr, now, 'wait', null, true)}`;
   }
   let head;
-  if (st.f) head = `<div class="plabel">Right now</div><div class="pbig">Forbidden time</div><div class="pwhy">${st.f.why}, don’t pray now</div><div class="pleft">Ends in <b>${fmtLeft(st.f.b - now)}</b>, at ${fmtClock(st.f.b)}</div>`;
-  else if (st.cur) head = `<div class="plabel">Right now</div><div class="pbig">${st.cur.n}</div><div class="pleft">Ends in <b>${fmtLeft(st.cur.b - now)}</b>, at ${fmtClock(st.cur.b)}</div>`;
-  else head = `<div class="plabel">Right now</div><div class="pbig">No fard salah</div><div class="pwhy">Ishraq / Duha time</div><div class="pleft">Zohr starts in <b>${fmtLeft(T.dhuhr - now)}</b>, at ${fmtClock(T.dhuhr)}</div>`;
+  if (st.f) head = `<div class="plabel">Right now</div><div class="pbig">Forbidden time</div><div class="pwhy">${st.f.why}, don’t pray now</div><div class="pleft">Ends in <b>${fmtLeft(st.f.b - now)}</b>, at ${fmtClock(st.f.b)}</div>${pbar(st.f.a, st.f.b, now, 'forbid')}`;
+  else if (st.cur) head = `<div class="plabel">Right now</div><div class="pbig">${st.cur.n}</div><div class="pleft">Ends in <b>${fmtLeft(st.cur.b - now)}</b>, at ${fmtClock(st.cur.b)}</div>${pbar(st.cur.a, st.cur.b, now, '', st.cur.n === 'Asr' ? st.forb[2].a : null)}`;
+  else head = `<div class="plabel">Right now</div><div class="pbig">No fard salah</div><div class="pwhy">Ishraq / Duha time</div><div class="pleft">Zohr starts in <b>${fmtLeft(T.dhuhr - now)}</b>, at ${fmtClock(T.dhuhr)}</div>${pbar(st.forb[0].b, T.dhuhr, now, 'wait')}`;
   const curName = st.f ? '' : st.cur ? st.cur.n : '';
   const rows = [['Fajr',T.fajr,T.sunrise,''],['Zohr',T.dhuhr,T.asr,''],['Asr',T.asr,T.maghrib,'forbidden from '+fmtClock(st.forb[2].a)],['Maghrib',T.maghrib,T.isha,''],['Isha',T.isha,nx.fajr,'until Fajr']];
   const forbNames = ['After sunrise','Zawal (midday)','Before sunset'];
   return `<section class="paper full prayercard ${st.f ? 'forbid' : ''}">${head}
-    ${!st.f && st.next && !(st.cur && st.next[0] === st.cur.n) ? `<div class="pnext">Next: <b>${st.next[0]}</b> at ${fmtClock(st.next[1])}</div>` : ''}</section>
+    ${!st.f && st.next && st.cur && st.next[0] !== st.cur.n ? `<div class="pnext">Next: <b>${st.next[0]}</b> at ${fmtClock(st.next[1])}</div>` : ''}</section>
   <section class="paper ptable"><h2>Today’s times</h2>
     ${rows.map(r => `<div class="prow2 ${r[0]===curName ? 'on' : ''}"><span class="pn">${r[0]}</span><span class="pr"><b>${fmtClock(r[1])}</b><i>to</i><b>${fmtClock(r[2])}</b></span>${r[3] ? `<span class="pnote">${r[3]}</span>` : ''}</div>`).join('')}
     <div class="psun">Sunrise ${fmtClock(T.sunrise)}, sunset ${fmtClock(T.sunset)}</div></section>
