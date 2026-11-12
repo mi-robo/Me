@@ -403,6 +403,11 @@ nav.tabs button.on svg .f{fill:var(--accent)}
 .calbar .cbin .field{padding:7px 6px}
 .calbar .x{position:absolute;top:2px;right:2px}
 .cbnote{font-size:11px;color:var(--muted);margin-top:4px}
+.factrow{margin-top:12px}
+.factrow .fk{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.factrow .fk .inline{font-size:13px;color:var(--muted)}
+.pfchips{display:flex;flex-wrap:wrap;gap:4px;margin:3px 0 2px}
+.pfchips i{font-style:normal;font-size:11px;border:1.5px solid var(--ink);background:color-mix(in srgb,var(--lilac) 25%,var(--paper));padding:0 6px}
 .drow2{display:flex;flex-direction:column;gap:2px;padding:10px 0;border-bottom:1.5px dashed var(--line);cursor:pointer}
 .drow2:last-child{border-bottom:0}
 .drow2 b{font-weight:600;font-size:15px;margin-bottom:2px}
@@ -1229,17 +1234,24 @@ function renderPersona(){
   if (view.personId){ const p = P.list.find(x => x.id === view.personId); if (p) return renderPerson(p); view.personId = null; }
   const list = P.list.slice().sort((a,b) => (b.updated||'').localeCompare(a.updated||''));
   return `<section class="paper full"><h2>People <span style="display:flex;gap:8px"><button class="pbtn small ghost" data-act="pLock">Lock</button><button class="pbtn small" data-act="pNew">+ Person</button></span></h2>
-    ${list.length ? list.map(p => `<button class="gp" data-act="pOpen" data-id="${p.id}"><span class="gpn"><b>${esc(p.name)}</b><span class="muted">${esc(p.oneline || p.where || '')}</span></span><span class="muted">&rsaquo;</span></button>`).join('')
+    ${list.length ? list.map(p => { const ch = factChips(p); return `<button class="gp" data-act="pOpen" data-id="${p.id}"><span class="gpn"><b>${esc(p.name)}</b>${ch.length ? `<span class="pfchips">${ch.map(c => `<i>${esc(c)}</i>`).join('')}</span>` : ''}<span class="muted">${esc(p.oneline || p.where || '')}</span></span><span class="muted">&rsaquo;</span></button>`; }).join('')
       : `<div class="empty">No one here yet. Write about someone interesting you met.</div>`}</section>
     <section class="paper full"><h2>Auto lock</h2><p class="muted" style="margin:-4px 0 8px">When you switch to another app, Persona locks after:</p>
       <div class="chips">${[[1,'1 min'],[15,'15 min'],[60,'1 hour'],[0,'Never (only Lock button or closing the app)']].map(([v,n]) => `<button class="chip ${(S.personaLock == null ? 15 : S.personaLock) === v ? 'on' : ''}" data-act="pLockSet" data-v="${v}">${n}</button>`).join('')}</div></section>`;
 }
+const PFACTS = [['Nickname','text'],['Birthday','date'],['Age','text'],['From','text'],['Lives in','text'],['Studies at','text'],['Works at','text'],['Height','text']];
+const factChips = p => (p.facts||[]).filter(fc => String(fc.v||'').trim()).slice(0,4).map(fc => fc.type === 'date' ? 'age '+ageYM(fc.v)[0] : fc.k === 'Age' ? 'age '+fc.v : fc.v);
 function renderPerson(p){
   const inp = (k, label, ph) => `<span class="lbl">${label}</span><textarea class="inline grow" rows="1" data-pb="${k}" placeholder="${esc(ph||'')}">${esc(p[k])}</textarea>`;
   const area = (k, label, ph, rows) => `<span class="lbl">${label}</span><textarea class="field" data-pb="${k}" rows="${rows||3}" placeholder="${esc(ph||'')}">${esc(p[k])}</textarea>`;
   const usedQ = (p.qa||[]).map(q => q.q);
   return `${roomHead(p.name || 'New person', 'pBack')}
-  <section class="paper"><input class="field" style="font-family:var(--pixel);font-size:20px;font-weight:600" data-pb="name" value="${esc(p.name)}" placeholder="Name">
+  <section class="paper pprofile"><h2>Profile</h2>
+    <span class="lbl">Name</span><input class="field" style="font-family:var(--pixel);font-size:20px;font-weight:600" data-pb="name" value="${esc(p.name)}" placeholder="Name">
+    ${(p.facts||[]).map(fc => `<div class="factrow"><div class="fk">${fc.custom ? `<textarea class="inline grow" rows="1" data-pb="facts.#${fc.id}.k" placeholder="Label">${esc(fc.k)}</textarea>` : `<span class="lbl" style="margin:0">${esc(fc.k)}</span>`}<button class="x" data-act="pFactDel" data-id="${fc.id}" aria-label="Remove">×</button></div>
+      ${fc.type === 'date' ? `<input class="field" type="date" data-pb="facts.#${fc.id}.v" value="${esc(fc.v)}">${fc.v ? `<div class="agelive">Age: <span>${ageText(fc.v)}</span></div>` : ''}` : `<textarea class="inline grow" rows="1" data-pb="facts.#${fc.id}.v" placeholder="...">${esc(fc.v)}</textarea>`}</div>`).join('')}
+    <div class="chips" style="margin-top:12px">${PFACTS.filter(([k]) => !(p.facts||[]).some(fc => fc.k === k)).map(([k]) => `<button class="chip" data-act="pFactAdd" data-v="${k}">+ ${k}</button>`).join('')}<button class="chip" data-act="pFactAdd" data-v="">+ Custom</button></div></section>
+  <section class="paper"><h2>How I know them</h2>
     ${inp('where','Where I know them from','School, online, a friend’s friend')}
     ${inp('since','Since when','e.g. 2023, Class 9')}
     ${inp('connection','How we’re connected','Friend, classmate, someone I watch from afar')}
@@ -2080,6 +2092,9 @@ const A = {
   pNew(){ const p = {id:uid(), name:'', qa:[], updated:todayKey()}; P.list.push(p); view.personId = p.id; window.scrollTo(0,0); },
   pOpen(b){ view.personId = b.dataset.id; window.scrollTo(0,0); },
   pBack(){ P.list = P.list.filter(p => (p.name||'').trim() || (p.extra||'').trim() || (p.first||'').trim()); pSaveSoon(0); view.personId = null; },
+  pFactAdd(b){ const p = P.list.find(x => x.id === view.personId); const def = PFACTS.find(f => f[0] === b.dataset.v);
+    (p.facts = p.facts || []).push({id:uid(), k:b.dataset.v || '', v:'', type: def ? def[1] : 'text', custom: !b.dataset.v}); p.updated = todayKey(); pSaveSoon(0); },
+  pFactDel(b){ const p = P.list.find(x => x.id === view.personId); p.facts = (p.facts||[]).filter(f => f.id !== b.dataset.id); pSaveSoon(0); },
   pPick(b){ const p = P.list.find(x => x.id === view.personId); p.knows = p.knows === b.dataset.v ? '' : b.dataset.v; p.updated = todayKey(); pSaveSoon(0); },
   pQAdd(b){ const p = P.list.find(x => x.id === view.personId); (p.qa = p.qa||[]).push({id:uid(), q:b.dataset.v, a:''}); pSaveSoon(0); },
   pQDel(b){ const p = P.list.find(x => x.id === view.personId); p.qa = (p.qa||[]).filter(q => q.id !== b.dataset.id); pSaveSoon(0); },
@@ -2349,7 +2364,7 @@ document.addEventListener('input', e => {
   if (e.target.classList && e.target.classList.contains('grow')){ e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight+'px'; }
   const d = e.target.dataset || {};
   if (d.b){ setPath(d.b, e.target.value); saveSoon(); if (d.b === 'about.dob' && $('ageLive')){ $('ageLive').textContent = e.target.value ? ageText(e.target.value) : '?'; if ($('hijriLive')) $('hijriLive').textContent = e.target.value ? hijriText(e.target.value) : '?'; } }
-  else if (d.pb && P.list){ const p = P.list.find(x => x.id === view.personId); if (p){ setPath(d.pb, e.target.value, p); p.updated = todayKey(); pSaveSoon(); } }
+  else if (d.pb && P.list){ const p = P.list.find(x => x.id === view.personId); if (p){ setPath(d.pb, e.target.value, p); p.updated = todayKey(); pSaveSoon(); if (e.target.type === 'date') render(); } }
 });
 document.addEventListener('change', async e => {
   const el = e.target;
