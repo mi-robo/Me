@@ -408,18 +408,25 @@ nav.tabs button.on svg .f{fill:var(--accent)}
 .factrow .fk .inline{font-size:13px;color:var(--muted)}
 .pfiles{display:grid;grid-template-columns:1fr;gap:22px;margin-top:20px}
 @media (min-width:700px){.pfiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.pfile{position:relative;text-align:left;background:var(--paper);border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:14px 14px 12px;display:flex;flex-direction:column;gap:8px;background-image:linear-gradient(90deg,var(--c) 0 6px,transparent 6px)}
-.pfile:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
-.pftab{position:absolute;top:-16px;left:18px;background:var(--c);color:#1E2440;border:2px solid var(--ink);border-bottom:0;font-family:var(--pixel);font-size:11px;padding:1px 10px 2px;letter-spacing:1px}
-.pfhead{display:flex;align-items:center;gap:12px;padding-left:6px}
-.pav{flex:none;width:44px;height:44px;display:grid;place-items:center;background:var(--c);color:#1E2440;border:2px solid var(--ink);font-family:var(--pixel);font-weight:700;font-size:18px;box-shadow:2px 2px 0 var(--ink)}
-.pfname{font-family:var(--pixel);font-weight:700;font-size:19px;line-height:1.15;word-break:break-word}
-.pfx{display:flex;flex-direction:column;gap:2px;padding:8px 10px;margin-left:6px;border:2px dotted var(--c);background:color-mix(in srgb,var(--c) 10%,var(--paper))}
-.pfx span{font-family:var(--pixel);font-size:13px;line-height:1.4;word-break:break-word}
-.pfx b{font-weight:600;color:var(--muted)}
-.pfq{margin-left:6px;font-size:14px;font-style:italic;color:var(--muted)}
-.pstamp{position:absolute;top:12px;right:10px;font-family:var(--pixel);font-weight:700;font-size:11px;letter-spacing:1px;padding:2px 7px;border:2px solid currentColor;transform:rotate(8deg);opacity:.75}
-.pstamp.yes{color:var(--up)}.pstamp.barely{color:#C28A00}.pstamp.no{color:var(--danger)}
+.dossier{background:#161929;color:#D6D9EC;border-color:#0B0D17;box-shadow:4px 4px 0 #000}
+.dossier h2{color:#E6E8F5;letter-spacing:1px}
+.dossier .pbtn.ghost{background:#22263D;color:#D6D9EC;border-color:#0B0D17}
+.dossier .pbtn{box-shadow:3px 3px 0 #000}
+.dossier .empty{color:#8B91B5}
+.pfile{position:relative;text-align:left;background:#1E2238;color:#D6D9EC;border:2px solid #0B0D17;border-left:5px solid #3A3F5E;box-shadow:4px 4px 0 #000;padding:16px 14px 12px;display:flex;flex-direction:column;gap:8px;overflow:visible}
+.pfile::after{content:'CONFIDENTIAL';position:absolute;right:12px;bottom:8px;font-family:var(--pixel);font-size:10px;letter-spacing:3px;color:#3A3F5E}
+.pfile:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #000}
+.pftab{position:absolute;top:-16px;left:18px;background:#2A2E47;color:#8B91B5;border:2px solid #0B0D17;border-bottom:0;font-family:var(--pixel);font-size:11px;padding:1px 10px 2px;letter-spacing:2px}
+.pfhead{display:flex;align-items:center;gap:12px}
+.pav{flex:none;width:44px;height:44px;display:grid;place-items:center;background:#161929;color:#B8BCD8;border:2px dashed #5A6088;font-family:var(--pixel);font-weight:700;font-size:17px}
+.pfname{font-family:var(--pixel);font-weight:700;font-size:19px;line-height:1.15;word-break:break-word;color:#F0F1FA}
+.pfx{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border:1px dashed #4A4F6E;background:rgba(255,255,255,.03)}
+.pfx span{font-family:var(--pixel);font-size:13px;line-height:1.45;word-break:break-word;color:#C9CCE2}
+.pfx b{font-weight:600;color:#7D83A8}
+.pfq{font-size:14px;font-style:italic;color:#8B91B5;padding-bottom:12px}
+:root[data-theme="dark"] .dossier,:root[data-theme="dark"] .pfile,:root[data-theme="dark"] .pftab{border-color:#3A3F5E}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dossier,:root:not([data-theme="light"]) .pfile,:root:not([data-theme="light"]) .pftab{border-color:#3A3F5E}}
+.pstamp{position:absolute;top:10px;right:10px;font-family:var(--pixel);font-weight:700;font-size:11px;letter-spacing:2px;padding:2px 7px;border:2px solid #A8404F;color:#C2556A;transform:rotate(9deg);opacity:.85}
 .pfchips{display:flex;flex-wrap:wrap;gap:4px;margin:3px 0 2px}
 .pfchips i{font-style:normal;font-size:11px;border:1.5px solid var(--ink);background:color-mix(in srgb,var(--lilac) 25%,var(--paper));padding:0 6px}
 .drow2{display:flex;flex-direction:column;gap:2px;padding:10px 0;border-bottom:1.5px dashed var(--line);cursor:pointer}
@@ -448,7 +455,7 @@ nav.tabs button.on svg .f{fill:var(--accent)}
 .confetti i{position:absolute;top:-10px;width:7px;height:7px;background:var(--c);border:1px solid var(--ink);animation:fall 2.6s linear infinite}
 @keyframes fall{to{transform:translateY(80px) rotate(180deg);opacity:0}}
 @media (prefers-reduced-motion:reduce){.confetti i{animation:none;top:auto;bottom:6px}}
-.qnote{position:relative;background:color-mix(in srgb,var(--yellow) 55%,var(--paper));border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:12px 14px 10px;margin:4px 0 18px;transform:rotate(-.4deg)}
+.qnote{position:relative;background:#FFE7AE;border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:12px 14px 10px;margin:4px 0 18px;transform:rotate(-.4deg)}
 .qnote::before{content:'';position:absolute;top:-10px;left:50%;width:70px;height:18px;transform:translateX(-50%) rotate(-2deg);background:color-mix(in srgb,var(--blue) 55%,transparent);border:1px solid rgba(0,0,0,.15)}
 .qnh{font-family:var(--pixel);font-weight:600;font-size:17px;color:#1E2440;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .qnh .link{color:#1E2440}
@@ -463,7 +470,7 @@ nav.tabs button.on svg .f{fill:var(--accent)}
 .lnum{display:flex;align-items:baseline;gap:6px;border:2px solid var(--ink);border-left:6px solid var(--pc);padding:2px 8px;background:var(--paper)}
 .lnum i{font-style:normal;font-size:11px;color:var(--muted)}
 .lnum b{font-family:var(--pixel);font-size:15px}
-.mday .dwin{font-family:var(--pixel);color:var(--ink);background:var(--yellow);border:1.5px solid var(--ink);padding:0 6px;font-size:12px}
+.mday .dwin{font-family:var(--pixel);color:#1E2440;background:var(--yellow);border:1.5px solid var(--ink);padding:0 6px;font-size:12px}
 .dgain{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--muted);margin:-2px 0 4px}
 .dgain i,.lglegend i,.lbn i,.pdot{display:inline-block;width:9px;height:9px;border:1.5px solid var(--ink);margin-right:4px;vertical-align:middle}
 .lglegend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin-top:6px}
@@ -854,7 +861,7 @@ const b64 = u => { let s = ''; for (let i = 0; i < u.length; i++) s += String.fr
 const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
 async function deriveKey(pass, salt){
   const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveKey']);
-  return crypto.subtle.deriveKey({name:'PBKDF2', salt, iterations:200000, hash:'SHA-256'}, base, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
+  return crypto.subtle.deriveKey({name:'PBKDF2', salt, iterations:200000, hash:'SHA-256'}, base, {name:'AES-GCM', length:256}, true, ['encrypt','decrypt']);
 }
 async function pSave(){
   const iv = crypto.getRandomValues(new Uint8Array(12));
@@ -863,7 +870,19 @@ async function pSave(){
 }
 let pT = null, hiddenAt = 0;
 function pSaveSoon(ms){ clearTimeout(pT); pT = setTimeout(() => { pT = null; if (P.key) pSave(); }, ms == null ? 600 : ms); }
-function pLock(){ if (pT){ clearTimeout(pT); pT = null; if (P.key) pSave(); } P.key = null; P.list = null; if (typeof view !== 'undefined') view.personId = null; }
+const PK = 'mirobome.pk';
+async function pRemember(){ try { const raw = new Uint8Array(await crypto.subtle.exportKey('raw', P.key)); sessionStorage.setItem(PK, JSON.stringify({k:b64(raw), t:Date.now()})); } catch(e){} }
+function pTouch(){ try { const o = JSON.parse(sessionStorage.getItem(PK) || 'null'); if (o){ o.t = Date.now(); sessionStorage.setItem(PK, JSON.stringify(o)); } } catch(e){} }
+async function pRestore(){
+  try { const o = JSON.parse(sessionStorage.getItem(PK) || 'null'); if (!o || !S.persona || !S.persona.data) return;
+    const lockMin = S.personaLock == null ? 15 : S.personaLock;
+    if (lockMin > 0 && Date.now() - o.t > lockMin*60000){ sessionStorage.removeItem(PK); return; }
+    const key = await crypto.subtle.importKey('raw', unb64(o.k), {name:'AES-GCM'}, true, ['encrypt','decrypt']);
+    const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:unb64(S.persona.iv)}, key, unb64(S.persona.data));
+    P.list = JSON.parse(new TextDecoder().decode(pt)); P.key = key; render();
+  } catch(e){ try { sessionStorage.removeItem(PK); } catch(x){} }
+}
+function pLock(){ try { sessionStorage.removeItem(PK); } catch(e){} if (pT){ clearTimeout(pT); pT = null; if (P.key) pSave(); } P.key = null; P.list = null; if (typeof view !== 'undefined') view.personId = null; }
 
 /* ================= view state ================= */
 let view = { tab:'home', room:null, day:todayKey(), month:todayKey().slice(0,7), mode:'month', yearOf:null,
@@ -1247,7 +1266,7 @@ function renderPersona(){
     <div class="row"><button class="pbtn" data-act="pUnlock">Unlock</button></div></section>`;
   if (view.personId){ const p = P.list.find(x => x.id === view.personId); if (p) return renderPerson(p); view.personId = null; }
   const list = P.list.slice().sort((a,b) => (b.updated||'').localeCompare(a.updated||''));
-  return `<section class="paper full"><h2>People <span style="display:flex;gap:8px"><button class="pbtn small ghost" data-act="pLock">Lock</button><button class="pbtn small" data-act="pNew">+ Person</button></span></h2>
+  return `<section class="paper full dossier"><h2>Case files <span style="display:flex;gap:8px"><button class="pbtn small ghost" data-act="pLock">Lock</button><button class="pbtn small" data-act="pNew">+ Person</button></span></h2>
     ${list.length ? `<div class="pfiles">${list.map((p,i) => { const fx = factRows(p), c = FOLDER_C[hash(p.id) % FOLDER_C.length], ini = (p.name||'?').trim().split(/\s+/).slice(0,2).map(w => w[0]).join('').toUpperCase();
       return `<button class="pfile" style="--c:var(--${c})" data-act="pOpen" data-id="${p.id}"><span class="pftab">FILE #${String(P.list.indexOf(p)+1).padStart(3,'0')}</span>
         <span class="pfhead"><span class="pav">${esc(ini || '?')}</span><span class="pfname">${esc(p.name || 'Unnamed')}</span></span>
@@ -2102,11 +2121,12 @@ const A = {
 
   async pSetup(){ const a = $('pp1').value, c = $('pp2').value;
     if (a.length < 4){ toast('Use at least 4 characters'); return false; } if (a !== c){ toast('Passwords don’t match'); return false; }
-    const salt = crypto.getRandomValues(new Uint8Array(16)); P.key = await deriveKey(a, salt); P.list = []; S.persona = {salt:b64(salt)}; await pSave(); toast('Persona locked'); },
+    const salt = crypto.getRandomValues(new Uint8Array(16)); P.key = await deriveKey(a, salt); P.list = []; S.persona = {salt:b64(salt)}; await pSave(); pRemember(); toast('Persona locked'); },
   async pUnlock(){ const pass = $('ppu').value; if (!pass) return false;
     try { const key = await deriveKey(pass, unb64(S.persona.salt)); const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:unb64(S.persona.iv)}, key, unb64(S.persona.data));
       P.list = JSON.parse(new TextDecoder().decode(pt)); P.key = key;
-      P.list.forEach(p => { if (p.notes && !p.extra) p.extra = p.notes; if (p.met && !p.since) p.since = p.met; p.qa = p.qa||[]; }); } catch(e){ toast('Wrong password'); return false; } },
+      P.list.forEach(p => { if (p.notes && !p.extra) p.extra = p.notes; if (p.met && !p.since) p.since = p.met; p.qa = p.qa||[]; }); } catch(e){ toast('Wrong password'); return false; }
+    pRemember(); },
   pLock(){ pLock(); },
   pLockSet(b){ S.personaLock = +b.dataset.v; save(); },
   pNew(){ const p = {id:uid(), name:'', qa:[], updated:todayKey()}; P.list.push(p); view.personId = p.id; window.scrollTo(0,0); },
@@ -2415,7 +2435,7 @@ document.addEventListener('keydown', e => {
 $('veil').addEventListener('click', e => { if (e.target.id === 'veil') closeSheet(); });
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden && SY.token) syncNow(true);
-  if (document.hidden){ localStorage.setItem(KEY, JSON.stringify(S)); if (syncT){ clearTimeout(syncT); syncPush(); } if (P.list){ pSaveSoon(0); hiddenAt = Date.now(); } return; }
+  if (document.hidden){ localStorage.setItem(KEY, JSON.stringify(S)); if (syncT){ clearTimeout(syncT); syncPush(); } if (P.list){ pSaveSoon(0); hiddenAt = Date.now(); pTouch(); } return; }
   const lockMin = S.personaLock == null ? 15 : S.personaLock;
   if (P.list && hiddenAt && lockMin > 0 && Date.now() - hiddenAt > lockMin*60000){ pLock(); if (view.tab === 'journal' && view.j === 'persona'){ closeSheet(); render(); } }
   hiddenAt = 0;
@@ -2477,6 +2497,8 @@ window.addEventListener('appinstalled', () => { installEvt = null; $('instBtn').
 $('instBtn').addEventListener('click', async () => { if (!installEvt) return; installEvt.prompt(); try { await installEvt.userChoice; } catch(e){} installEvt = null; $('instBtn').hidden = true; });
 applyTheme();
 render();
+pRestore();
+window.addEventListener('pagehide', () => { if (P.list) pTouch(); });
 if (SY.token) syncNow(true);
 if ('serviceWorker' in navigator && location.protocol === 'https:' && /github\.io$/.test(location.hostname)){
   window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
