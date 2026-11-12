@@ -406,6 +406,20 @@ nav.tabs button.on svg .f{fill:var(--accent)}
 .factrow{margin-top:12px}
 .factrow .fk{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .factrow .fk .inline{font-size:13px;color:var(--muted)}
+.pfiles{display:grid;grid-template-columns:1fr;gap:22px;margin-top:20px}
+@media (min-width:700px){.pfiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.pfile{position:relative;text-align:left;background:var(--paper);border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:14px 14px 12px;display:flex;flex-direction:column;gap:8px;background-image:linear-gradient(90deg,var(--c) 0 6px,transparent 6px)}
+.pfile:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+.pftab{position:absolute;top:-16px;left:18px;background:var(--c);color:#1E2440;border:2px solid var(--ink);border-bottom:0;font-family:var(--pixel);font-size:11px;padding:1px 10px 2px;letter-spacing:1px}
+.pfhead{display:flex;align-items:center;gap:12px;padding-left:6px}
+.pav{flex:none;width:44px;height:44px;display:grid;place-items:center;background:var(--c);color:#1E2440;border:2px solid var(--ink);font-family:var(--pixel);font-weight:700;font-size:18px;box-shadow:2px 2px 0 var(--ink)}
+.pfname{font-family:var(--pixel);font-weight:700;font-size:19px;line-height:1.15;word-break:break-word}
+.pfx{display:flex;flex-direction:column;gap:2px;padding:8px 10px;margin-left:6px;border:2px dotted var(--c);background:color-mix(in srgb,var(--c) 10%,var(--paper))}
+.pfx span{font-family:var(--pixel);font-size:13px;line-height:1.4;word-break:break-word}
+.pfx b{font-weight:600;color:var(--muted)}
+.pfq{margin-left:6px;font-size:14px;font-style:italic;color:var(--muted)}
+.pstamp{position:absolute;top:12px;right:10px;font-family:var(--pixel);font-weight:700;font-size:11px;letter-spacing:1px;padding:2px 7px;border:2px solid currentColor;transform:rotate(8deg);opacity:.75}
+.pstamp.yes{color:var(--up)}.pstamp.barely{color:#C28A00}.pstamp.no{color:var(--danger)}
 .pfchips{display:flex;flex-wrap:wrap;gap:4px;margin:3px 0 2px}
 .pfchips i{font-style:normal;font-size:11px;border:1.5px solid var(--ink);background:color-mix(in srgb,var(--lilac) 25%,var(--paper));padding:0 6px}
 .drow2{display:flex;flex-direction:column;gap:2px;padding:10px 0;border-bottom:1.5px dashed var(--line);cursor:pointer}
@@ -1234,12 +1248,18 @@ function renderPersona(){
   if (view.personId){ const p = P.list.find(x => x.id === view.personId); if (p) return renderPerson(p); view.personId = null; }
   const list = P.list.slice().sort((a,b) => (b.updated||'').localeCompare(a.updated||''));
   return `<section class="paper full"><h2>People <span style="display:flex;gap:8px"><button class="pbtn small ghost" data-act="pLock">Lock</button><button class="pbtn small" data-act="pNew">+ Person</button></span></h2>
-    ${list.length ? list.map(p => { const ch = factChips(p); return `<button class="gp" data-act="pOpen" data-id="${p.id}"><span class="gpn"><b>${esc(p.name)}</b>${ch.length ? `<span class="pfchips">${ch.map(c => `<i>${esc(c)}</i>`).join('')}</span>` : ''}<span class="muted">${esc(p.oneline || p.where || '')}</span></span><span class="muted">&rsaquo;</span></button>`; }).join('')
+    ${list.length ? `<div class="pfiles">${list.map((p,i) => { const fx = factRows(p), c = FOLDER_C[hash(p.id) % FOLDER_C.length], ini = (p.name||'?').trim().split(/\s+/).slice(0,2).map(w => w[0]).join('').toUpperCase();
+      return `<button class="pfile" style="--c:var(--${c})" data-act="pOpen" data-id="${p.id}"><span class="pftab">FILE #${String(P.list.indexOf(p)+1).padStart(3,'0')}</span>
+        <span class="pfhead"><span class="pav">${esc(ini || '?')}</span><span class="pfname">${esc(p.name || 'Unnamed')}</span></span>
+        ${fx.length ? `<span class="pfx">${fx.map(([k,v]) => `<span><b>${esc(k)}:</b> ${esc(v)}</span>`).join('')}</span>` : ''}
+        ${p.oneline ? `<span class="pfq">“${esc(p.oneline)}”</span>` : ''}
+        ${p.knows ? `<span class="pstamp ${p.knows.toLowerCase()}">${p.knows === 'Yes' ? 'KNOWS ME' : p.knows === 'No' ? 'STRANGER' : 'BARELY'}</span>` : ''}</button>`; }).join('')}</div>`
       : `<div class="empty">No one here yet. Write about someone interesting you met.</div>`}</section>
     <section class="paper full"><h2>Auto lock</h2><p class="muted" style="margin:-4px 0 8px">When you switch to another app, Persona locks after:</p>
       <div class="chips">${[[1,'1 min'],[15,'15 min'],[60,'1 hour'],[0,'Never (only Lock button or closing the app)']].map(([v,n]) => `<button class="chip ${(S.personaLock == null ? 15 : S.personaLock) === v ? 'on' : ''}" data-act="pLockSet" data-v="${v}">${n}</button>`).join('')}</div></section>`;
 }
 const PFACTS = [['Nickname','text'],['Birthday','date'],['Age','text'],['From','text'],['Lives in','text'],['Studies at','text'],['Works at','text'],['Height','text']];
+const factRows = p => (p.facts||[]).filter(fc => String(fc.v||'').trim()).slice(0,4).map(fc => fc.type === 'date' ? ['age', ageText(fc.v, true)] : [String(fc.k||'info').toLowerCase(), fc.v]);
 const factChips = p => (p.facts||[]).filter(fc => String(fc.v||'').trim()).slice(0,4).map(fc => fc.type === 'date' ? 'age '+ageYM(fc.v)[0] : fc.k === 'Age' ? 'age '+fc.v : fc.v);
 function renderPerson(p){
   const inp = (k, label, ph) => `<span class="lbl">${label}</span><textarea class="inline grow" rows="1" data-pb="${k}" placeholder="${esc(ph||'')}">${esc(p[k])}</textarea>`;
