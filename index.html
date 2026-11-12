@@ -842,7 +842,7 @@ async function pSave(){
   const ct = await crypto.subtle.encrypt({name:'AES-GCM', iv}, P.key, new TextEncoder().encode(JSON.stringify(P.list)));
   S.persona.iv = b64(iv); S.persona.data = b64(new Uint8Array(ct)); save();
 }
-let pT = null;
+let pT = null, hiddenAt = 0;
 function pSaveSoon(ms){ clearTimeout(pT); pT = setTimeout(() => { pT = null; if (P.key) pSave(); }, ms == null ? 600 : ms); }
 function pLock(){ if (pT){ clearTimeout(pT); pT = null; if (P.key) pSave(); } P.key = null; P.list = null; if (typeof view !== 'undefined') view.personId = null; }
 
@@ -1231,7 +1231,8 @@ function renderPersona(){
   return `<section class="paper full"><h2>People <span style="display:flex;gap:8px"><button class="pbtn small ghost" data-act="pLock">Lock</button><button class="pbtn small" data-act="pNew">+ Person</button></span></h2>
     ${list.length ? list.map(p => `<button class="gp" data-act="pOpen" data-id="${p.id}"><span class="gpn"><b>${esc(p.name)}</b><span class="muted">${esc(p.oneline || p.where || '')}</span></span><span class="muted">&rsaquo;</span></button>`).join('')
       : `<div class="empty">No one here yet. Write about someone interesting you met.</div>`}</section>
-    <p class="muted" style="text-align:center">Locks again when you leave this page or close the app.</p>`;
+    <section class="paper full"><h2>Auto lock</h2><p class="muted" style="margin:-4px 0 8px">When you switch to another app, Persona locks after:</p>
+      <div class="chips">${[[1,'1 min'],[15,'15 min'],[60,'1 hour'],[0,'Never (only Lock button or closing the app)']].map(([v,n]) => `<button class="chip ${(S.personaLock == null ? 15 : S.personaLock) === v ? 'on' : ''}" data-act="pLockSet" data-v="${v}">${n}</button>`).join('')}</div></section>`;
 }
 function renderPerson(p){
   const inp = (k, label, ph) => `<span class="lbl">${label}</span><textarea class="inline grow" rows="1" data-pb="${k}" placeholder="${esc(ph||'')}">${esc(p[k])}</textarea>`;
@@ -2003,7 +2004,6 @@ function formVals(){ const o = {}; FORM.fields.forEach(f => { const el = $('f_'+
 const A = {
   go(b){
     if ($('veil').classList.contains('open')) closeSheet();
-    if (view.tab === 'journal' && view.j === 'persona') pLock();
     view.tab = b.dataset.tab;
     if (b.dataset.room !== undefined) view.room = b.dataset.room || null;
     else if (view.tab === 'more') view.room = null;
@@ -2037,7 +2037,7 @@ const A = {
   mode(b){ view.mode = b.dataset.v; }, yearOf(b){ view.yearOf = b.dataset.id; },
   newHabit(){ habitForm(null); return false; }, editHabit(b){ habitForm(S.habits.find(x => x.id === b.dataset.id)); return false; },
 
-  jtab(b){ if (view.j === 'persona' && b.dataset.v !== 'persona') pLock(); view.j = b.dataset.v; view.listId = null; view.logId = null; },
+  jtab(b){ view.j = b.dataset.v; view.listId = null; view.logId = null; },
   jprev(){ view.jday = addDays(view.jday,-1); }, jnext(){ view.jday = addDays(view.jday,1); }, jToday(){ view.jday = todayKey(); },
   jrate(b){ setPath('daily.'+view.jday+'.rate', +b.dataset.v); save(); },
   wishAdd(){ const v = $('wishIn').value.trim(); if (!v) return false; S.wish.push({id:uid(), text:v, done:false}); save(); render(); $('wishIn').focus(); return false; },
@@ -2076,6 +2076,7 @@ const A = {
       P.list = JSON.parse(new TextDecoder().decode(pt)); P.key = key;
       P.list.forEach(p => { if (p.notes && !p.extra) p.extra = p.notes; if (p.met && !p.since) p.since = p.met; p.qa = p.qa||[]; }); } catch(e){ toast('Wrong password'); return false; } },
   pLock(){ pLock(); },
+  pLockSet(b){ S.personaLock = +b.dataset.v; save(); },
   pNew(){ const p = {id:uid(), name:'', qa:[], updated:todayKey()}; P.list.push(p); view.personId = p.id; window.scrollTo(0,0); },
   pOpen(b){ view.personId = b.dataset.id; window.scrollTo(0,0); },
   pBack(){ P.list = P.list.filter(p => (p.name||'').trim() || (p.extra||'').trim() || (p.first||'').trim()); pSaveSoon(0); view.personId = null; },
@@ -2379,7 +2380,10 @@ document.addEventListener('keydown', e => {
 $('veil').addEventListener('click', e => { if (e.target.id === 'veil') closeSheet(); });
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden && SY.token) syncNow(true);
-  if (document.hidden){ localStorage.setItem(KEY, JSON.stringify(S)); if (syncT){ clearTimeout(syncT); syncPush(); } if (P.list){ pLock(); if (view.tab === 'journal' && view.j === 'persona'){ closeSheet(); render(); } } return; }
+  if (document.hidden){ localStorage.setItem(KEY, JSON.stringify(S)); if (syncT){ clearTimeout(syncT); syncPush(); } if (P.list){ pSaveSoon(0); hiddenAt = Date.now(); } return; }
+  const lockMin = S.personaLock == null ? 15 : S.personaLock;
+  if (P.list && hiddenAt && lockMin > 0 && Date.now() - hiddenAt > lockMin*60000){ pLock(); if (view.tab === 'journal' && view.j === 'persona'){ closeSheet(); render(); } }
+  hiddenAt = 0;
   if (todayKey() !== lastToday){ if (view.day === lastToday) view.day = todayKey(); if (view.jday === lastToday) view.jday = todayKey(); lastToday = todayKey(); render(); }
 });
 setInterval(() => { const a = document.activeElement;
@@ -2388,10 +2392,35 @@ setInterval(() => { const t = todayKey(); if (t !== lastToday){ if (view.day ===
   const a = document.activeElement; if (!$('veil').classList.contains('open') && !(a && a.matches && a.matches('input,textarea'))) render(); } }, 20000);
 
 function applyTheme(){ if (S.theme === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', S.theme); }
+const NAV_KEYS = ['tab','room','j','logId','listId','gpId','personId','moneyId','aboutEdit'];
+const navSnap = () => { const o = {}; NAV_KEYS.forEach(k => o[k] = view[k] == null ? null : view[k]); return o; };
+const navKey = o => JSON.stringify(o);
+try { const saved = JSON.parse(sessionStorage.getItem('mirobome.view') || 'null'); if (saved) Object.assign(view, saved); } catch(e){}
 const startTab = location.hash.slice(1);
-if (['home','days','habits','journal'].includes(startTab)) view.tab = startTab;
+if (!sessionStorage.getItem('mirobome.view') && ['home','days','habits','journal','more'].includes(startTab)) view.tab = startTab;
+let lastNav = null, navRestoring = false, navSkip = false; const navStack = [];
 const _render = render;
-render = function(){ _render(); if (location.hash.slice(1) !== view.tab){ try { history.replaceState(null, '', '#'+view.tab); } catch(e){} } };
+render = function(){
+  _render();
+  const snap = navSnap(), key = navKey(snap);
+  try {
+    sessionStorage.setItem('mirobome.view', JSON.stringify(Object.assign({day:view.day, month:view.month, mode:view.mode, jday:view.jday, season:view.season}, snap)));
+    if (lastNav === null){ history.replaceState({v:snap}, '', '#'+view.tab); navStack.push(key); }
+    else if (navRestoring){ history.replaceState({v:snap}, '', '#'+view.tab); }
+    else if (key !== lastNav){
+      if (navStack.length > 1 && key === navStack[navStack.length-2]){ navStack.pop(); navSkip = true; history.back(); }
+      else { history.pushState({v:snap}, '', '#'+view.tab); navStack.push(key); }
+    }
+  } catch(e){}
+  lastNav = key;
+};
+window.addEventListener('popstate', e => {
+  if ($('veil').classList.contains('open')){ closeSheet(); try { history.pushState({v:navSnap()}, '', '#'+view.tab); } catch(x){} return; }
+  if (navSkip){ navSkip = false; return; }
+  const st = e.state && e.state.v; if (!st) return;
+  if (navStack.length > 1) navStack.pop();
+  Object.assign(view, st); navRestoring = true; render(); navRestoring = false; window.scrollTo(0,0);
+});
 let SHOT = null, FONT_CSS = null; const EXP = new Set();
 const blobToData = b => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(b); });
 async function buildFontCSS(){
