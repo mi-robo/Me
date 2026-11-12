@@ -1269,14 +1269,14 @@ function renderPersona(){
       return `<button class="pfile" style="--c:var(--${c})" data-act="pOpen" data-id="${p.id}"><span class="pftab">FILE #${String(P.list.indexOf(p)+1).padStart(3,'0')}</span>
         <span class="pfhead"><span class="pav">${esc(ini || '?')}</span><span class="pfname">${esc(p.name || 'Unnamed')}</span></span>
         ${fx.length ? `<span class="pfx">${fx.map(([k,v]) => `<span><b>${esc(k)}:</b> ${esc(v)}</span>`).join('')}</span>` : ''}
-        ${p.oneline ? `<span class="pfq">“${esc(p.oneline)}”</span>` : ''}
-        ${p.knows ? `<span class="pstamp ${p.knows.toLowerCase()}">${p.knows === 'Yes' ? 'KNOWS ME' : p.knows === 'No' ? 'STRANGER' : 'BARELY'}</span>` : ''}</button>`; }).join('')}</div>`
+        ${p.oneline && !(p.hideFront||{}).oneline ? `<span class="pfq">“${esc(p.oneline)}”</span>` : ''}
+        ${p.knows && !(p.hideFront||{}).stamp ? `<span class="pstamp ${p.knows.toLowerCase()}">${p.knows === 'Yes' ? 'KNOWS ME' : p.knows === 'No' ? 'STRANGER' : 'BARELY'}</span>` : ''}</button>`; }).join('')}</div>`
       : `<div class="empty">No one here yet. Write about someone interesting you met.</div>`}</section>
     <section class="paper full"><h2>Auto lock</h2><p class="muted" style="margin:-4px 0 8px">When you switch to another app, Persona locks after:</p>
       <div class="chips">${[[1,'1 min'],[15,'15 min'],[60,'1 hour'],[0,'Never (only Lock button or closing the app)']].map(([v,n]) => `<button class="chip ${(S.personaLock == null ? 15 : S.personaLock) === v ? 'on' : ''}" data-act="pLockSet" data-v="${v}">${n}</button>`).join('')}</div></section>`;
 }
 const PFACTS = [['Nickname','text'],['Birthday','date'],['Age','text'],['From','text'],['Lives in','text'],['Studies at','text'],['Works at','text'],['Height','text']];
-const factRows = p => (p.facts||[]).filter(fc => String(fc.v||'').trim()).slice(0,4).map(fc => fc.type === 'date' ? ['age', ageText(fc.v, true)] : [String(fc.k||'info').toLowerCase(), fc.v]);
+const factRows = p => (p.facts||[]).filter(fc => String(fc.v||'').trim() && !(p.hideFront||{})[fc.id]).map(fc => fc.type === 'date' ? ['age', ageText(fc.v, true)] : [String(fc.k||'info').toLowerCase(), fc.v]);
 const factChips = p => (p.facts||[]).filter(fc => String(fc.v||'').trim()).slice(0,4).map(fc => fc.type === 'date' ? 'age '+ageYM(fc.v)[0] : fc.k === 'Age' ? 'age '+fc.v : fc.v);
 function renderPerson(p){
   const inp = (k, label, ph) => `<span class="lbl">${label}</span><textarea class="inline grow" rows="1" data-pb="${k}" placeholder="${esc(ph||'')}">${esc(p[k])}</textarea>`;
@@ -1287,7 +1287,8 @@ function renderPerson(p){
     <span class="lbl">Name</span><input class="field" style="font-family:var(--pixel);font-size:20px;font-weight:600" data-pb="name" value="${esc(p.name)}" placeholder="Name">
     ${(p.facts||[]).map(fc => `<div class="factrow"><div class="fk">${fc.custom ? `<textarea class="inline grow" rows="1" data-pb="facts.#${fc.id}.k" placeholder="Label">${esc(fc.k)}</textarea>` : `<span class="lbl" style="margin:0">${esc(fc.k)}</span>`}<button class="x" data-act="pFactDel" data-id="${fc.id}" aria-label="Remove">×</button></div>
       ${fc.type === 'date' ? `<input class="field" type="date" data-pb="facts.#${fc.id}.v" value="${esc(fc.v)}">${fc.v ? `<div class="agelive">Age: <span>${ageText(fc.v)}</span></div>` : ''}` : `<textarea class="inline grow" rows="1" data-pb="facts.#${fc.id}.v" placeholder="...">${esc(fc.v)}</textarea>`}</div>`).join('')}
-    <div class="chips" style="margin-top:12px">${PFACTS.filter(([k]) => !(p.facts||[]).some(fc => fc.k === k)).map(([k]) => `<button class="chip" data-act="pFactAdd" data-v="${k}">+ ${k}</button>`).join('')}<button class="chip" data-act="pFactAdd" data-v="">+ Custom</button></div></section>
+    <div class="chips" style="margin-top:12px">${PFACTS.filter(([k]) => !(p.facts||[]).some(fc => fc.k === k)).map(([k]) => `<button class="chip" data-act="pFactAdd" data-v="${k}">+ ${k}</button>`).join('')}<button class="chip" data-act="pFactAdd" data-v="">+ Custom</button></div>
+    <span class="lbl" style="margin-top:14px">Show on the file front</span><div class="chips">${(p.facts||[]).map(fc => [fc.id, fc.k || 'Custom']).concat([['oneline','One-liner'],['stamp','Stamp']]).map(([id,n]) => { const off = (p.hideFront||{})[id]; return `<button class="chip ${off?'':'on'}" data-act="pFront" data-v="${id}">${off?'':'✓ '}${esc(n)}</button>`; }).join('')}</div></section>
   <section class="paper"><h2>How I know them</h2>
     ${inp('where','Where I know them from','School, online, a friend’s friend')}
     ${inp('since','Since when','e.g. 2023, Class 9')}
@@ -2132,6 +2133,7 @@ const A = {
   pBack(){ P.list = P.list.filter(p => (p.name||'').trim() || (p.extra||'').trim() || (p.first||'').trim()); pSaveSoon(0); view.personId = null; },
   pFactAdd(b){ const p = P.list.find(x => x.id === view.personId); const def = PFACTS.find(f => f[0] === b.dataset.v);
     (p.facts = p.facts || []).push({id:uid(), k:b.dataset.v || '', v:'', type: def ? def[1] : 'text', custom: !b.dataset.v}); p.updated = todayKey(); pSaveSoon(0); },
+  pFront(b){ const p = P.list.find(x => x.id === view.personId), H = p.hideFront = p.hideFront || {}; if (H[b.dataset.v]) delete H[b.dataset.v]; else H[b.dataset.v] = true; pSaveSoon(0); },
   pFactDel(b){ const p = P.list.find(x => x.id === view.personId); p.facts = (p.facts||[]).filter(f => f.id !== b.dataset.id); pSaveSoon(0); },
   pPick(b){ const p = P.list.find(x => x.id === view.personId); p.knows = p.knows === b.dataset.v ? '' : b.dataset.v; p.updated = todayKey(); pSaveSoon(0); },
   pQAdd(b){ const p = P.list.find(x => x.id === view.personId); (p.qa = p.qa||[]).push({id:uid(), q:b.dataset.v, a:''}); pSaveSoon(0); },
