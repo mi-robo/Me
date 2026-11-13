@@ -427,6 +427,51 @@ nav.tabs button.on svg .f{fill:var(--accent)}
 .pstamp{position:absolute;top:14px;right:52px;font-family:var(--pixel);font-weight:700;font-size:11px;letter-spacing:2px;padding:2px 7px;border:2px solid var(--mred);color:var(--mred);transform:rotate(9deg);opacity:.85}
 .pfchips{display:flex;flex-wrap:wrap;gap:4px;margin:3px 0 2px}
 .pfchips i{font-style:normal;font-size:11px;border:1.5px solid var(--ink);background:color-mix(in srgb,var(--lilac) 25%,var(--paper));padding:0 6px}
+.readpaper{position:relative;padding:22px 18px 26px 54px;background-image:linear-gradient(transparent 31px, color-mix(in srgb,var(--blue) 28%,transparent) 31px);background-size:100% 32px;background-position:0 14px}
+.readpaper::before{content:'';position:absolute;top:0;bottom:0;left:38px;width:2px;background:color-mix(in srgb,var(--cherry) 55%,transparent)}
+.rphead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+.rptitle{font-family:var(--pixel);font-weight:700;font-size:26px;line-height:1.2;margin:0;word-break:break-word}
+.rpprog{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);margin-bottom:8px}
+.rplist,.rpsub{list-style:none;margin:0;padding:0}
+.rplist > li{margin:0}
+.rprow{display:flex;align-items:flex-start;gap:10px;line-height:32px;font-size:16px}
+.rpn{flex:none;font-family:var(--pixel);color:var(--muted);min-width:22px}
+.rpt{flex:1;min-width:0;white-space:pre-wrap;word-break:break-word}
+.rpsub{padding-left:32px}
+.rpsub .rprow{font-size:15px}
+li.done > .rprow .rpt{text-decoration:line-through;text-decoration-thickness:2px;color:var(--muted)}
+.rpbox{flex:none;width:20px;height:20px;margin-top:6px;border:2px solid var(--ink);background:var(--paper);display:grid;place-items:center}
+.rpbox.on{background:var(--mint)}.rpbox.on::after{content:'';width:8px;height:8px;background:#1E2440}
+.rpbody{font-size:16px;line-height:32px}
+.rpbody p{margin:0 0 32px;white-space:normal;word-break:break-word}
+.rpbody p:last-child{margin-bottom:0}
+.rpmeta,.rpempty{font-size:13px;color:var(--muted);margin:16px 0 0;line-height:32px}
+.dreamsky{position:relative;overflow:hidden;display:flex;flex-wrap:wrap;align-items:center;gap:14px;background:linear-gradient(135deg,color-mix(in srgb,var(--g1,var(--lilac)) 45%,var(--paper)),color-mix(in srgb,var(--g2,var(--blue)) 40%,var(--paper)))}
+.dic svg{width:100%;height:100%}
+.lgroup{font-family:var(--pixel);font-size:14px;color:var(--muted);letter-spacing:1px;margin:4px 0 8px}
+.ltype{display:flex;flex-direction:column;gap:2px;width:100%;text-align:left;border:2px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:10px 12px;margin-top:10px;background:var(--paper)}
+.ltype b{font-family:var(--pixel);font-size:17px}.ltype span{font-size:13px;color:var(--muted)}
+.dsk{position:absolute;inset:0;pointer-events:none}
+.dsk i{position:absolute;width:4px;height:4px;background:var(--paper);box-shadow:0 0 0 1px color-mix(in srgb,var(--ink) 40%,transparent)}
+.dsk i:nth-child(1){left:8%;top:18%}.dsk i:nth-child(2){left:30%;top:10%}.dsk i:nth-child(3){left:52%;top:22%}.dsk i:nth-child(4){left:74%;top:12%}.dsk i:nth-child(5){left:90%;top:30%}.dsk i:nth-child(6){left:64%;top:70%}.dsk i:nth-child(7){left:20%;top:78%}.dsk i:nth-child(8){left:44%;top:86%}.dsk i:nth-child(9){left:84%;top:84%}
+.dmoon{position:relative;width:52px;height:52px;flex:none}
+.dskt{position:relative;flex:1;min-width:160px;display:flex;flex-direction:column}
+.dskt b{font-family:var(--pixel);font-size:22px}
+.dskt span{font-size:13px;color:var(--muted)}
+.dreamsky .pbtn{position:relative}
+.dmonth{font-family:var(--pixel);font-size:14px;color:var(--muted);margin:6px 0 10px;letter-spacing:1px}
+.dream{border-left:6px solid var(--g1,var(--lilac))}
+.dream.starred{box-shadow:4px 4px 0 var(--ink),inset 0 0 0 2px var(--yellow)}
+.dhd{display:flex;align-items:center;gap:10px}
+.ddt{font-family:var(--pixel);font-size:14px}
+.dclar{font-size:11px;border:1.5px solid var(--line);padding:0 6px;color:var(--muted)}
+.dhd .starbtn{margin-left:auto}
+.dtitle{display:block;font-family:var(--pixel);font-size:19px;margin:4px 0}
+.dtags{display:flex;flex-wrap:wrap;gap:5px;margin:4px 0 6px}
+.dtags span{font-size:11px;font-family:var(--pixel);background:var(--c);color:#1E2440;border:1.5px solid var(--ink);padding:0 7px}
+.dtext{font-size:15px;line-height:1.65}
+.dtext p{margin:0 0 10px}
+.dtext.clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
 .drow2{display:flex;flex-direction:column;gap:2px;padding:10px 0;border-bottom:1.5px dashed var(--line);cursor:pointer}
 .drow2:last-child{border-bottom:0}
 .drow2 b{font-weight:600;font-size:15px;margin-bottom:2px}
@@ -715,11 +760,14 @@ function blank(){ return {
   profile:{name:'',birthday:'',from:'',quote:''}, favs:[], tops:[],
   tasks:{}, events:[], habits:[], checks:{}, mood:{},
   daily:{}, wish:[], lists:[], persona:null,
-  f1:{seasons:{}, gps:[]}, jar:[], savings:[], money:{sessions:[]}, salah:{}, logs:[], dates:[], dateOff:{}, moon:{}, moonSnooze:{}, quickNote:'', showDaily:false, about:{accent:'pink', photo:null, note:'', fields:[], boxes:[]}, board:[], map:{factions:[], tiles:{}},
+  f1:{seasons:{}, gps:[]}, jar:[], savings:[], money:{sessions:[]}, salah:{}, logs:[], dates:[], dreams:[], dateOff:{}, moon:{}, moonSnooze:{}, quickNote:'', showDaily:false, about:{accent:'pink', photo:null, note:'', fields:[], boxes:[]}, board:[], map:{factions:[], tiles:{}},
   theme:'auto'
 };}
 function load(){
-  try{ const r = localStorage.getItem(KEY); if (r){ const d = Object.assign(blank(), JSON.parse(r)); d.profile = Object.assign(blank().profile, d.profile); d.f1 = Object.assign({seasons:{},gps:[]}, d.f1); d.map = Object.assign({factions:[],tiles:{}}, d.map); d.money = Object.assign({sessions:[]}, d.money); d.salah = d.salah || {}; d.logs = d.logs || []; d.logs.forEach(l => { if (l.vs){ const pid = 'p'+Math.random().toString(36).slice(2,9); l.people = [{id:pid, name:l.vs}]; l.type = l.type || 'amount'; l.entries.forEach(e => { if (e.vs != null && e.vs !== ''){ e.others = Object.assign({}, e.others, {[pid]:e.vs}); } delete e.vs; }); delete l.vs; } if (!l.type) l.type = 'progress'; l.people = l.people || []; }); d.dates = d.dates || []; d.dateOff = d.dateOff || {}; d.moon = d.moon || {}; d.moonSnooze = d.moonSnooze || {}; if (d.showDaily == null) d.showDaily = false; d.about = Object.assign({accent:'pink', photo:null, note:'', fields:[], boxes:[]}, d.about);
+  try{ const r = localStorage.getItem(KEY); if (r){ const d = Object.assign(blank(), JSON.parse(r)); d.profile = Object.assign(blank().profile, d.profile); d.f1 = Object.assign({seasons:{},gps:[]}, d.f1); d.map = Object.assign({factions:[],tiles:{}}, d.map); d.money = Object.assign({sessions:[]}, d.money); d.salah = d.salah || {}; d.logs = d.logs || []; d.logs.forEach(l => { if (l.vs){ const pid = 'p'+Math.random().toString(36).slice(2,9); l.people = [{id:pid, name:l.vs}]; l.type = l.type || 'amount'; l.entries.forEach(e => { if (e.vs != null && e.vs !== ''){ e.others = Object.assign({}, e.others, {[pid]:e.vs}); } delete e.vs; }); delete l.vs; } if (!l.type) l.type = 'progress'; l.people = l.people || []; }); d.dates = d.dates || []; d.dreams = d.dreams || [];
+    if (d.dreams.length){ const TL = {sweet:'Sweet',scary:'Scary',weird:'Weird',funny:'Funny',sad:'Sad',lucid:'Lucid',recurring:'Recurring',hazy:'Hazy',clear:'Clear',vivid:'Vivid'};
+      d.logs.push({id:'dl'+Math.random().toString(36).slice(2,9), title:'Dreams', type:'diary', theme:'dream', tags:['Sweet','Scary','Weird','Funny','Sad','Lucid','Recurring','Hazy','Clear','Vivid'], people:[], start:d.dreams.map(x => x.date).sort()[0], entries:d.dreams.map(x => ({id:x.id, date:x.date, at:x.at||'', title:x.title||'', text:x.text||'', star:!!x.star, tags:(x.types||[]).concat(x.clarity ? [x.clarity] : []).map(t => TL[t] || t), val:'', others:{}}))});
+      d.dreams = []; } d.dateOff = d.dateOff || {}; d.moon = d.moon || {}; d.moonSnooze = d.moonSnooze || {}; if (d.showDaily == null) d.showDaily = false; d.about = Object.assign({accent:'pink', photo:null, note:'', fields:[], boxes:[]}, d.about);
     d.lists.forEach(l => { if (!l.type){ l.type = 'list'; l.items = (l.body||'').split('\n').filter(x => x.trim()).map(t => ({id:Math.random().toString(36).slice(2,10), t})); delete l.body; } });
     return d; } }catch(e){}
   return blank();
@@ -1135,7 +1183,6 @@ function renderHome(){
 
   const tiles = [];
   const jd = S.daily[t]||{}, wrote = Object.values(jd).some(v => String(v).trim());
-  if (S.showDaily) tiles.push(`<button class="lt" style="--c:var(--lilac)" data-act="go" data-tab="journal" data-j="daily"><b><i></i>Journal</b><span>${wrote ? 'Written today. Nice.' : esc(pick(PROMPTS, t))}</span></button>`);
   const wl = S.wish.filter(w => !w.done);
   if (wl.length) tiles.push(`<button class="lt" style="--c:var(--peach)" data-act="go" data-tab="journal" data-j="wish"><b><i></i>Someday</b><span>${esc(pick(wl, t).text)}</span></button>`);
   const cur = S.board.filter(n => n.col === 1);
@@ -1147,6 +1194,8 @@ function renderHome(){
     tiles.push(`<button class="lt" style="--c:var(--mint)" data-act="go" data-tab="more" data-room="save"><b><i></i>Savings</b><span>${taka(got)} of ${taka(sv.target)} in ${esc(sv.title)}</span></button>`); }
   const lastGp = S.f1.gps.filter(g => g.date && g.date <= t).sort((a,b)=>b.date.localeCompare(a.date))[0];
   if (lastGp) tiles.push(`<button class="lt" style="--c:var(--cherry)" data-act="openGp" data-id="${lastGp.id}"><b><i></i>Last GP</b><span>${esc(lastGp.name)}${lastGp.rating ? ', '+lastGp.rating+'/10' : ''}</span></button>`);
+  const dlog = S.logs.find(l => l.type === 'diary' && l.theme === 'dream');
+  if (dlog && hr >= 4 && hr < 12 && !dlog.entries.some(d => d.date === addDays(t,-1))) tiles.unshift(`<button class="lt" style="--c:var(--lilac)" data-act="logGo" data-id="${dlog.id}"><b><i></i>Dreamt something?</b><span>Log it before it fades away.</span></button>`);
   if (S.jar.length) tiles.push(`<button class="lt" style="--c:var(--blue)" data-act="go" data-tab="more" data-room="jar"><b><i></i>Mood jar</b><span>${S.jar.length} note${S.jar.length>1?'s':''} waiting for you</span></button>`);
   h += `<div class="little">${tiles.slice(0,4).join('')}</div>`;
   h += `<section class="qnote full"><div class="qnh">Quick note${(S.quickNote||'').trim() ? `<button class="link" data-act="qnClear">Clear</button>` : ''}</div><textarea class="qnta" data-b="quickNote" rows="5" placeholder="Jot something down...">${esc(S.quickNote||'')}</textarea></section>`;
@@ -1226,10 +1275,10 @@ function renderHabits(){
 
 /* ================= JOURNAL ================= */
 function renderJournal(){
-  const tabs = (S.showDaily ? [['daily','Daily']] : []).concat([['persona','Persona'],['wish','Wishlist'],['lists','Notebook']]);
-  if (view.j === 'daily' && !S.showDaily) view.j = 'lists';
+  const tabs = [['persona','Persona'],['logs','Logs'],['wish','Wishlist'],['lists','Notebook']];
+  if (!tabs.some(t => t[0] === view.j)) view.j = 'logs';
   let h = `<div class="seg">${tabs.map(([k,n]) => `<button class="${view.j===k?'on':''}" data-act="jtab" data-v="${k}">${n}</button>`).join('')}</div>`;
-  if (view.j === 'daily') h += renderDaily();
+  if (view.j === 'logs') h += renderLogsHome();
   else if (view.j === 'persona') h += renderPersona();
   else if (view.j === 'wish') h += renderWish();
   else h += renderLists();
@@ -1304,6 +1353,44 @@ function renderPerson(p){
   <section class="paper"><h2>Extra notes</h2>${area('extra','','Anything else', 6)}</section>
   <div class="row" style="margin-bottom:18px"><button class="pbtn danger" data-act="pDel">Delete person</button><button class="pbtn" data-act="saveNow">Save</button></div>`;
 }
+const DREAM_TYPES = [['sweet','Sweet','pink'],['scary','Scary','cherry'],['weird','Weird','lilac'],['funny','Funny','yellow'],['sad','Sad','blue'],['lucid','Lucid','teal'],['recurring','Recurring','peach']];
+const DREAM_CLAR = [['hazy','Hazy'],['clear','Clear'],['vivid','Vivid']];
+const moonSvg = `<svg class="dmoon" viewBox="0 0 10 10" shape-rendering="crispEdges" aria-hidden="true"><path fill="var(--yellow)" stroke="#1E2440" stroke-width=".5" d="M4 1h3v1h1v1h1v4H8v1H7v1H4V8H3V7H2V5h1v1h1v1h2V6h1V3H6V2H4z"/></svg>`;
+function renderDreams(){
+  const all = S.dreams.slice().sort((a,b) => (b.date+(b.at||'')).localeCompare(a.date+(a.at||'')));
+  const f = view.dreamF || '', list = f === 'star' ? all.filter(d => d.star) : f ? all.filter(d => (d.types||[]).includes(f)) : all;
+  const cnt = {}; all.forEach(d => (d.types||[]).forEach(t => cnt[t] = (cnt[t]||0)+1));
+  const top = Object.entries(cnt).sort((a,b) => b[1]-a[1])[0];
+  const month = all.filter(d => d.date.slice(0,7) === todayKey().slice(0,7)).length;
+  let h = `<section class="paper full dreamsky"><div class="dsk">${'<i></i>'.repeat(9)}</div>${moonSvg}<div class="dskt"><b>Dream journal</b><span>${all.length ? `${all.length} dream${all.length>1?'s':''} logged, ${month} this month${top ? ', mostly '+DREAM_TYPES.find(x => x[0] === top[0])[1].toLowerCase() : ''}` : 'Write it down before it fades.'}</span></div>
+    <button class="pbtn" data-act="dreamNew">+ Log a dream</button></section>`;
+  if (all.length) h += `<div class="chips full" style="margin-bottom:14px"><button class="chip ${!f?'on':''}" data-act="dreamF" data-v="">All</button><button class="chip ${f==='star'?'on':''}" data-act="dreamF" data-v="star">★ Favourites</button>${DREAM_TYPES.filter(t => cnt[t[0]]).map(t => `<button class="chip ${f===t[0]?'on':''}" data-act="dreamF" data-v="${t[0]}">${t[1]} ${cnt[t[0]]}</button>`).join('')}</div>`;
+  let lastM = '';
+  list.forEach(d => {
+    const m = d.date.slice(0,7);
+    if (m !== lastM){ lastM = m; h += `<div class="dmonth full">${parse(d.date).toLocaleDateString('en-GB',{month:'long',year:'numeric'})}</div>`; }
+    const long = (d.text||'').length > 220 || (d.text||'').split('\n').length > 4, open = EXP.has(d.id);
+    h += `<section class="paper full dream ${d.star?'starred':''}"><div class="dhd"><span class="ddt">${parse(d.date).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}</span>${d.clarity ? `<span class="dclar">${esc((DREAM_CLAR.find(c => c[0] === d.clarity)||[,''])[1])}</span>` : ''}<button class="starbtn ${d.star?'on':''}" data-act="dreamStar" data-id="${d.id}" aria-label="Favourite">${d.star?'★':'☆'}</button></div>
+      ${d.title ? `<b class="dtitle">${esc(d.title)}</b>` : ''}
+      ${(d.types||[]).length ? `<div class="dtags">${d.types.map(t => { const x = DREAM_TYPES.find(y => y[0] === t); return x ? `<span style="--c:var(--${x[2]})">${x[1]}</span>` : ''; }).join('')}</div>` : ''}
+      ${d.text ? `<div class="dtext ${long && !open ? 'clamp' : ''}">${readText(d.text)}</div>` : ''}
+      <div class="lacts">${long ? `<button class="link" data-act="logMore" data-id="${d.id}">${open ? 'See less' : 'See more'}</button>` : ''}<button class="link" data-act="dreamEdit" data-id="${d.id}">Edit</button></div></section>`;
+  });
+  if (all.length && !list.length) h += `<section class="paper full"><div class="empty">No dreams with that tag yet.</div></section>`;
+  return h;
+}
+let DRF = null;
+function dreamSheet(){
+  const v = DRF.v;
+  openSheet(`<h3>${DRF.x ? 'Edit dream' : 'Log a dream'}</h3>
+    <label for="dr_date">Night of</label><input class="field" type="date" id="dr_date" value="${v.date}">
+    <label for="dr_title">Title (optional)</label><input class="field" id="dr_title" value="${esc(v.title||'')}" placeholder="e.g. The endless staircase">
+    <label for="dr_text">What happened?</label><textarea class="field" id="dr_text" rows="7" placeholder="Everything you remember, even the weird bits">${esc(v.text||'')}</textarea>
+    <label>What kind of dream</label><div class="chips">${DREAM_TYPES.map(t => `<button class="chip ${(v.types||[]).includes(t[0])?'on':''}" data-act="drType" data-v="${t[0]}">${t[1]}</button>`).join('')}</div>
+    <label>How well do you remember it?</label><div class="chips">${DREAM_CLAR.map(c => `<button class="chip ${v.clarity===c[0]?'on':''}" data-act="drClar" data-v="${c[0]}">${c[1]}</button>`).join('')}</div>
+    <div class="row">${DRF.x ? `<button class="pbtn danger" data-act="dreamDel">Delete</button>` : ''}<button class="pbtn ghost" data-act="closeSheet">Cancel</button><button class="pbtn" data-act="dreamSave">Save</button></div>`);
+}
+const drSync = () => { if (!DRF) return; ['date','title','text'].forEach(k => { const el = $('dr_'+k); if (el) DRF.v[k] = el.value; }); };
 function renderWish(){
   const done = S.wish.filter(w => w.done).length;
   return `<section class="paper"><h2>Before I die <small>${S.wish.length ? done+' of '+S.wish.length+' done' : ''}</small></h2>
@@ -1469,7 +1556,27 @@ function renderLog(l){
 const FOLDER_C = ['yellow','peach','mint','blue','lilac','pink','lime','teal'];
 const growArea = (path, val, ph, cls) => `<textarea class="inline grow ${cls||''}" rows="1" data-b="${path}" placeholder="${esc(ph||'')}">${esc(val)}</textarea>`;
 function listCounts(l){ let n = 0, d = 0; (l.items||[]).forEach(it => { n++; if (it.done) d++; (it.subs||[]).forEach(s => { n++; if (s.done) d++; }); }); return {n, d}; }
+function readText(t){ return String(t||'').trim().split(/\n\s*\n/).map(p => `<p>${esc(p).replace(/\n/g,'<br>')}</p>`).join(''); }
+function renderRead(l){
+  const isList = l.type === 'list', c = isList ? listCounts(l) : null, letter = j => String.fromCharCode(97 + (j % 26));
+  const box = (on, act, id, p) => l.checks ? `<button class="rpbox ${on?'on':''}" data-act="${act}" data-id="${id}" ${p?`data-p="${p}"`:''} aria-label="Tick"></button>` : '';
+  let body;
+  if (isList){
+    const items = (l.items||[]).filter(it => (it.t||'').trim() || (it.subs||[]).some(s => (s.t||'').trim()));
+    body = items.length ? `<ol class="rplist">${items.map((it,i) => `<li class="${it.done?'done':''}"><div class="rprow">${box(it.done,'itemTick',it.id)}<span class="rpn">${i+1}.</span><span class="rpt">${esc(it.t)}</span></div>
+      ${(it.subs||[]).filter(sb => (sb.t||'').trim()).length ? `<ol class="rpsub">${it.subs.filter(sb => (sb.t||'').trim()).map((sb,j) => `<li class="${sb.done?'done':''}"><div class="rprow">${box(sb.done,'subTick',sb.id,it.id)}<span class="rpn">${letter(j)}.</span><span class="rpt">${esc(sb.t)}</span></div></li>`).join('')}</ol>` : ''}</li>`).join('')}</ol>`
+      : `<p class="rpempty">Nothing here yet. Tap Edit to add points.</p>`;
+  } else {
+    const w = (l.body||'').trim().split(/\s+/).filter(Boolean).length;
+    body = w ? `<div class="rpbody">${readText(l.body)}</div><div class="rpmeta">${w} word${w>1?'s':''}, about ${Math.max(1, Math.round(w/200))} min read</div>` : `<p class="rpempty">This page is empty. Tap Edit to start writing.</p>`;
+  }
+  return `${roomHead(isList ? 'List' : 'Page', 'listBack')}<section class="paper full readpaper">
+    <div class="rphead"><h1 class="rptitle">${esc(l.title || 'Untitled')}</h1><button class="pbtn small ghost" data-act="listEditOn">Edit</button></div>
+    ${isList && l.checks && c.n ? `<div class="rpprog"><div class="bar">${Array.from({length:c.n}, (_,i) => `<i class="${i < c.d ? 'on' : ''}"></i>`).join('')}</div><span>${c.d} of ${c.n} done</span></div>` : ''}
+    ${body}</section>`;
+}
 function renderListDetail(l){
+  if (!view.listEdit) return renderRead(l);
   const base = 'lists.#'+l.id+'.items.#', c = listCounts(l), letter = j => String.fromCharCode(97 + (j % 26));
   const box = (on, act, id, p) => l.checks ? `<button class="box sm ${on?'on':''}" data-act="${act}" data-id="${id}" ${p?`data-p="${p}"`:''} aria-label="Tick"></button>` : '';
   return `${roomHead('List', 'listBack')}<section class="paper full">
@@ -1482,29 +1589,73 @@ function renderListDetail(l){
         <button class="x" data-act="subDel" data-id="${sb.id}" data-p="${it.id}" aria-label="Remove">×</button></li>`).join('')}</ol>` : ''}</li>`).join('')}</ol>
     <div class="addrow"><input class="field" id="itemIn" placeholder="Add a point" maxlength="500"><button class="pbtn" data-act="itemAdd">Add</button></div>
     <p class="muted" style="margin:8px 0 0">Tap + on a point to add sub points under it.</p>
-    <div class="row"><button class="pbtn danger" data-act="listDel" data-id="${l.id}">Delete list</button><button class="pbtn" data-act="saveNow">Save</button></div></section>`;
+    <div class="row"><button class="pbtn danger" data-act="listDel" data-id="${l.id}">Delete list</button><button class="pbtn" data-act="listEditOff">Done</button></div></section>`;
 }
 function renderLists(){
-  if (view.logId){ const l = S.logs.find(x => x.id === view.logId); if (l) return renderLog(l); view.logId = null; }
   if (view.listId){
     const l = S.lists.find(x => x.id === view.listId);
     if (l && l.type === 'list') return renderListDetail(l);
+    if (l && !view.listEdit) return renderRead(l);
     if (l) return `${roomHead('Page', 'listBack')}<section class="paper full">
       <input class="field" style="font-family:var(--pixel);font-size:20px;font-weight:600" data-b="lists.#${l.id}.title" value="${esc(l.title)}" placeholder="Title">
       <div style="margin-top:12px">${bindArea('lists.#'+l.id+'.body', l.body, 'Write freely', 16)}</div>
-      <div class="row"><button class="pbtn danger" data-act="listDel" data-id="${l.id}">Delete page</button><button class="pbtn" data-act="saveNow">Save</button></div></section>`;
+      <div class="row"><button class="pbtn danger" data-act="listDel" data-id="${l.id}">Delete page</button><button class="pbtn" data-act="listEditOff">Done</button></div></section>`;
     view.listId = null;
   }
   const folder = (act, id, title, sub, ico) => `<button class="folder" style="--c:var(--${FOLDER_C[hash(id) % FOLDER_C.length]})" data-act="${act}" data-id="${id}"><span class="fi">${ico}</span><b>${esc(title || 'Untitled')}</b><span>${sub}</span></button>`;
-  const logs = S.logs.map(l => { if ((l.people||[]).length){ const v = compStats(l); return folder('logOpen', l.id, l.title, 'vs '+esc(l.people.map(p => p.name).join(', '))+'<br>'+(v.counted ? 'You won '+v.P.me.wins+' of '+v.counted : 'No days yet'), '⚔'); }
-    const last = logLastVal(l); return folder('logOpen', l.id, l.title, 'Week '+logWeek(l, todayKey())+(last != null ? ', '+esc(l.unit||'')+' '+nf(last) : '')+'<br>'+l.entries.length+' update'+(l.entries.length===1?'':'s'), isAmount(l) ? '▤' : '≡'); }).join('');
   const lists = S.lists.filter(l => l.type === 'list').map(l => { const c = listCounts(l); return folder('listOpen', l.id, l.title, c.n ? c.n+' point'+(c.n>1?'s':'')+(l.checks ? ', '+c.d+' done' : '') : 'Empty', '1.'); }).join('');
   const pages = S.lists.filter(l => l.type === 'page').map(l => { const w = (l.body||'').trim().split(/\s+/).filter(Boolean).length; return folder('listOpen', l.id, l.title, w ? w+' word'+(w>1?'s':'') : 'Empty', '¶'); }).join('');
   const sec = (title, add, items, empty, ideas) => `<section class="paper full"><h2>${title} <span style="display:flex;gap:8px">${ideas ? `<button class="pbtn small ghost" data-act="ideas" data-v="${ideas}">Ideas</button>` : ''}${add}</span></h2>
     ${items ? `<div class="folders">${items}</div>` : `<div class="empty">${empty}</div>`}</section>`;
-  return sec('Logs', `<button class="pbtn small" data-act="logNew">+ Log</button>`, logs, 'Weekly updates on anything, ready for your Saturday video.')
-    + sec('Lists', `<button class="pbtn small" data-act="listNew" data-v="list">+ List</button>`, lists, 'Numbered points, sub points and tick boxes.', 'list')
+  return sec('Lists', `<button class="pbtn small" data-act="listNew" data-v="list">+ List</button>`, lists, 'Numbered points, sub points and tick boxes.', 'list')
     + sec('Pages', `<button class="pbtn small" data-act="listNew" data-v="page">+ Page</button>`, pages, 'Essay style writing.', 'page');
+}
+
+const LOG_THEMES = {dream:['lilac','blue','Night sky'], sun:['yellow','peach','Sunny'], mint:['mint','teal','Fresh'], rose:['pink','peach','Rosy']};
+function logIcon(l){ if (l.type !== 'diary') return (l.people||[]).length ? '⚔' : isAmount(l) ? '▤' : '≡'; return l.theme === 'dream' ? '☾' : l.theme === 'sun' ? '☀' : l.theme === 'rose' ? '♥' : '✎'; }
+function renderLogsHome(){
+  if (view.logId){ const l = S.logs.find(x => x.id === view.logId); if (l) return l.type === 'diary' ? renderDiary(l) : renderLog(l); view.logId = null; }
+  const folder = (id, title, sub, ico) => `<button class="folder" style="--c:var(--${FOLDER_C[hash(id) % FOLDER_C.length]})" data-act="logOpen" data-id="${id}"><span class="fi">${ico}</span><b>${esc(title || 'Untitled')}</b><span>${sub}</span></button>`;
+  const group = (title, arr, sub) => arr.length ? `<div class="lgroup full">${title}</div><section class="paper full"><div class="folders">${arr.map(l => folder(l.id, l.title, sub(l), logIcon(l))).join('')}</div></section>` : '';
+  const prog = S.logs.filter(l => l.type === 'progress' || !l.type), amt = S.logs.filter(l => l.type === 'amount'), dia = S.logs.filter(l => l.type === 'diary');
+  const numSub = l => { if ((l.people||[]).length){ const v = compStats(l); return 'vs '+esc(l.people.map(p => p.name).join(', '))+'<br>'+(v.counted ? 'You won '+v.P.me.wins+' of '+v.counted : 'No days yet'); } const last = logLastVal(l); return 'Week '+logWeek(l, todayKey())+(last != null ? ', '+esc(l.unit||'')+' '+nf(last) : '')+'<br>'+l.entries.length+' update'+(l.entries.length===1?'':'s'); };
+  const diaSub = l => { const last = l.entries.map(e => e.date).sort().pop(); return l.entries.length+' entr'+(l.entries.length===1?'y':'ies')+(last ? '<br>last '+shortDay(last) : ''); };
+  let h = `<section class="paper full"><h2>Logs <button class="pbtn small" data-act="logNew">+ Log</button></h2><p class="muted" style="margin:0">Progress for levels like a rating, Amount for how much each day, Diary for dated writing like dreams.</p></section>`;
+  h += group('Diary', dia, diaSub) + group('Progress', prog, numSub) + group('Amount', amt, numSub);
+  if (!S.logs.length) h += `<section class="paper full"><div class="empty">No logs yet. Tap + Log to start one.</div></section>`;
+  return h;
+}
+function renderDiary(l){
+  const th = LOG_THEMES[l.theme] || LOG_THEMES.dream, all = l.entries.slice().sort((a,b) => (b.date+(b.at||'')).localeCompare(a.date+(a.at||'')));
+  const f = view.dreamF || '', list = f === 'star' ? all.filter(d => d.star) : f ? all.filter(d => (d.tags||[]).includes(f)) : all;
+  const cnt = {}; all.forEach(d => (d.tags||[]).forEach(t => cnt[t] = (cnt[t]||0)+1));
+  const top = Object.entries(cnt).sort((a,b) => b[1]-a[1])[0], month = all.filter(d => d.date.slice(0,7) === todayKey().slice(0,7)).length;
+  const icon = l.theme === 'dream' ? moonSvg : l.theme === 'rose' ? `<span class="dmoon dic">${pxHeart('var(--pink)')}</span>` : `<span class="dmoon dic">${pxStar('var(--yellow)')}</span>`;
+  const tagCol = t => FOLDER_C[hash(t) % FOLDER_C.length];
+  let h = roomHead(l.title, 'logBack') + `<section class="paper full dreamsky" style="--g1:var(--${th[0]});--g2:var(--${th[1]})">${l.theme === 'dream' ? `<div class="dsk">${'<i></i>'.repeat(9)}</div>` : ''}${icon}<div class="dskt"><b>${esc(l.title)}</b><span>${all.length ? `${all.length} entr${all.length>1?'ies':'y'}, ${month} this month${top ? ', mostly '+esc(top[0].toLowerCase()) : ''}` : 'Nothing written yet.'}</span></div>
+    <span style="display:flex;gap:8px;position:relative"><button class="pbtn ghost small" data-act="logEdit">Edit log</button><button class="pbtn" data-act="diaryNew">+ Write</button></span></section>`;
+  if (all.length) h += `<div class="chips full" style="margin-bottom:14px"><button class="chip ${!f?'on':''}" data-act="dreamF" data-v="">All</button><button class="chip ${f==='star'?'on':''}" data-act="dreamF" data-v="star">★ Favourites</button>${Object.keys(cnt).map(t => `<button class="chip ${f===t?'on':''}" data-act="dreamF" data-v="${esc(t)}">${esc(t)} ${cnt[t]}</button>`).join('')}</div>`;
+  let lastM = '';
+  list.forEach(d => {
+    const m = d.date.slice(0,7); if (m !== lastM){ lastM = m; h += `<div class="dmonth full">${parse(d.date).toLocaleDateString('en-GB',{month:'long',year:'numeric'})}</div>`; }
+    const long = (d.text||'').length > 220 || (d.text||'').split('\n').length > 4, open = EXP.has(d.id);
+    h += `<section class="paper full dream ${d.star?'starred':''}" style="--g1:var(--${th[0]})"><div class="dhd"><span class="ddt">${parse(d.date).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}</span><button class="starbtn ${d.star?'on':''}" data-act="diaryStar" data-id="${d.id}" aria-label="Favourite">${d.star?'★':'☆'}</button></div>
+      ${d.title ? `<b class="dtitle">${esc(d.title)}</b>` : ''}
+      ${(d.tags||[]).length ? `<div class="dtags">${d.tags.map(t => `<span style="--c:var(--${tagCol(t)})">${esc(t)}</span>`).join('')}</div>` : ''}
+      ${d.text ? `<div class="dtext ${long && !open ? 'clamp' : ''}">${readText(d.text)}</div>` : ''}
+      <div class="lacts">${long ? `<button class="link" data-act="logMore" data-id="${d.id}">${open ? 'See less' : 'See more'}</button>` : ''}<button class="link" data-act="diaryEdit" data-id="${d.id}">Edit</button></div></section>`;
+  });
+  if (all.length && !list.length) h += `<section class="paper full"><div class="empty">Nothing with that tag yet.</div></section>`;
+  return h;
+}
+function diarySheet(){
+  const v = DRF.v, l = DRF.l;
+  openSheet(`<h3>${DRF.x ? 'Edit entry' : 'New entry'}</h3>
+    <label for="dr_date">${l.theme === 'dream' ? 'Night of' : 'Date'}</label><input class="field" type="date" id="dr_date" value="${v.date}">
+    <label for="dr_title">Title (optional)</label><input class="field" id="dr_title" value="${esc(v.title||'')}" placeholder="e.g. A short title">
+    <label for="dr_text">Write</label><textarea class="field" id="dr_text" rows="7" placeholder="Everything you remember">${esc(v.text||'')}</textarea>
+    ${(l.tags||[]).length ? `<label>Tags</label><div class="chips">${l.tags.map(t => `<button class="chip ${(v.tags||[]).includes(t)?'on':''}" data-act="diaryTag" data-v="${esc(t)}">${esc(t)}</button>`).join('')}</div>` : ''}
+    <div class="row">${DRF.x ? `<button class="pbtn danger" data-act="diaryDel">Delete</button>` : ''}<button class="pbtn ghost" data-act="closeSheet">Cancel</button><button class="pbtn" data-act="diarySave">Save</button></div>`);
 }
 
 /* ---- Search ---- */
@@ -1522,8 +1673,8 @@ function searchAll(q){
     l.entries.forEach(e => { if (has(e.text)) add('Log', l.title+', '+shortDay(e.date), snip(e.text, q), `data-act="srLog" data-id="${l.id}"`); }); });
   Object.keys(S.tasks).sort().reverse().forEach(k => S.tasks[k].forEach(x => { if (has(x.text)) add('Task', shortDay(k)+' '+k.slice(0,4), snip(x.text, q), `data-act="srDay" data-k="${k}"`); }));
   S.events.forEach(e => { if (has(e.title)) add('Plan', shortDay(e.date), snip(e.title, q), `data-act="srDay" data-k="${e.date}"`); });
-  Object.keys(S.daily).sort().reverse().forEach(k => { const v = Object.values(S.daily[k]).filter(x => typeof x === 'string').join('\n'); if (has(v)) add('Journal', shortDay(k)+' '+k.slice(0,4), snip(v.split('\n').find(x => has(x)), q), `data-act="srDaily" data-k="${k}"`); });
   S.wish.forEach(w => { if (has(w.text)) add('Wishlist', 'Before I die', snip(w.text, q), `data-act="srWish"`); });
+  S.dreams.forEach(dr => { if (has(dr.title) || has(dr.text)) add('Dream', (dr.title || 'Dream')+', '+shortDay(dr.date), snip(has(dr.text) ? dr.text : dr.title, q), `data-act="go" data-tab="journal" data-j="dreams"`); });
   S.board.forEach(n => { if (has(n.text)) add('Board', ['To do','Current','Done'][n.col], snip(n.text, q), `data-act="go" data-tab="more" data-room="board"`); });
   S.f1.gps.forEach(g => { const v = [g.name,g.rooted,g.loved,g.hated,g.notes,g.dotd].join('\n'); if (has(v)) add('F1', g.name+' '+g.season, snip(v.split('\n').find(x => has(x)), q), `data-act="openGp" data-id="${g.id}"`); });
   S.habits.forEach(h => { if (has(h.name)) add('Habit', h.name, '', `data-act="go" data-tab="habits"`); });
@@ -2010,7 +2161,7 @@ function syncCard(){
     <div class="row"><button class="pbtn ghost" data-act="syDisconnect">Disconnect</button><button class="pbtn" data-act="syNow">Sync now</button></div></section>`;
 }
 function renderSettings(){
-  return roomHead('Settings') + syncCard() + `<section class="paper"><h2>Daily journal</h2><p class="muted" style="margin:0 0 10px">Hidden by default. Your old entries stay saved either way.</p><div class="seg" style="margin:0"><button class="${S.showDaily?'':'on'}" data-act="dailyToggle" data-v="">Hidden</button><button class="${S.showDaily?'on':''}" data-act="dailyToggle" data-v="1">Shown</button></div></section>` + `<section class="paper"><h2>Your name</h2><input class="inline" data-b="profile.name" value="${esc(S.profile.name)}" placeholder="Shown on Home"></section>
+  return roomHead('Settings') + syncCard() + `<section class="paper"><h2>Your name</h2><input class="inline" data-b="profile.name" value="${esc(S.profile.name)}" placeholder="Shown on Home"></section>
     <section class="paper"><h2>Look</h2><div class="seg" style="margin:0">${['auto','light','dark'].map(v => `<button class="${S.theme===v?'on':''}" data-act="theme" data-v="${v}">${v[0].toUpperCase()+v.slice(1)}</button>`).join('')}</div></section>
     <section class="paper"><h2>Backup</h2><p class="muted" style="margin:0 0 12px">Everything lives on this device for now. Copy a backup now and then. Photos stay on the device and are not in the backup.</p>
     <div class="row" style="margin:0"><button class="pbtn ghost" data-act="backup">Copy backup</button><button class="pbtn ghost" data-act="restore">Restore</button></div></section>`;
@@ -2093,8 +2244,8 @@ const A = {
   wishAdd(){ const v = $('wishIn').value.trim(); if (!v) return false; S.wish.push({id:uid(), text:v, done:false}); save(); render(); $('wishIn').focus(); return false; },
   wishToggle(b){ const w = S.wish.find(x => x.id === b.dataset.id); w.done = !w.done; w.doneOn = w.done ? todayKey() : null; save(); },
   wishDel(b){ S.wish = S.wish.filter(x => x.id !== b.dataset.id); save(); },
-  listNew(b){ const l = b.dataset.v === 'page' ? {id:uid(), type:'page', title:'', body:''} : {id:uid(), type:'list', title:'', items:[]}; S.lists.unshift(l); view.listId = l.id; save(); window.scrollTo(0,0); },
-  listIdea(b){ closeSheet(); const l = b.dataset.type === 'page' ? {id:uid(), type:'page', title:b.dataset.v, body:''} : {id:uid(), type:'list', title:b.dataset.v, items:[], checks:false}; S.lists.unshift(l); view.listId = l.id; save(); window.scrollTo(0,0); },
+  listNew(b){ const l = b.dataset.v === 'page' ? {id:uid(), type:'page', title:'', body:''} : {id:uid(), type:'list', title:'', items:[]}; S.lists.unshift(l); view.listId = l.id; view.listEdit = true; save(); window.scrollTo(0,0); },
+  listIdea(b){ closeSheet(); const l = b.dataset.type === 'page' ? {id:uid(), type:'page', title:b.dataset.v, body:''} : {id:uid(), type:'list', title:b.dataset.v, items:[], checks:false}; S.lists.unshift(l); view.listId = l.id; view.listEdit = true; save(); window.scrollTo(0,0); },
   itemAdd(){ const v = $('itemIn').value.trim(); if (!v) return false; const l = S.lists.find(x => x.id === view.listId); l.items.push({id:uid(), t:v, done:false, subs:[]}); save(); render(); $('itemIn').focus(); return false; },
   listChecks(){ const l = S.lists.find(x => x.id === view.listId); l.checks = !l.checks; save(); },
   itemTick(b){ const l = S.lists.find(x => x.id === view.listId), it = l.items.find(i => i.id === b.dataset.id); it.done = !it.done; save(); },
@@ -2106,16 +2257,18 @@ const A = {
     openSheet(`<h3>${b.dataset.v === 'page' ? 'Page' : 'List'} ideas</h3><p class="muted" style="margin:0 0 10px">Tap one to start it.</p><div class="chips">${arr.filter(i => !used.includes(i)).map(i => `<button class="chip" data-act="listIdea" data-type="${b.dataset.v}" data-v="${esc(i)}">${esc(i)}</button>`).join('')}</div>
       <div class="row"><button class="pbtn ghost" data-act="closeSheet">Close</button></div>`); return false; },
   search(){ openSheet(`<h3>Search</h3><input class="field" id="q" placeholder="Search everything" autocomplete="off" enterkeyhint="search"><div id="qres"></div>`); renderSearchResults(); setTimeout(() => $('q').focus(), 60); return false; },
-  srList(b){ closeSheet(); view.tab = 'journal'; view.j = 'lists'; view.logId = null; view.listId = b.dataset.id; window.scrollTo(0,0); },
-  srLog(b){ closeSheet(); view.tab = 'journal'; view.j = 'lists'; view.listId = null; view.logId = b.dataset.id; window.scrollTo(0,0); },
+  srList(b){ closeSheet(); view.tab = 'journal'; view.j = 'lists'; view.logId = null; view.listId = b.dataset.id; view.listEdit = false; window.scrollTo(0,0); },
+  srLog(b){ closeSheet(); view.tab = 'journal'; view.j = 'logs'; view.listId = null; view.logId = b.dataset.id; window.scrollTo(0,0); },
   srDay(b){ closeSheet(); view.tab = 'days'; view.day = b.dataset.k; window.scrollTo(0,0); },
   srDaily(b){ closeSheet(); view.tab = 'journal'; view.j = 'daily'; view.jday = b.dataset.k; window.scrollTo(0,0); },
   srWish(){ closeSheet(); view.tab = 'journal'; view.j = 'wish'; window.scrollTo(0,0); },
   itemDel(b){ const l = S.lists.find(x => x.id === view.listId), id = b.dataset.id, it = l.items.find(i => i.id === id);
     if (it && (it.subs||[]).length){ ask('Remove this point and its sub points?', () => { l.items = l.items.filter(i => i.id !== id); }, 'Remove'); return false; }
     l.items = l.items.filter(i => i.id !== id); save(); },
-  listOpen(b){ view.listId = b.dataset.id; window.scrollTo(0,0); },
-  listBack(){ S.lists = S.lists.filter(l => (l.title||'').trim() || (l.body||'').trim() || (l.items||[]).length); save(); view.listId = null; },
+  listOpen(b){ view.listId = b.dataset.id; view.listEdit = false; window.scrollTo(0,0); },
+  listEditOn(){ view.listEdit = true; },
+  listEditOff(){ save(); view.listEdit = false; window.scrollTo(0,0); toast('Saved'); },
+  listBack(){ view.listEdit = false; S.lists = S.lists.filter(l => (l.title||'').trim() || (l.body||'').trim() || (l.items||[]).length); save(); view.listId = null; },
   listDel(b){ const id = b.dataset.id; ask('Delete this for good?', () => { S.lists = S.lists.filter(l => l.id !== id); view.listId = null; }); return false; },
 
   async pSetup(){ const a = $('pp1').value, c = $('pp2').value;
@@ -2133,6 +2286,17 @@ const A = {
   pBack(){ P.list = P.list.filter(p => (p.name||'').trim() || (p.extra||'').trim() || (p.first||'').trim()); pSaveSoon(0); view.personId = null; },
   pFactAdd(b){ const p = P.list.find(x => x.id === view.personId); const def = PFACTS.find(f => f[0] === b.dataset.v);
     (p.facts = p.facts || []).push({id:uid(), k:b.dataset.v || '', v:'', type: def ? def[1] : 'text', custom: !b.dataset.v}); p.updated = todayKey(); pSaveSoon(0); },
+  dreamNew(){ const h = new Date().getHours(); DRF = {x:null, v:{date: h < 15 ? addDays(todayKey(),-1) : todayKey(), types:[], clarity:''}}; dreamSheet(); setTimeout(() => $('dr_text') && $('dr_text').focus(), 60); return false; },
+  dreamEdit(b){ const x = S.dreams.find(d => d.id === b.dataset.id); if (!x) return false; DRF = {x, v:JSON.parse(JSON.stringify(x))}; dreamSheet(); return false; },
+  drType(b){ drSync(); const t = DRF.v.types = DRF.v.types || [], k = b.dataset.v; if (t.includes(k)) t.splice(t.indexOf(k),1); else t.push(k); dreamSheet(); return false; },
+  drClar(b){ drSync(); DRF.v.clarity = DRF.v.clarity === b.dataset.v ? '' : b.dataset.v; dreamSheet(); return false; },
+  dreamSave(){ drSync(); const v = DRF.v; if (!(v.text||'').trim() && !(v.title||'').trim()){ toast('Write something first'); return false; }
+    const o = {date:v.date || todayKey(), title:(v.title||'').trim(), text:(v.text||'').trim(), types:v.types||[], clarity:v.clarity||''};
+    if (DRF.x) Object.assign(DRF.x, o); else S.dreams.push(Object.assign({id:uid(), at:new Date().toISOString(), star:false}, o));
+    DRF = null; save(); closeSheet(); toast('Dream saved'); },
+  dreamDel(){ const x = DRF.x; ask('Delete this dream?', () => { S.dreams = S.dreams.filter(d => d !== x); DRF = null; }); return false; },
+  dreamStar(b){ const d = S.dreams.find(x => x.id === b.dataset.id); if (d){ d.star = !d.star; save(); } },
+  dreamF(b){ view.dreamF = b.dataset.v; },
   pFront(b){ const p = P.list.find(x => x.id === view.personId), H = p.hideFront = p.hideFront || {}; if (H[b.dataset.v]) delete H[b.dataset.v]; else H[b.dataset.v] = true; pSaveSoon(0); },
   pFactDel(b){ const p = P.list.find(x => x.id === view.personId); p.facts = (p.facts||[]).filter(f => f.id !== b.dataset.id); pSaveSoon(0); },
   pPick(b){ const p = P.list.find(x => x.id === view.personId); p.knows = p.knows === b.dataset.v ? '' : b.dataset.v; p.updated = todayKey(); pSaveSoon(0); },
@@ -2197,15 +2361,32 @@ const A = {
   sPick(b){ view.sday = b.dataset.k; },
   smPrev(){ const [y,m] = (view.smonth || todayKey().slice(0,7)).split('-').map(Number); const d = new Date(y, m-2, 1); view.smonth = d.getFullYear()+'-'+pad(d.getMonth()+1); },
   smNext(){ const [y,m] = (view.smonth || todayKey().slice(0,7)).split('-').map(Number); const d = new Date(y, m, 1); view.smonth = d.getFullYear()+'-'+pad(d.getMonth()+1); },
-  logNew(){ openForm({title:'New log', note:'Weeks count in 7 day blocks from the start date. You can add people to compete with after creating it.', fields:[{k:'title',label:'Name',ph:'e.g. Daily reading'},
-      {k:'type',label:'What kind of number?',type:'select',options:[{v:'progress',n:'Progress: a level that goes up and down (rating)'},{v:'amount',n:'Amount: how much each day (pages, points)'}],value:'progress'},
-      {k:'unit',label:'Name of the number',ph:'e.g. Rating, Pages'},{k:'start',label:'Started on',type:'date',value:todayKey()}],
-    onSave:v => { if (!v.title){ toast('Name it'); return false; } const l = {id:uid(), title:v.title, type:v.type, unit:v.unit, people:[], start:v.start || todayKey(), entries:[]}; S.logs.push(l); view.logId = l.id; }}); return false; },
-  logEdit(){ const l = S.logs.find(x => x.id === view.logId); openForm({title:'Edit log', fields:[{k:'title',label:'Name',value:l.title},
-      {k:'type',label:'What kind of number?',type:'select',options:[{v:'progress',n:'Progress: a level that goes up and down (rating)'},{v:'amount',n:'Amount: how much each day (pages, points)'}],value:l.type||'progress'},
-      {k:'unit',label:'Name of the number',value:l.unit},{k:'start',label:'Started on',type:'date',value:l.start}],
-    onSave:v => { if (!v.title) return false; l.title = v.title; l.type = v.type; l.unit = v.unit; l.start = v.start || l.start; },
+  logNew(){ openSheet(`<h3>New log</h3><p class="muted" style="margin:0 0 8px">What kind?</p>
+      <button class="ltype" data-act="logNewType" data-v="progress"><b>≡ Progress</b><span>A level that goes up and down, like a rating</span></button>
+      <button class="ltype" data-act="logNewType" data-v="amount"><b>▤ Amount</b><span>How much each day, like pages or points</span></button>
+      <button class="ltype" data-act="logNewType" data-v="diary"><b>✎ Diary</b><span>Dated writing, like dreams or daily moments</span></button>
+      <div class="row"><button class="pbtn ghost" data-act="closeSheet">Cancel</button></div>`); return false; },
+  logNewType(b){ const type = b.dataset.v, diary = type === 'diary';
+    openForm({title: diary ? 'New diary' : type === 'amount' ? 'New amount log' : 'New progress log', fields: diary ? [{k:'title',label:'Name',ph:'e.g. Dreams, Little moments'},{k:'theme',label:'Look',type:'select',options:Object.entries(LOG_THEMES).map(([k,v]) => ({v:k, n:v[2]})),value:'dream'},{k:'tags',label:'Tags you can pick (comma separated, optional)',ph:'e.g. Happy, Weird, Scary'}]
+      : [{k:'title',label:'Name',ph:type === 'amount' ? 'e.g. Daily reading' : 'e.g. Chess rating'},{k:'unit',label:'Name of the number',ph:type === 'amount' ? 'e.g. Pages' : 'e.g. Rating'},{k:'start',label:'Started on',type:'date',value:todayKey()}],
+      onSave:v => { if (!v.title){ toast('Name it'); return false; } const l = {id:uid(), title:v.title, type, unit:v.unit||'', people:[], start:v.start || todayKey(), entries:[]};
+        if (diary){ l.theme = v.theme; l.tags = (v.tags||'').split(',').map(t => t.trim()).filter(Boolean); }
+        S.logs.push(l); view.logId = l.id; }}); return false; },
+  logEdit(){ const l = S.logs.find(x => x.id === view.logId), diary = l.type === 'diary';
+    openForm({title:'Edit log', fields: diary ? [{k:'title',label:'Name',value:l.title},{k:'theme',label:'Look',type:'select',options:Object.entries(LOG_THEMES).map(([k,v]) => ({v:k, n:v[2]})),value:l.theme||'dream'},{k:'tags',label:'Tags (comma separated)',value:(l.tags||[]).join(', ')}]
+      : [{k:'title',label:'Name',value:l.title},{k:'type',label:'What kind of number?',type:'select',options:[{v:'progress',n:'Progress: a level that goes up and down (rating)'},{v:'amount',n:'Amount: how much each day (pages, points)'}],value:l.type||'progress'},{k:'unit',label:'Name of the number',value:l.unit},{k:'start',label:'Started on',type:'date',value:l.start}],
+    onSave:v => { if (!v.title) return false; l.title = v.title; if (diary){ l.theme = v.theme; l.tags = (v.tags||'').split(',').map(t => t.trim()).filter(Boolean); } else { l.type = v.type; l.unit = v.unit; l.start = v.start || l.start; } },
     onDelete:() => { S.logs = S.logs.filter(x => x.id !== l.id); view.logId = null; }}); return false; },
+  diaryNew(){ const l = S.logs.find(x => x.id === view.logId), hr = new Date().getHours(); DRF = {l, x:null, v:{date: l.theme === 'dream' && hr < 15 ? addDays(todayKey(),-1) : todayKey(), tags:[]}}; diarySheet(); setTimeout(() => $('dr_text') && $('dr_text').focus(), 60); return false; },
+  diaryEdit(b){ const l = S.logs.find(x => x.id === view.logId), x = l.entries.find(e => e.id === b.dataset.id); if (!x) return false; DRF = {l, x, v:JSON.parse(JSON.stringify(x))}; diarySheet(); return false; },
+  diaryTag(b){ drSync(); const t = DRF.v.tags = DRF.v.tags || [], k = b.dataset.v; if (t.includes(k)) t.splice(t.indexOf(k),1); else t.push(k); diarySheet(); return false; },
+  diarySave(){ drSync(); const v = DRF.v; if (!(v.text||'').trim() && !(v.title||'').trim()){ toast('Write something first'); return false; }
+    const o = {date:v.date || todayKey(), title:(v.title||'').trim(), text:(v.text||'').trim(), tags:v.tags||[]};
+    if (DRF.x) Object.assign(DRF.x, o); else DRF.l.entries.push(Object.assign({id:uid(), at:new Date().toISOString(), star:false, val:'', others:{}}, o));
+    if (o.date < DRF.l.start) DRF.l.start = o.date; DRF = null; save(); closeSheet(); toast('Saved'); },
+  diaryDel(){ const l = DRF.l, x = DRF.x; ask('Delete this entry?', () => { l.entries = l.entries.filter(e => e !== x); DRF = null; }); return false; },
+  diaryStar(b){ const l = S.logs.find(x => x.id === view.logId), d = l && l.entries.find(x => x.id === b.dataset.id); if (d){ d.star = !d.star; save(); } },
+  logGo(b){ view.tab = 'journal'; view.j = 'logs'; view.logId = b.dataset.id; view.listId = null; window.scrollTo(0,0); },
   logPersonAdd(){ const l = S.logs.find(x => x.id === view.logId); openForm({title:'Add someone to compete with', fields:[{k:'name',label:'Name',ph:'e.g. A friend'}],
     onSave:v => { if (!v.name) return false; (l.people = l.people || []).push({id:'p'+uid(), name:v.name}); }}); return false; },
   logPerson(b){ const l = S.logs.find(x => x.id === view.logId), p = (l.people||[]).find(x => x.id === b.dataset.id); if (!p) return false;
@@ -2447,7 +2628,7 @@ setInterval(() => { const t = todayKey(); if (t !== lastToday){ if (view.day ===
   const a = document.activeElement; if (!$('veil').classList.contains('open') && !(a && a.matches && a.matches('input,textarea'))) render(); } }, 20000);
 
 function applyTheme(){ if (S.theme === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', S.theme); }
-const NAV_KEYS = ['tab','room','j','logId','listId','gpId','personId','moneyId','aboutEdit'];
+const NAV_KEYS = ['tab','room','j','logId','listId','listEdit','gpId','personId','moneyId','aboutEdit'];
 const navSnap = () => { const o = {}; NAV_KEYS.forEach(k => o[k] = view[k] == null ? null : view[k]); return o; };
 const navKey = o => JSON.stringify(o);
 try { const saved = JSON.parse(sessionStorage.getItem('mirobome.view') || 'null'); if (saved) Object.assign(view, saved); } catch(e){}
