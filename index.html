@@ -365,6 +365,46 @@ nav.tabs button.on svg .f{fill:var(--accent)}
 .pnow.mini b{color:var(--ink);font-family:var(--pixel);font-size:15px}
 .pnow.mini.forbid b{color:var(--danger)}
 @media (min-width:1000px){ .ptimes{grid-template-columns:repeat(6,minmax(0,1fr))} }
+.sscore{display:flex;align-items:center;gap:16px;margin:4px 0 14px}
+.sring{flex:none;width:86px;height:86px;border-radius:50%;background:conic-gradient(var(--c) calc(var(--p)*1%), var(--empty) 0);display:grid;place-items:center;border:2px solid var(--ink);position:relative}
+.sring::after{content:'';position:absolute;inset:11px;border-radius:50%;background:var(--paper);border:2px solid var(--ink)}
+.sring b{position:relative;z-index:1;font-family:var(--pixel);font-size:19px}
+.sstx{display:flex;flex-direction:column;gap:2px}.sstx b{font-family:var(--pixel);font-size:18px}.sstx span{font-size:13px;color:var(--muted)}
+.spbars{display:flex;flex-direction:column;gap:9px}
+.spb{display:grid;grid-template-columns:72px 1fr 52px;align-items:center;gap:10px}
+.spn{font-family:var(--pixel);font-size:14px}
+.spv{font-family:var(--pixel);font-size:13px;color:var(--muted);text-align:right}
+.sptrack{height:16px;border:2px solid var(--ink);background:var(--empty)}
+.spfill{height:100%;background:var(--c);border-right:2px solid var(--ink)}
+.spfill[style*="width:0%"]{border-right:0}
+.spb.weak .spn{color:var(--danger)}
+.sptip{font-size:13px;margin:12px 0 0;color:var(--muted)}.sptip b{color:var(--ink)}
+.scal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.scal .wk{font-size:10px;color:var(--muted);text-align:center;font-family:var(--pixel)}
+.sday{display:flex;flex-direction:column;gap:3px;padding:3px 3px 4px;border:1.5px solid var(--line);background:var(--paper);min-width:0;aspect-ratio:1/1.05}
+.sday .sdn{font-family:var(--pixel);font-size:10px;color:var(--muted);text-align:left;line-height:1}
+.sday .sst{flex:1;display:grid;grid-template-columns:repeat(5,1fr);gap:1.5px;align-items:end}
+.sday .sst i{display:block;height:100%;background:var(--empty)}
+.sday .sst i.y{background:var(--teal)}
+.sday .sst i.n{background:color-mix(in srgb,var(--cherry) 55%,var(--paper))}
+.sday .sst i.p{background:var(--empty);outline:1px dashed var(--line)}
+.sday.full{border-color:var(--ink);box-shadow:2px 2px 0 var(--ink)}
+.sday.full .sdn{color:var(--ink)}
+.sday.now{outline:2px solid var(--accent);outline-offset:1px}
+.sday.off{opacity:.35}
+.slegend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11px;color:var(--muted);margin-top:10px;align-items:center}
+.slegend i{display:inline-block;width:10px;height:10px;margin-right:4px;vertical-align:middle;background:var(--empty);border:1px solid var(--line)}
+.slegend i.y{background:var(--teal)}.slegend i.n{background:color-mix(in srgb,var(--cherry) 55%,var(--paper))}
+.yc.sy0{background:color-mix(in srgb,var(--cherry) 55%,var(--paper))}
+.yc.sy1{background:color-mix(in srgb,var(--peach) 70%,var(--paper))}
+.yc.sy2{background:color-mix(in srgb,var(--yellow) 70%,var(--paper))}
+.yc.sy3{background:color-mix(in srgb,var(--lime) 60%,var(--paper))}
+.yc.sy4{background:color-mix(in srgb,var(--teal) 55%,var(--paper))}
+.yc.sy5{background:var(--teal);border-color:var(--ink)}
+.strend{display:flex;align-items:flex-end;gap:5px;height:120px;border-bottom:2px solid var(--ink);padding-bottom:2px}
+.stw{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:3px}
+.stw .stb{width:100%;background:var(--c);border:2px solid var(--ink);border-bottom:0}
+.stw span{font-family:var(--pixel);font-size:9px;color:var(--muted)}
 .prayers{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
 .pray{border:2px solid var(--ink);background:var(--paper);padding:12px 0 9px;text-align:center;font-family:var(--pixel);font-size:clamp(11px,3.1vw,14px);letter-spacing:-.2px;white-space:nowrap;overflow:hidden;min-width:0;display:flex;flex-direction:column;align-items:center;gap:8px}
 .pray i{width:24px;height:24px;border:2px solid var(--ink);background:var(--empty);flex:none}
@@ -2119,30 +2159,71 @@ const salahCount = k => salahDay(k).filter(Boolean).length;
 function salahStreak(){ let k = todayKey(); if (salahCount(k) < 5) k = addDays(k,-1); let n = 0; while (salahCount(k) === 5){ n++; k = addDays(k,-1); } return n; }
 function salahBest(){ const days = Object.keys(S.salah).filter(k => salahCount(k) === 5).sort(); let best = 0, run = 0, prev = null;
   days.forEach(k => { run = prev && addDays(prev,1) === k ? run+1 : 1; best = Math.max(best, run); prev = k; }); return best; }
+const salahStart = () => { const ks = Object.keys(S.salah).sort(); return ks.length ? ks[0] : todayKey(); };
+function salahRange(a, b){ // stats between keys a..b (inclusive), counting only tracked days up to today
+  const t = todayKey(), st = salahStart(), per = [0,0,0,0,0]; let days = 0, perfect = 0, done = 0;
+  for (let k = a < st ? st : a; k <= b && k <= t; k = addDays(k,1)){ const dd = salahDay(k); days++; dd.forEach((v,i) => { if (v){ per[i]++; done++; } }); if (dd.every(Boolean)) perfect++; }
+  return {days, per, perfect, done, total: days*5, pct: days ? Math.round(done/(days*5)*100) : 0};
+}
+const pctCol = p => p >= 85 ? 'teal' : p >= 60 ? 'lime' : p >= 35 ? 'yellow' : 'cherry';
+function salahBars(r){
+  const worst = r.days ? r.per.indexOf(Math.min(...r.per)) : -1, best = r.days ? r.per.indexOf(Math.max(...r.per)) : -1;
+  return `<div class="spbars">${SALAH.map((n,i) => { const p = r.days ? Math.round(r.per[i]/r.days*100) : 0;
+    return `<div class="spb ${i===worst && r.per[worst] < r.days ? 'weak' : ''}"><span class="spn">${n}</span><div class="sptrack"><div class="spfill" style="width:${p}%;--c:var(--${pctCol(p)})"></div></div><span class="spv">${r.per[i]}/${r.days}</span></div>`; }).join('')}</div>
+    ${r.days && r.per[worst] < r.days ? `<p class="sptip">Weakest: <b>${SALAH[worst]}</b>${worst !== best ? `, strongest: <b>${SALAH[best]}</b>` : ''}. Fix ${SALAH[worst]} first and the rest gets easier.</p>` : r.days ? `<p class="sptip">Every prayer, every day. Alhamdulillah.</p>` : ''}`;
+}
+function salahScore(r, label){
+  const c = pctCol(r.pct);
+  return `<div class="sscore"><div class="sring" style="--p:${r.pct};--c:var(--${c})"><b>${r.pct}%</b></div><div class="sstx"><b>${label}</b><span>${r.done} of ${r.total} prayers</span><span>${r.perfect} perfect day${r.perfect===1?'':'s'} of ${r.days}</span></div></div>`;
+}
 function renderSalah(){
-  const d = view.sday || todayKey(), t = todayKey(), day = salahDay(d), past = d < t;
+  const d = view.sday || todayKey(), t = todayKey(), day = salahDay(d), past = d < t, tab = view.stab || 'today';
   const st = salahStreak();
   maybeGeo();
-  let h = roomHead('Salah') + prayerCard();
-  h += `<section class="paper full"><div class="streakbig"><div><b>${st}</b><span class="muted">day streak</span></div><div><b style="font-size:28px">${salahBest()}</b><span class="muted">best</span></div></div>
-    <p class="muted" style="margin:10px 0 0">${salahCount(t) === 5 ? 'All 5 done today. Alhamdulillah.' : 'Pray all 5 today to '+(st ? 'keep' : 'start')+' your streak.'}</p></section>`;
-  h += `<section class="paper"><div class="dayhead" style="margin-bottom:14px"><button class="arrow" data-act="sprevDay" aria-label="Previous day">&lsaquo;</button>
-    <div class="mid"><div class="dname" style="font-size:24px">${parse(d).toLocaleDateString('en-GB',{weekday:'long'})}</div><div class="ddate">${parse(d).toLocaleDateString('en-GB',{day:'numeric',month:'long'})}</div>
-    ${d===t ? '' : `<button class="rel go" data-act="sToday">Back to today</button>`}</div>
-    <button class="arrow" data-act="snextDay" ${d>=t?'disabled style="opacity:.3"':''} aria-label="Next day">&rsaquo;</button></div>
-    <div class="prayers">${SALAH.map((p,i) => `<button class="pray ${day[i]?'on':past?'miss':''}" data-act="pray" data-k="${d}" data-v="${i}"><i></i>${p}</button>`).join('')}</div>
-    <p class="muted" style="margin:12px 0 0">${salahCount(d)} of 5${past && salahCount(d) < 5 ? ', missed: '+SALAH.filter((p,i) => !day[i]).join(', ') : ''}</p></section>`;
-  const [y,m] = (view.smonth || t.slice(0,7)).split('-').map(Number), dim = new Date(y,m,0).getDate(), lead = (new Date(y,m-1,1).getDay()+6)%7;
-  let g = ['M','T','W','T','F','S','S'].map(w => `<span class="wk">${w}</span>`).join('') + '<span></span>'.repeat(lead);
-  let done = 0, total = 0; const missed = [0,0,0,0,0];
-  for (let i = 1; i <= dim; i++){ const k = y+'-'+pad(m)+'-'+pad(i);
-    if (k > t){ g += `<span class="sd" style="opacity:.35">${i}</span>`; continue; }
-    const c = salahCount(k); total += 5; done += c; salahDay(k).forEach((v,j) => { if (!v) missed[j]++; });
-    g += `<button class="sd l${c} ${k===d?'sel':''}" data-act="sPick" data-k="${k}">${i}</button>`; }
-  const worst = Math.max(...missed), worstName = worst ? SALAH[missed.indexOf(worst)] : '';
-  h += `<section class="paper"><div class="monthnav" style="margin-bottom:10px"><button class="arrow" data-act="smPrev" aria-label="Previous month">&lsaquo;</button><div class="mid" style="font-size:20px">${MONTHS[m-1]} ${y}</div><button class="arrow" data-act="smNext" aria-label="Next month">&rsaquo;</button></div>
-    <div class="sgrid">${g}</div>
-    <p class="muted" style="margin:12px 0 0">${total ? done+' of '+total+' prayers this month'+(worstName ? '. Missed most: '+worstName+' ('+worst+')' : '. None missed.') : 'Nothing yet this month.'}</p></section>`;
+  let h = roomHead('Salah');
+  h += `<div class="seg full">${[['today','Today'],['month','Month'],['year','Year']].map(([k,n]) => `<button class="${tab===k?'on':''}" data-act="sTab" data-v="${k}">${n}</button>`).join('')}</div>`;
+  if (tab === 'today'){
+    h += prayerCard();
+    h += `<section class="paper full"><div class="streakbig"><div><b>${st}</b><span class="muted">day streak</span></div><div><b style="font-size:28px">${salahBest()}</b><span class="muted">best</span></div></div>
+      <p class="muted" style="margin:10px 0 0">${salahCount(t) === 5 ? 'All 5 done today. Alhamdulillah.' : 'Pray all 5 today to '+(st ? 'keep' : 'start')+' your streak.'}</p></section>`;
+    h += `<section class="paper full"><div class="dayhead" style="margin-bottom:14px"><button class="arrow" data-act="sprevDay" aria-label="Previous day">&lsaquo;</button>
+      <div class="mid"><div class="dname" style="font-size:24px">${parse(d).toLocaleDateString('en-GB',{weekday:'long'})}</div><div class="ddate">${parse(d).toLocaleDateString('en-GB',{day:'numeric',month:'long'})}</div>
+      ${d===t ? '' : `<button class="rel go" data-act="sToday">Back to today</button>`}</div>
+      <button class="arrow" data-act="snextDay" ${d>=t?'disabled style="opacity:.3"':''} aria-label="Next day">&rsaquo;</button></div>
+      <div class="prayers">${SALAH.map((p,i) => `<button class="pray ${day[i]?'on':past?'miss':''}" data-act="pray" data-k="${d}" data-v="${i}"><i></i>${p}</button>`).join('')}</div>
+      <p class="muted" style="margin:12px 0 0">${salahCount(d)} of 5${past && salahCount(d) < 5 ? ', missed: '+SALAH.filter((p,i) => !day[i]).join(', ') : ''}</p></section>`;
+    const w = salahRange(addDays(t,-6), t);
+    h += `<section class="paper full"><h2>Last 7 days</h2>${salahScore(w, 'This week')}${salahBars(w)}</section>`;
+    return h;
+  }
+  if (tab === 'month'){
+    const [y,m] = (view.smonth || t.slice(0,7)).split('-').map(Number), dim = new Date(y,m,0).getDate(), lead = (new Date(y,m-1,1).getDay()+6)%7, ss = salahStart();
+    const a = y+'-'+pad(m)+'-01', b = y+'-'+pad(m)+'-'+pad(dim), r = salahRange(a, b);
+    let g = ['M','T','W','T','F','S','S'].map(x => `<span class="wk">${x}</span>`).join('') + '<span></span>'.repeat(lead);
+    for (let i = 1; i <= dim; i++){ const k = y+'-'+pad(m)+'-'+pad(i), fut = k > t, pre = k < ss, dd = salahDay(k), c = dd.filter(Boolean).length;
+      g += `<button class="sday ${fut||pre?'off':''} ${c===5?'full':''} ${k===t?'now':''}" ${fut ? 'disabled' : `data-act="sPick" data-k="${k}"`}><span class="sdn">${i}</span><span class="sst">${dd.map((v,j) => `<i class="${v ? 'y' : fut||pre ? '' : k===t ? 'p' : 'n'}" title="${SALAH[j]}"></i>`).join('')}</span></button>`; }
+    h += `<section class="paper full"><div class="monthnav" style="margin-bottom:10px"><button class="arrow" data-act="smPrev" aria-label="Previous month">&lsaquo;</button><div class="mid" style="font-size:20px">${MONTHS[m-1]} ${y}</div><button class="arrow" data-act="smNext" aria-label="Next month">&rsaquo;</button></div>
+      ${salahScore(r, MONTHS[m-1]+' so far')}
+      <div class="scal">${g}</div>
+      <div class="slegend"><span><i class="y"></i>prayed</span><span><i class="n"></i>missed</span><span><i></i>not tracked</span><span>Bars: Fajr, Zohr, Asr, Maghrib, Isha</span></div></section>`;
+    h += `<section class="paper full"><h2>Each prayer this month</h2>${salahBars(r)}</section>`;
+    return h;
+  }
+  // year
+  const y = +(view.syear || t.slice(0,4)), ss = salahStart();
+  let g = '<span></span>' + Array.from({length:31}, (_,i) => `<span class="dl">${i===0||(i+1)%5===0?i+1:''}</span>`).join('');
+  for (let mo = 1; mo <= 12; mo++){ const dim = new Date(y,mo,0).getDate(); g += `<span class="ml">${MONTHS[mo-1]}</span>`;
+    for (let dd = 1; dd <= 31; dd++){ if (dd > dim){ g += '<span class="yc no"></span>'; continue; } const k = y+'-'+pad(mo)+'-'+pad(dd);
+      if (k > t || k < ss){ g += '<span class="yc"></span>'; continue; } const c = salahCount(k);
+      g += `<button class="yc sy${c}" data-act="sPick" data-k="${k}" title="${k}: ${c} of 5"></button>`; } }
+  const weeks = []; for (let i = 11; i >= 0; i--){ const b = addDays(t, -i*7), a = addDays(b, -6); const r = salahRange(a, b); weeks.push({a, r}); }
+  const yr = salahRange(y+'-01-01', y+'-12-31');
+  h += `<section class="paper full"><div class="monthnav" style="margin-bottom:10px"><button class="arrow" data-act="syPrev" aria-label="Previous year">&lsaquo;</button><div class="mid" style="font-size:20px">${y}</div><button class="arrow" data-act="syNext" aria-label="Next year">&rsaquo;</button></div>
+    ${salahScore(yr, y+' so far')}<div class="ygrid">${g}</div>
+    <div class="slegend">${[0,1,2,3,4,5].map(c => `<span><i class="yc sy${c}" style="display:inline-block;width:12px;height:12px"></i>${c}</span>`).join('')}<span>prayers that day</span></div></section>`;
+  h += `<section class="paper full"><h2>Last 12 weeks</h2><div class="strend">${weeks.map(w => `<div class="stw"><div class="stb" style="height:${w.r.days ? Math.max(4, w.r.pct) : 0}%;--c:var(--${pctCol(w.r.pct)})" title="${w.r.pct}%"></div><span>${w.r.days ? w.r.pct : '-'}</span></div>`).join('')}</div>
+    <p class="muted" style="margin:8px 0 0">${(() => { const v = weeks.filter(w => w.r.days); if (v.length < 2) return 'Keep tracking to see your trend.'; const a = v[v.length-1].r.pct, b = v[v.length-2].r.pct; return a > b ? `Up ${a-b}% from last week. Keep going.` : a < b ? `Down ${b-a}% from last week. You can bring it back.` : 'Same as last week.'; })()}</p></section>`;
+  h += `<section class="paper full"><h2>Each prayer in ${y}</h2>${salahBars(yr)}</section>`;
   return h;
 }
 
@@ -2358,7 +2439,10 @@ const A = {
   sprevDay(){ view.sday = addDays(view.sday || todayKey(), -1); view.smonth = view.sday.slice(0,7); },
   snextDay(){ const n = addDays(view.sday || todayKey(), 1); if (n > todayKey()) return false; view.sday = n; view.smonth = n.slice(0,7); },
   sToday(){ view.sday = todayKey(); view.smonth = null; },
-  sPick(b){ view.sday = b.dataset.k; },
+  sPick(b){ view.sday = b.dataset.k; view.stab = 'today'; window.scrollTo(0,0); },
+  sTab(b){ view.stab = b.dataset.v; },
+  syPrev(){ view.syear = +(view.syear || todayKey().slice(0,4)) - 1; },
+  syNext(){ view.syear = +(view.syear || todayKey().slice(0,4)) + 1; },
   smPrev(){ const [y,m] = (view.smonth || todayKey().slice(0,7)).split('-').map(Number); const d = new Date(y, m-2, 1); view.smonth = d.getFullYear()+'-'+pad(d.getMonth()+1); },
   smNext(){ const [y,m] = (view.smonth || todayKey().slice(0,7)).split('-').map(Number); const d = new Date(y, m, 1); view.smonth = d.getFullYear()+'-'+pad(d.getMonth()+1); },
   logNew(){ openSheet(`<h3>New log</h3><p class="muted" style="margin:0 0 8px">What kind?</p>
