@@ -834,40 +834,71 @@ async function syncPullRemote(){
   const txt = f.truncated ? await (await fetch(f.raw_url)).text() : f.content;
   return txt ? JSON.parse(txt) : null;
 }
-async function syncPush(){
-  if (!SY.token || !SY.gist || !syncReady) return;
-  syncBusy = true;
-  try { await gh('/gists/'+SY.gist, {method:'PATCH', body:JSON.stringify({files:{[GIST_FILE]:{content:JSON.stringify(S)}}})}); SY.last = Date.now(); saveSy(); syncState = ''; }
-  catch(e){ syncState = e.message; }
-  syncBusy = false;
+/* Sync merges changes from each device (3-way, per item) instead of overwriting the whole copy */
+const BASE_KEY = 'mirobome.base';
+let BASE = null; try { BASE = JSON.parse(localStorage.getItem(BASE_KEY) || 'null'); } catch(e){}
+const saveBase = o => { BASE = o; try { localStorage.setItem(BASE_KEY, JSON.stringify(o)); } catch(e){} };
+const sStrip = o => { const c = JSON.parse(JSON.stringify(o || {})); delete c._ts; return c; };
+const sSame = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+const sObj = v => v && typeof v === 'object' && !Array.isArray(v);
+const sIdArr = a => Array.isArray(a) && a.length && a.every(x => x && typeof x === 'object' && x.id != null);
+const SY_ATOMIC = new Set(['persona']);
+function mergeVal(b, l, r, k){
+  if (sSame(l, r)) return l;
+  const lc = !sSame(l, b), rc = !sSame(r, b);
+  if (lc && !rc) return l; if (rc && !lc) return r; if (!lc && !rc) return l;
+  if (SY_ATOMIC.has(k)) return l;
+  if (sObj(l) && sObj(r)) return mergeObj(sObj(b) ? b : {}, l, r);
+  if (sIdArr(l) && sIdArr(r)){
+    const mp = a => new Map((Array.isArray(a) ? a : []).filter(x => x && x.id != null).map(x => [x.id, x])), bm = mp(b), lm = mp(l), rm = mp(r), res = [];
+    [...l.map(x => x.id), ...r.map(x => x.id).filter(id => !lm.has(id))].forEach(id => { const v = mergeVal(bm.get(id), lm.get(id), rm.get(id), 'item'); if (v !== undefined) res.push(v); });
+    return res;
+  }
+  return l;
 }
-function syncSoon(){ if (!SY.token || !SY.gist || !syncReady) return; clearTimeout(syncT); syncT = setTimeout(syncPush, 3000); }
+function mergeObj(b, l, r){ const out = {}; new Set([...Object.keys(l||{}), ...Object.keys(r||{})]).forEach(k => { const v = mergeVal((b||{})[k], (l||{})[k], (r||{})[k], k); if (v !== undefined) out[k] = v; }); return out; }
+let syncPending = false;
+async function syncPush(){ await syncNow(true); }
+function syncSoon(){ if (!SY.token || !SY.gist || !syncReady) return; clearTimeout(syncT); syncT = setTimeout(() => syncNow(true), 2500); }
 async function syncNow(silent){
-  if (!SY.token || !SY.gist || syncBusy) return;
+  if (!SY.token || !SY.gist) return;
+  if (syncBusy){ syncPending = true; return; }
   syncBusy = true;
   try {
     const remote = await syncPullRemote();
-    syncReady = true; syncBusy = false;
-    if (remote && (remote._ts||0) > (S._ts||0)){
-      localStorage.setItem(KEY, JSON.stringify(remote)); S = load(); pLock(); applyTheme(); SY.last = Date.now(); saveSy();
-      if (!$('veil').classList.contains('open')) render();
+    syncReady = true;
+    const local = sStrip(S), rem = remote ? sStrip(remote) : null;
+    let merged, push = false, apply = false;
+    if (!rem){ merged = local; push = true; }
+    else if (!BASE){ merged = (remote._ts||0) > (S._ts||0) ? rem : local; apply = !sSame(merged, local); push = !sSame(merged, rem); }
+    else { merged = mergeObj(BASE, local, rem); apply = !sSame(merged, local); push = !sSame(merged, rem); }
+    if (apply){
+      const oldPersona = S.persona && S.persona.data;
+      merged._ts = push ? Date.now() : (remote._ts || Date.now());
+      localStorage.setItem(KEY, JSON.stringify(merged)); S = load(); applyTheme();
+      if ((S.persona && S.persona.data) !== oldPersona) pLock();
+      const a = document.activeElement;
+      if (!$('veil').classList.contains('open') && !(a && a.matches && a.matches('input,textarea,select'))) render();
       if (!silent) toast('Synced from your other device');
-    } else if (!remote || (remote._ts||0) < (S._ts||0)){ await syncPush(); if (!silent) toast('Synced'); }
-    else { SY.last = Date.now(); saveSy(); if (!silent) toast('Already up to date'); }
-    syncState = '';
-  } catch(e){ syncBusy = false; syncState = e.message; if (!silent) toast(e.message); }
+    } else if (push){ S._ts = Date.now(); merged._ts = S._ts; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
+    if (push){ merged._ts = merged._ts || Date.now(); await gh('/gists/'+SY.gist, {method:'PATCH', body:JSON.stringify({files:{[GIST_FILE]:{content:JSON.stringify(merged)}}})}); if (!silent && !apply) toast('Synced'); }
+    else if (!silent && !apply) toast('Already up to date');
+    saveBase(sStrip(merged)); SY.last = Date.now(); saveSy(); syncState = '';
+  } catch(e){ syncState = e.message; if (!silent) toast(e.message); }
+  syncBusy = false;
+  if (syncPending){ syncPending = false; setTimeout(() => syncNow(true), 300); }
 }
 async function syncConnect(token){
-  SY = {token}; 
+  SY = {token};
   const gists = await gh('/gists?per_page=100');
   const found = gists.find(g => g.files && g.files[GIST_FILE]);
   if (found){
     SY.gist = found.id; saveSy();
     const remote = await syncPullRemote();
-    if (remote){ localStorage.setItem(KEY, JSON.stringify(remote)); S = load(); pLock(); applyTheme(); }
+    if (remote){ localStorage.setItem(KEY, JSON.stringify(remote)); S = load(); pLock(); applyTheme(); saveBase(sStrip(remote)); }
     SY.last = Date.now(); saveSy(); syncReady = true; return;
-  } else { const g = await gh('/gists', {method:'POST', body:JSON.stringify({description:'Mi Robo Me data', public:false, files:{[GIST_FILE]:{content:JSON.stringify(S)}}})}); SY.gist = g.id; }
-  saveSy(); syncReady = false; await syncNow(true); syncReady = true;
+  } else { const g = await gh('/gists', {method:'POST', body:JSON.stringify({description:'Mi Robo Me data', public:false, files:{[GIST_FILE]:{content:JSON.stringify(S)}}})}); SY.gist = g.id; saveBase(sStrip(S)); }
+  saveSy(); syncReady = true;
 }
 
 /* ================= helpers ================= */
@@ -2700,7 +2731,7 @@ document.addEventListener('keydown', e => {
 $('veil').addEventListener('click', e => { if (e.target.id === 'veil') closeSheet(); });
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden && SY.token) syncNow(true);
-  if (document.hidden){ localStorage.setItem(KEY, JSON.stringify(S)); if (syncT){ clearTimeout(syncT); syncPush(); } if (P.list){ pSaveSoon(0); hiddenAt = Date.now(); pTouch(); } return; }
+  if (document.hidden){ clearTimeout(saveT); save(); if (SY.token){ clearTimeout(syncT); syncNow(true); } if (P.list){ pSaveSoon(0); hiddenAt = Date.now(); pTouch(); } return; }
   const lockMin = S.personaLock == null ? 15 : S.personaLock;
   if (P.list && hiddenAt && lockMin > 0 && Date.now() - hiddenAt > lockMin*60000){ pLock(); if (view.tab === 'journal' && view.j === 'persona'){ closeSheet(); render(); } }
   hiddenAt = 0;
@@ -2765,6 +2796,8 @@ render();
 pRestore();
 window.addEventListener('pagehide', () => { if (P.list) pTouch(); });
 if (SY.token) syncNow(true);
+setInterval(() => { if (SY.token && !document.hidden) syncNow(true); }, 20000);
+window.addEventListener('focus', () => { if (SY.token) syncNow(true); });
 if ('serviceWorker' in navigator && location.protocol === 'https:' && /github\.io$/.test(location.hostname)){
   window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
 }
