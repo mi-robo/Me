@@ -142,6 +142,12 @@ textarea.field{resize:vertical;line-height:1.5}
 .hcard{margin-bottom:16px}
 .hname{display:flex;align-items:center;gap:8px;font-family:var(--pixel);font-size:18px;font-weight:600;text-align:left}
 .hname .dotc{width:14px;height:14px;background:var(--c);border:2px solid var(--ink)}
+.hdrop{margin-left:auto;font-size:12px;color:var(--muted)}
+.dropbox{background:color-mix(in srgb,var(--slate) 10%,var(--paper))}
+.drh{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1.5px dashed var(--line)}
+.drh:last-child{border-bottom:0}
+.drh .dotc{flex:none;width:14px;height:14px;background:var(--c);border:2px solid var(--ink);opacity:.6}
+.drb{flex:1;min-width:0;display:flex;flex-direction:column}.drb b{font-family:var(--pixel);font-size:16px;color:var(--muted)}.drb span{font-size:12px;color:var(--muted)}
 .hmeta{display:flex;gap:12px;font-size:12px;color:var(--muted);margin:2px 0 10px}
 .grid16{display:grid;grid-template-columns:repeat(16,minmax(0,1fr));border-top:2px solid var(--ink);border-left:2px solid var(--ink)}
 .cell{aspect-ratio:1;min-width:0;border-right:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink);font-size:10px;display:grid;place-items:center;background:var(--paper);color:var(--muted);font-family:var(--pixel)}
@@ -512,6 +518,17 @@ li.done > .rprow .rpt{text-decoration:line-through;text-decoration-thickness:2px
 .dtext{font-size:15px;line-height:1.65}
 .dtext p{margin:0 0 10px}
 .dtext.clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+body.sharemode nav.tabs,body.sharemode .iconbtn,body.sharemode .instbtn{display:none!important}
+body.sharemode{padding-left:0!important}
+body.sharemode .wrap{padding-bottom:30px}
+@media (min-width:1000px){body.sharemode .top{position:static;width:auto;padding:0;margin-bottom:14px}body.sharemode .wrap{max-width:640px}body.sharemode #main{display:block}}
+.shtop{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.shtop .pbtn{margin-left:auto}
+.shlive{display:inline-flex;align-items:center;gap:6px;font-family:var(--pixel);font-size:12px;background:var(--cherry);color:#1E2440;border:2px solid var(--ink);padding:1px 8px}
+.shlive i{width:7px;height:7px;background:#1E2440;animation:pulse 1.4s ease-in-out infinite}
+.shbox{border:2px solid var(--ink);padding:12px;margin-top:12px;display:flex;flex-direction:column;gap:2px}
+.shbox b{font-family:var(--pixel);font-size:16px}
+.shbox .row{margin-top:10px}
 .drow2{display:flex;flex-direction:column;gap:2px;padding:10px 0;border-bottom:1.5px dashed var(--line);cursor:pointer}
 .drow2:last-child{border-bottom:0}
 .drow2 b{font-weight:600;font-size:15px;margin-bottom:2px}
@@ -813,7 +830,7 @@ function load(){
   return blank();
 }
 let S = load();
-function save(){ S._ts = Date.now(); try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ toast('Storage is full'); } if (typeof syncSoon === 'function') syncSoon(); }
+function save(){ S._ts = Date.now(); try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ toast('Storage is full'); } if (typeof syncSoon === 'function') syncSoon(); if (typeof shareSoon === 'function') shareSoon(); }
 let saveT; function saveSoon(){ clearTimeout(saveT); saveT = setTimeout(save, 350); }
 
 /* ================= sync (GitHub Gist) ================= */
@@ -821,6 +838,73 @@ const SYNC_KEY = 'mirobome.sync', GIST_FILE = 'mirobome.json';
 let SY = {}; try { SY = JSON.parse(localStorage.getItem(SYNC_KEY) || '{}'); } catch(e){}
 const saveSy = () => { try { localStorage.setItem(SYNC_KEY, JSON.stringify(SY)); } catch(e){} };
 let syncReady = false, syncBusy = false, syncT = null, syncState = '';
+/* ---- Live About Me link (secret gist with only the About Me page) ---- */
+const SHARE_FILE = 'aboutme.json', SHARE_SIG = 'mirobome.sharesig';
+const SHARE_ID = new URLSearchParams(location.search).get('about');
+let SHARE_DATA = null, SHARE_IMGS = {}, shareT = null, shareBusy = false, shareErr = '', shareAt = 0;
+function aboutImgIds(){ const A = S.about, ids = []; if (A.photo) ids.push(A.photo); (A.boxes||[]).forEach(b => ids.push(...(b.pics||[]))); ids.push(...(A.favPics||[])); (S.tops||[]).forEach(t => (t.pics||[]).forEach(p => p && ids.push(p))); return ids; }
+function shareCore(){
+  const about = JSON.parse(JSON.stringify(S.about)); delete about.shareGist;
+  const profile = JSON.parse(JSON.stringify(S.profile)), H = about.hide || {};
+  if (H.age){ delete about.dob; delete profile.birthday; }
+  return {v:1, owner:(S.profile.nickname || S.profile.name || '').trim(), profile, about, favs:S.favs, tops:S.tops};
+}
+function shrinkImg(data){ return new Promise(res => { const im = new Image(); im.onload = () => { const k = Math.min(1, 640/Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = Math.round(im.width*k); c.height = Math.round(im.height*k); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); res(c.toDataURL('image/jpeg', .72)); }; im.onerror = () => res(null); im.src = data; }); }
+async function sharePush(force){
+  const gid = S.about.shareGist; if (!SY.token || !gid || SHARE_ID) return;
+  const core = shareCore(), ids = aboutImgIds(), sig = JSON.stringify([core, ids]);
+  let last = ''; try { last = localStorage.getItem(SHARE_SIG) || ''; } catch(e){}
+  if (!force && sig === last) return;
+  if (shareBusy){ clearTimeout(shareT); shareT = setTimeout(() => sharePush(force), 3000); return; }
+  shareBusy = true;
+  try {
+    const imgs = {}; let missing = [];
+    for (const id of ids){ let d = null; try { d = await IMG.get(id); } catch(e){} if (d) imgs[id] = await shrinkImg(d); else missing.push(id); }
+    if (missing.length){ try { const old = await shareFetch(gid, true); missing.forEach(id => { if (old && old.imgs && old.imgs[id]) imgs[id] = old.imgs[id]; }); } catch(e){} }
+    const body = Object.assign(core, {imgs, at:Date.now()});
+    await gh('/gists/'+gid, {method:'PATCH', body:JSON.stringify({files:{[SHARE_FILE]:{content:JSON.stringify(body)}}})});
+    try { localStorage.setItem(SHARE_SIG, sig); } catch(e){}
+    shareErr = ''; shareAt = Date.now();
+  } catch(e){ shareErr = e.message; }
+  shareBusy = false;
+}
+function shareSoon(){ if (!S.about || !S.about.shareGist || !SY.token || SHARE_ID) return; clearTimeout(shareT); shareT = setTimeout(() => sharePush(false), 5000); }
+async function shareFetch(id, silent){
+  const h = {'Accept':'application/vnd.github+json'}; if (SY.token) h.Authorization = 'Bearer '+SY.token;
+  const r = await fetch('https://api.github.com/gists/'+id, {headers:h, cache:'no-store'});
+  if (r.status === 404) throw new Error('gone');
+  if (!r.ok) throw new Error(r.status === 403 ? 'busy' : 'GitHub said '+r.status);
+  const g = await r.json(), file = g.files && g.files[SHARE_FILE]; if (!file) throw new Error('gone');
+  const txt = file.truncated ? await (await fetch(file.raw_url, {cache:'no-store'})).text() : file.content;
+  return JSON.parse(txt);
+}
+async function shareLoad(){
+  try { SHARE_DATA = await shareFetch(SHARE_ID); SHARE_IMGS = SHARE_DATA.imgs || {}; shareErr = ''; }
+  catch(e){ if (e.message === 'gone') SHARE_DATA = null; shareErr = e.message === 'gone' ? 'gone' : e.message === 'busy' ? 'busy' : 'net'; }
+  render();
+}
+function renderShareView(){
+  const top = `<div class="shtop"><span class="shlive"><i></i>LIVE</span><span class="muted">${SHARE_DATA ? 'Updated '+(() => { const m = Math.round((Date.now() - (SHARE_DATA.at||0))/60000); return m < 1 ? 'just now' : m < 60 ? m+' min ago' : m < 1440 ? Math.round(m/60)+' h ago' : Math.round(m/1440)+' d ago'; })() : ''}</span><button class="pbtn small ghost" data-act="shReload">Refresh</button></div>`;
+  if (!SHARE_DATA){
+    const msg = shareErr === 'gone' ? 'This link was turned off by its owner.' : shareErr === 'busy' ? 'GitHub is busy right now. Try Refresh in a minute.' : shareErr ? 'Couldn’t load it. Check your internet and tap Refresh.' : 'Loading…';
+    return top + `<section class="paper full" style="text-align:center"><p>${msg}</p><a class="link" href="./">Open my own Mi Robo Me</a></section>`;
+  }
+  const real = S, d = SHARE_DATA; S = Object.assign(blank(), {profile:Object.assign(blank().profile, d.profile), about:Object.assign(blank().about, d.about), favs:d.favs||[], tops:d.tops||[]});
+  let out; try { out = renderAbout(true); } finally { S = real; }
+  return top + out + (shareErr ? `<p class="muted" style="text-align:center">Showing the last version, couldn’t refresh just now.</p>` : '') + `<p style="text-align:center;margin:18px 0"><a class="link" href="./">Open my own Mi Robo Me</a></p>`;
+}
+function shareMenu(){
+  const gid = S.about.shareGist, link = gid ? location.origin + location.pathname + '?about=' + gid : '';
+  openSheet(`<h3>Share About Me</h3>
+    <div class="shbox"><b>Live link</b><span class="muted">Anyone with the link sees your About Me page live, and nothing else from your app.</span>
+    ${!SY.token ? `<p class="muted" style="margin:8px 0 0">Turn on <b>Sync</b> in Rooms → Settings first. The live link uses the same GitHub token.</p><div class="row"><button class="pbtn" data-act="go" data-tab="more" data-room="settings">Go to Settings</button></div>`
+      : !gid ? `<div class="row"><button class="pbtn" data-act="shCreate">Create live link</button></div>`
+      : `<input class="field" id="shLink" readonly value="${esc(link)}" style="margin-top:8px"><div class="row"><button class="pbtn ghost" data-act="shCopy">Copy</button><button class="pbtn" data-act="shSend">Send</button></div>
+        <p class="muted" style="margin:8px 0 0">${shareErr ? 'Last update failed: '+esc(shareErr) : 'Updates by itself a few seconds after you change About Me.'}</p><button class="link" style="margin-top:6px;color:var(--danger)" data-act="shStop">Turn off the link</button>`}</div>
+    <div class="shbox"><b>Photo card</b><span class="muted">One picture of your page, to save or send.</span><div class="row"><button class="pbtn ghost" data-act="aShare">Make photo card</button></div></div>
+    <div class="row"><button class="pbtn ghost" data-act="closeSheet">Close</button></div>`);
+}
+
 async function gh(path, opts){
   opts = opts || {};
   const r = await fetch('https://api.github.com'+path, {method:opts.method||'GET', body:opts.body,
@@ -964,7 +1048,7 @@ const IMG = {
   get(id){ return this.tx('readonly', st => st.get(id)); },
   del(id){ return this.tx('readwrite', st => st.delete(id)); }
 };
-function fillImgs(){ document.querySelectorAll('img[data-img]').forEach(im => { IMG.get(im.dataset.img).then(d => { if (d) im.src = d; }).catch(()=>{}); }); }
+function fillImgs(){ document.querySelectorAll('img[data-img]').forEach(im => { if (typeof SHARE_ID !== 'undefined' && SHARE_ID && SHARE_IMGS[im.dataset.img]){ im.src = SHARE_IMGS[im.dataset.img]; return; } IMG.get(im.dataset.img).then(d => { if (d) im.src = d; }).catch(()=>{}); }); }
 function compress(file){
   return new Promise((res,rej) => { const fr = new FileReader(); fr.onload = () => { const im = new Image(); im.onload = () => {
     const s = Math.min(1, 1000/Math.max(im.width, im.height)); const c = document.createElement('canvas');
@@ -1216,8 +1300,8 @@ function evRow(e, showDate){
     <button class="x" data-act="delEvent" data-id="${e.id}" aria-label="Delete">×</button></div>`;
 }
 function habitChips(k, showStreak){
-  if (!S.habits.length) return `<div class="empty">No habits yet. <button class="link" data-act="go" data-tab="habits">Set them up</button></div>`;
-  return `<div class="hchips">${S.habits.map(x => { const on = (S.checks[x.id]||{})[k], st = streak(x);
+  if (!activeHabits().length) return `<div class="empty">No habits yet. <button class="link" data-act="go" data-tab="habits">Set them up</button></div>`;
+  return `<div class="hchips">${activeHabits().map(x => { const on = (S.checks[x.id]||{})[k], st = streak(x);
     return `<button class="hchip ${on?'on':''}" style="--c:var(--${x.color})" data-act="check" data-id="${x.id}" data-k="${k}"><span class="sq"></span>${esc(x.name)}${showStreak && st ? `<span class="st">${st}d</span>` : ''}</button>`; }).join('')}</div>`;
 }
 function renderHome(){
@@ -1227,7 +1311,7 @@ function renderHome(){
   const greet = myBday ? 'Happy '+(myBday.cal === 'hijri' ? 'Arabic ' : myBday.cal === 'bangla' ? 'Bangla ' : '')+'Birthday' : eid ? 'Eid Mubarak' : newYear ? 'Happy New Year' : hr<5 ? 'Up late' : hr<12 ? 'Good morning' : hr<17 ? 'Good afternoon' : hr<21 ? 'Good evening' : 'Good night';
   const name = (S.profile.nickname || S.profile.name || '').trim();
   const tasks = (S.tasks[t]||[]).filter(x => !x.skipped && !x.moved).concat(boardPending().map(() => ({done:false}))), done = tasks.filter(x => x.done).length;
-  const hDone = S.habits.filter(x => (S.checks[x.id]||{})[t]).length;
+  const hDone = activeHabits().filter(x => (S.checks[x.id]||{})[t]).length;
   const lo = leftovers(), mv = S.mood[t]||0;
 
   const party = myBday || custom || eid || newYear;
@@ -1237,7 +1321,7 @@ function renderHome(){
   h += moonPrompts();
   h += `<section class="paper strip">
     <div class="srow"><span class="sl">Tasks</span><div class="bar">${tasks.length ? tasks.map(x=>`<i class="${x.done?'on':''}"></i>`).join('') : '<i></i>'}</div><span class="sn">${done}/${tasks.length}</span></div>
-    <div class="srow"><span class="sl">Habits</span><div class="bar">${S.habits.length ? S.habits.map(x=>`<i class="${(S.checks[x.id]||{})[t]?'on':''}" style="--c:var(--${x.color})"></i>`).join('') : '<i></i>'}</div><span class="sn">${hDone}/${S.habits.length}</span></div>
+    <div class="srow"><span class="sl">Habits</span><div class="bar">${activeHabits().length ? activeHabits().map(x=>`<i class="${(S.checks[x.id]||{})[t]?'on':''}" style="--c:var(--${x.color})"></i>`).join('') : '<i></i>'}</div><span class="sn">${hDone}/${activeHabits().length}</span></div>
   </section>`;
 
   h += `<section class="paper"><h2>Today’s tasks <button class="link" data-act="go" data-tab="days">Open day</button></h2>`;
@@ -1306,8 +1390,8 @@ function renderHabits(){
     <div class="seg"><button class="${view.mode==='month'?'on':''}" data-act="mode" data-v="month">Month</button><button class="${view.mode==='year'?'on':''}" data-act="mode" data-v="year">Year in pixels</button></div>`;
   if (view.mode === 'month'){
     const dim = new Date(y,m,0).getDate();
-    if (!S.habits.length) h += `<section class="paper"><h2>No habits yet</h2><p class="muted" style="margin:0">Add one, then fill a pixel every day you do it. Habits stay every day, so you only set them up once.</p></section>`;
-    S.habits.forEach(x => {
+    if (!activeHabits().length) h += `<section class="paper"><h2>No habits yet</h2><p class="muted" style="margin:0">Add one, then fill a pixel every day you do it. Habits stay every day, so you only set them up once.</p></section>`;
+    activeHabits().forEach(x => {
       const c = S.checks[x.id]||{}; let cnt = 0, cells = '';
       for (let i = 1; i <= 32; i++){
         if (i > dim){ cells += `<span class="cell pad"></span>`; continue; }
@@ -1315,12 +1399,16 @@ function renderHabits(){
         cells += `<button class="cell ${on?'on':''} ${k===t?'today':''} ${fut?'future':''}" ${fut?'disabled':''} data-act="check" data-id="${x.id}" data-k="${k}" aria-label="Day ${i}">${i}</button>`;
       }
       h += `<section class="paper hcard" style="--c:var(--${x.color})"><button class="hname" data-act="editHabit" data-id="${x.id}"><span class="dotc"></span>${esc(x.name)}</button>
-        <div class="hmeta"><span>${cnt} of ${dim} days</span><span>Streak ${streak(x)}</span></div><div class="grid16">${cells}</div></section>`;
+        <div class="hmeta"><span>${cnt} of ${dim} days</span><span>Streak ${streak(x)}</span><button class="link hdrop" data-act="habitDrop" data-id="${x.id}">Drop</button></div><div class="grid16">${cells}</div></section>`;
     });
     h += `<button class="pbtn wide" data-act="newHabit">+ Add habit</button>`;
+    const dropped = S.habits.filter(x => x.dropped);
+    if (dropped.length) h += `<section class="paper full dropbox"><h2>Dropped <small>${dropped.length}</small></h2><p class="muted" style="margin:-4px 0 10px">Paused, not deleted. Your pixels are safe here.</p>
+      ${dropped.map(x => { const total = Object.keys(S.checks[x.id]||{}).length;
+        return `<div class="drh" style="--c:var(--${x.color})"><span class="dotc"></span><div class="drb"><b>${esc(x.name)}</b><span>${total} day${total===1?'':'s'} done, best streak ${bestStreak(x)}, dropped ${shortDay(x.dropped)} ${x.dropped.slice(0,4)}</span></div><button class="pbtn small" data-act="habitPick" data-id="${x.id}">Pick up</button></div>`; }).join('')}</section>`;
   } else {
-    const opts = [{id:'mood',name:'Mood'}].concat(S.habits);
-    if (!view.yearOf || !opts.find(o => o.id === view.yearOf)) view.yearOf = S.habits[0] ? S.habits[0].id : 'mood';
+    const opts = [{id:'mood',name:'Mood'}].concat(activeHabits(), S.habits.filter(x => x.dropped).map(x => Object.assign({}, x, {name:x.name+' (dropped)'})));
+    if (!view.yearOf || !opts.find(o => o.id === view.yearOf)) view.yearOf = activeHabits()[0] ? activeHabits()[0].id : 'mood';
     const sel = opts.find(o => o.id === view.yearOf);
     h += `<div class="yearpick">${opts.map(o => `<button class="yp ${o.id===view.yearOf?'on':''}" data-act="yearOf" data-id="${o.id}">${esc(o.name)}</button>`).join('')}</div>`;
     let g = `<span></span>`;
@@ -1842,6 +1930,7 @@ const flagEmoji = c => String.fromCodePoint(...[...c].map(ch => 0x1F1E6 + ch.cha
 const flagHex = c => [...c].map(ch => (0x1F1E6 + ch.charCodeAt(0) - 65).toString(16)).join('-');
 let flagLoading = null;
 function ensureFlag(c){
+  if (SHARE_ID) return;
   if (flagLoading === c) return; flagLoading = c;
   const im = new Image(); im.crossOrigin = 'anonymous';
   im.onload = () => { try { const cv = document.createElement('canvas'); cv.width = 48; cv.height = 36; cv.getContext('2d').drawImage(im, 0, 0, 48, 36);
@@ -1879,11 +1968,11 @@ function stickerLayout(ids, textLen){
 }
 const stickerEdit = (ids, target, max) => `<span class="lbl">Sticker photos (optional, up to ${max||4})</span><div class="stkedit">${(ids||[]).map(id => `<span class="stkth"><img data-img="${id}" alt=""><button data-act="aPicDel" data-t="${target}" data-v="${id}" aria-label="Remove">×</button></span>`).join('')}${(ids||[]).length < (max||4) ? `<label class="stkadd">+<input type="file" accept="image/*" hidden data-up="sticker" data-t="${target}"></label>` : ''}</div>`;
 function aboutEmpty(){ const p = S.profile, A = S.about; return !(p.name||p.birthday||p.from||p.quote||A.photo||A.note||A.boxes.some(bx => String(bx.body||'').trim())||A.fields.length||S.favs.length||S.tops.length); }
-function renderAbout(){
-  if (view.aboutEdit) return renderAboutEdit();
+function renderAbout(viewer){
+  if (view.aboutEdit && !viewer) return renderAboutEdit();
   const p = S.profile, A = S.about, ac = `var(--${A.accent||'pink'})`;
-  let h = `<div class="roomhead"><button class="arrow" data-act="roomBack" aria-label="Back">&lsaquo;</button><div class="t">About Me</div><span style="margin-left:auto;display:flex;gap:8px"><button class="pbtn small" data-act="aShare">Share card</button><button class="pbtn small ghost" data-act="aboutEdit">Edit</button></span></div>`;
-  if (aboutEmpty()) return `<div class="roomhead"><button class="arrow" data-act="roomBack" aria-label="Back">&lsaquo;</button><div class="t">About Me</div></div><section class="scrap emptyscrap" style="--a:${ac}"><span class="deco d1">${pxStar('var(--yellow)')}</span><span class="deco d3">${pxHeart(ac)}</span><span class="deco d4">${pxHeart('var(--cherry)')}</span><span class="deco d5">${pxStar(ac)}</span><div class="scrap-title">ABOUT<br>ME!</div><p class="muted">Your own scrapbook page. Add a photo, likes, dislikes, favourites, a quote.</p><button class="pbtn" data-act="aboutEdit">Make my page</button></section>`;
+  let h = viewer ? '' : `<div class="roomhead"><button class="arrow" data-act="roomBack" aria-label="Back">&lsaquo;</button><div class="t">About Me</div><span style="margin-left:auto;display:flex;gap:8px"><button class="pbtn small" data-act="aShareMenu">Share</button><button class="pbtn small ghost" data-act="aboutEdit">Edit</button></span></div>`;
+  if (aboutEmpty()) return viewer ? `<section class="paper full" style="text-align:center"><p>Nothing on this page yet.</p></section>` : `<div class="roomhead"><button class="arrow" data-act="roomBack" aria-label="Back">&lsaquo;</button><div class="t">About Me</div></div><section class="scrap emptyscrap" style="--a:${ac}"><span class="deco d1">${pxStar('var(--yellow)')}</span><span class="deco d3">${pxHeart(ac)}</span><span class="deco d4">${pxHeart('var(--cherry)')}</span><span class="deco d5">${pxStar(ac)}</span><div class="scrap-title">ABOUT<br>ME!</div><p class="muted">Your own scrapbook page. Add a photo, likes, dislikes, favourites, a quote.</p><button class="pbtn" data-act="aboutEdit">Make my page</button></section>`;
   const dob = getDob(), bday = dob ? parse(dob).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : p.birthday;
   const H = A.hide || {};
   const rows = [['name',p.name,'name'],['nickname',p.nickname,'nickname'],['age',dob ? ageText(dob, true) : '','age'],['from',p.from,'from']].concat(A.fields.map(fd => [fd.k, fd.v, fd.id])).filter(r => !H[r[2]]).filter(r => String(r[1]||'').trim());
@@ -2281,6 +2370,7 @@ function renderSettings(){
 
 /* ================= render ================= */
 function render(){
+  if (SHARE_ID){ $('main').innerHTML = renderShareView(); $('main').className = 't-more r-about'; fillImgs(); return; }
   const R = {home:renderHome, days:renderDays, habits:renderHabits, journal:renderJournal, more:renderMore};
   $('main').innerHTML = R[view.tab]();
   $('main').className = 't-'+view.tab + (view.tab==='more' && view.room ? ' r-'+view.room : '') + (view.tab==='journal' ? ' j-'+view.j : '');
@@ -2348,6 +2438,8 @@ const A = {
 
   mprev(){ shiftMonth(-1); }, mnext(){ shiftMonth(1); },
   mode(b){ view.mode = b.dataset.v; }, yearOf(b){ view.yearOf = b.dataset.id; },
+  habitDrop(b){ const x = S.habits.find(h => h.id === b.dataset.id); if (!x) return false; ask('Drop "'+x.name+'"? It moves to Dropped with all its pixels, and you can pick it up again anytime.', () => { x.dropped = todayKey(); }, 'Drop'); return false; },
+  habitPick(b){ const x = S.habits.find(h => h.id === b.dataset.id); if (x){ delete x.dropped; save(); toast('Welcome back, '+x.name); } },
   newHabit(){ habitForm(null); return false; }, editHabit(b){ habitForm(S.habits.find(x => x.id === b.dataset.id)); return false; },
 
   jtab(b){ view.j = b.dataset.v; view.listId = null; view.logId = null; },
@@ -2557,6 +2649,14 @@ const A = {
   praySave(){ S.salahCfg = Object.assign(salahCfg(), {method:$('pm').value, asr:$('pa').value}); save(); closeSheet(); },
   aPicDel(b){ const t = b.dataset.t, id = b.dataset.v, o = t === 'fav' ? S.about : S.about.boxes.find(x => x.id === t), k = t === 'fav' ? 'favPics' : 'pics';
     o[k] = (o[k]||[]).filter(x => x !== id); IMG.del(id).catch(()=>{}); save(); },
+  aShareMenu(){ shareMenu(); return false; },
+  async shCreate(){ try { const g = await gh('/gists', {method:'POST', body:JSON.stringify({description:'Mi Robo Me, shared About Me', public:false, files:{[SHARE_FILE]:{content:'{}'}}})});
+      S.about.shareGist = g.id; save(); toast('Making your link…'); await sharePush(true); shareMenu(); toast(shareErr ? 'Link made, first update failed' : 'Live link ready'); } catch(e){ toast(e.message); } return false; },
+  shCopy(){ const el = $('shLink'); el.select(); (navigator.clipboard ? navigator.clipboard.writeText(el.value) : Promise.reject()).then(() => toast('Link copied'), () => { try { document.execCommand('copy'); toast('Link copied'); } catch(e){ toast('Select and copy it by hand'); } }); return false; },
+  async shSend(){ const url = $('shLink').value; if (navigator.share){ try { await navigator.share({title:'My About Me', url}); } catch(e){} } else A.shCopy(); return false; },
+  shStop(){ ask('Turn off the live link? Anyone who has it will stop seeing your page.', async () => { const gid = S.about.shareGist; delete S.about.shareGist;
+      try { await fetch('https://api.github.com/gists/'+gid, {method:'DELETE', headers:{Authorization:'Bearer '+SY.token}}); } catch(e){} try { localStorage.removeItem(SHARE_SIG); } catch(e){} toast('Link turned off'); }, 'Turn off'); return false; },
+  shReload(){ toast('Refreshing…'); shareLoad(); return false; },
   async aShare(){
     toast('Making your card...');
     try { await loadScript('https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js'); } catch(e){ toast('Needs internet the first time'); return false; }
@@ -2652,6 +2752,8 @@ function setNoteCol(n, col){
   n.col = col;
 }
 function shiftMonth(dir){ const [y,m] = view.month.split('-').map(Number); const d = view.mode === 'month' ? new Date(y, m-1+dir, 1) : new Date(y+dir, m-1, 1); view.month = d.getFullYear()+'-'+pad(d.getMonth()+1); }
+const activeHabits = () => S.habits.filter(x => !x.dropped);
+function bestStreak(h){ const ks = Object.keys(S.checks[h.id]||{}).sort(); let best = 0, run = 0, prev = null; ks.forEach(k => { run = prev && addDays(prev,1) === k ? run+1 : 1; best = Math.max(best, run); prev = k; }); return best; }
 function habitForm(h){
   openForm({title: h ? 'Edit habit' : 'New habit', note: h ? '' : 'Habits stay every day, so set it once.',
     fields:[{k:'name',label:'Name',value:h&&h.name,ph:'e.g. Read 20 minutes'},{k:'color',label:'Colour (repeats are fine)',type:'color',value:h ? h.color : COLORS[S.habits.length % COLORS.length]}],
@@ -2792,8 +2894,9 @@ window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); instal
 window.addEventListener('appinstalled', () => { installEvt = null; $('instBtn').hidden = true; toast('Installed'); });
 $('instBtn').addEventListener('click', async () => { if (!installEvt) return; installEvt.prompt(); try { await installEvt.userChoice; } catch(e){} installEvt = null; $('instBtn').hidden = true; });
 applyTheme();
+if (SHARE_ID){ document.body.classList.add('sharemode'); shareLoad(); setInterval(() => { if (!document.hidden) shareLoad(); }, SY.token ? 30000 : 120000); window.addEventListener('focus', () => shareLoad()); }
 render();
-pRestore();
+if (!SHARE_ID){ pRestore(); setTimeout(() => sharePush(false), 4000); }
 window.addEventListener('pagehide', () => { if (P.list) pTouch(); });
 if (SY.token) syncNow(true);
 setInterval(() => { if (SY.token && !document.hidden) syncNow(true); }, 20000);
