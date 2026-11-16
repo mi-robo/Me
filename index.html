@@ -497,7 +497,13 @@ li.done > .rprow .rpt{text-decoration:line-through;text-decoration-thickness:2px
 .whtxt{flex:1;display:flex;flex-direction:column}.whtxt b{font-family:var(--pixel);font-size:22px}.whtxt span{font-size:13px;color:var(--muted)}
 .wbar{flex-basis:100%;height:12px;border:2px solid var(--ink);background:var(--paper)}.wbar i{display:block;height:100%;background:var(--peach);border-right:2px solid var(--ink)}
 .wlist .rprow{align-items:flex-start}
-.wstamp{flex:none;align-self:center;font-family:var(--pixel);font-size:10px;letter-spacing:1px;color:var(--mred);border:1.5px solid var(--mred);padding:0 5px;line-height:16px;transform:rotate(-4deg);white-space:nowrap}
+.wdone{display:inline-block;margin-left:8px;font-size:11.5px;line-height:18px;padding:0 8px;border-radius:999px;background:color-mix(in srgb,var(--mint) 40%,var(--paper));color:var(--ink);border:1px solid color-mix(in srgb,var(--teal) 60%,transparent);text-decoration:none;white-space:nowrap;vertical-align:1px}
+li.done > .rprow .rpt .wdone{text-decoration:none}
+.wlist li.done > .rprow .rpt{text-decoration:none}
+.wlist li.done > .rprow .rpt{color:var(--muted)}
+.wlist li.done .wt{text-decoration:line-through;text-decoration-thickness:2px}
+.wtools{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.wnone{text-align:center;padding:10px 0}.wnone p{margin:0 0 8px;color:var(--muted)}
 .wedit{list-style:none;margin:0;padding:0}
 .wedit li{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-bottom:1.5px dashed var(--line)}
 .wedit .rpn{padding-top:5px}
@@ -1563,18 +1569,28 @@ function dreamSheet(){
     <div class="row">${DRF.x ? `<button class="pbtn danger" data-act="dreamDel">Delete</button>` : ''}<button class="pbtn ghost" data-act="closeSheet">Cancel</button><button class="pbtn" data-act="dreamSave">Save</button></div>`);
 }
 const drSync = () => { if (!DRF) return; ['date','title','text'].forEach(k => { const el = $('dr_'+k); if (el) DRF.v[k] = el.value; }); };
+const wNorm = t => String(t||'').toLowerCase().replace(/[^\p{L}\p{N}\s]/gu,' ').replace(/\s+/g,' ').trim();
+const wDate = k => k ? parse(k).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
+function wishListHTML(){
+  const q = wNorm(view.wishQ), f = view.wishF || 'all';
+  const items = S.wish.map((w,i) => ({w, n:i+1})).filter(({w}) => (f === 'all' || (f === 'done' ? w.done : !w.done)) && (!q || wNorm(w.text).includes(q)));
+  if (!items.length) return q ? `<div class="wnone"><p>Not on your list yet.</p><button class="pbtn small" data-act="wishQuickAdd">+ Add “${esc(view.wishQ.trim())}”</button></div>` : `<p class="rpempty">${f === 'done' ? 'Nothing ticked off yet.' : f === 'todo' ? 'All done. Time for new dreams.' : ''}</p>`;
+  return `<ol class="rplist wlist">${items.map(({w,n}) => `<li class="${w.done?'done':''}"><div class="rprow"><button class="rpbox ${w.done?'on':''}" data-act="wishToggle" data-id="${w.id}" aria-label="Done"></button><span class="rpn">${n}.</span><span class="rpt"><span class="wt">${esc(w.text)}</span>${w.done && w.doneOn ? `<span class="wdone">✓ ${wDate(w.doneOn)}</span>` : ''}</span></div></li>`).join('')}</ol>`;
+}
 function renderWish(){
   const done = S.wish.filter(w => w.done).length, n = S.wish.length;
   if (view.wishEdit) return `<section class="paper full"><h2>Edit wishlist <button class="pbtn small" data-act="wishEditOff">Done</button></h2>
     <ol class="wedit">${S.wish.map((w,i) => `<li><span class="rpn">${i+1}.</span><div class="wefields">${growArea("wish.#"+w.id+".text", w.text, "A dream")}
       <div class="wemeta"><button class="chip ${w.done?'on':''}" data-act="wishToggle" data-id="${w.id}">${w.done ? '✓ Done' : 'Not done yet'}</button>${w.done ? `<label class="wedate">on <input type="date" class="field" data-b="wish.#${w.id}.doneOn" value="${w.doneOn||''}" max="${todayKey()}"></label>` : ''}</div></div>
       <button class="x" data-act="wishDel" data-id="${w.id}" aria-label="Delete">×</button></li>`).join('')}</ol>
-    <div class="addrow"><input class="field" id="wishIn" placeholder="Add a dream" maxlength="200"><button class="pbtn" data-act="wishAdd">Add</button></div>
+    <div class="addrow"><input class="field" id="wishIn" placeholder="Add a dream" maxlength="200" autocomplete="off"><button class="pbtn" data-act="wishAdd">Add</button></div>
     <div class="row"><button class="pbtn" data-act="wishEditOff">Done</button></div></section>`;
-  const yr = k => k ? parse(k).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
+  const f = view.wishF || 'all';
   return `<section class="paper full wishhead"><div class="whtxt"><b>Before I die</b><span>${n ? `${done} of ${n} done` : 'Things you want to do someday.'}</span></div><button class="pbtn small ghost" data-act="wishEditOn">${n ? 'Edit' : '+ Add'}</button>
     ${n ? `<div class="wbar"><i style="width:${Math.round(done/n*100)}%"></i></div>` : ''}</section>
-    ${n ? `<section class="paper full readpaper"><ol class="rplist wlist">${S.wish.map((w,i) => `<li class="${w.done?'done':''}"><div class="rprow"><button class="rpbox ${w.done?'on':''}" data-act="wishToggle" data-id="${w.id}" aria-label="Done"></button><span class="rpn">${i+1}.</span><span class="rpt">${esc(w.text)}</span>${w.done && w.doneOn ? `<span class="wstamp">${yr(w.doneOn)}</span>` : ''}</div></li>`).join('')}</ol></section>` : ''}`;
+    ${n ? `<div class="wtools full"><input class="field" id="wishQ" placeholder="Search your wishes…" value="${esc(view.wishQ||'')}" autocomplete="off" enterkeyhint="search">
+      <div class="chips">${[['all','All '+n],['todo','To do '+(n-done)],['done','Done '+done]].map(([k,l]) => `<button class="chip ${f===k?'on':''}" data-act="wishF" data-v="${k}">${l}</button>`).join('')}</div></div>
+    <section class="paper full readpaper" id="wishList">${wishListHTML()}</section>` : ''}`;
 }
 /* ---- Logs: progress (rating) or amount per day, with any number of rivals ---- */
 const LOG_COL = ['accent','cherry','teal','peach','lilac','lime'];
@@ -2464,7 +2480,10 @@ const A = {
   jrate(b){ setPath('daily.'+view.jday+'.rate', +b.dataset.v); save(); },
   wishEditOn(){ view.wishEdit = true; },
   wishEditOff(){ save(); view.wishEdit = false; window.scrollTo(0,0); toast('Saved'); },
-  wishAdd(){ const v = $('wishIn').value.trim(); if (!v) return false; S.wish.push({id:uid(), text:v, done:false}); save(); render(); $('wishIn').focus(); return false; },
+  wishAdd(b, e, force){ const v = $('wishIn').value.trim(); if (!v) return false;
+    S.wish.push({id:uid(), text:v, done:false}); save(); render(); $('wishIn').focus(); return false; },
+  wishQuickAdd(){ const v = (view.wishQ||'').trim(); if (!v) return false; S.wish.push({id:uid(), text:v, done:false}); view.wishQ = ''; save(); toast('Added to your wishlist'); },
+  wishF(b){ view.wishF = b.dataset.v; },
   wishToggle(b){ const w = S.wish.find(x => x.id === b.dataset.id); w.done = !w.done; w.doneOn = w.done ? todayKey() : null; save(); },
   wishDel(b){ S.wish = S.wish.filter(x => x.id !== b.dataset.id); save(); },
   listNew(b){ const l = b.dataset.v === 'page' ? {id:uid(), type:'page', title:'', body:''} : {id:uid(), type:'list', title:'', items:[]}; S.lists.unshift(l); view.listId = l.id; view.listEdit = true; save(); window.scrollTo(0,0); },
@@ -2817,6 +2836,7 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('input', e => {
   if (e.target.id === 'q'){ renderSearchResults(); return; }
+  if (e.target.id === 'wishQ'){ view.wishQ = e.target.value; const L = $('wishList'); if (L) L.innerHTML = wishListHTML(); return; }
   if (e.target.id === 'df_date' && DF){ dfSync(); ['hijri','bangla'].forEach(cal => { const o = DF.v[cal+'Date']; if (o && !o.manual && DF.v.date) DF.v[cal+'Date'] = calcCal(cal, DF.v.date); }); $('df_cal').innerHTML = dfBars(); return; }
   if (e.target.classList && e.target.classList.contains('grow')){ e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight+'px'; }
   const d = e.target.dataset || {};
