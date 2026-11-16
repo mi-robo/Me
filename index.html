@@ -473,25 +473,38 @@ nav.tabs button.on svg .f{fill:var(--accent)}
 .pstamp{position:absolute;top:14px;right:52px;font-family:var(--pixel);font-weight:700;font-size:11px;letter-spacing:2px;padding:2px 7px;border:2px solid var(--mred);color:var(--mred);transform:rotate(9deg);opacity:.85}
 .pfchips{display:flex;flex-wrap:wrap;gap:4px;margin:3px 0 2px}
 .pfchips i{font-style:normal;font-size:11px;border:1.5px solid var(--ink);background:color-mix(in srgb,var(--lilac) 25%,var(--paper));padding:0 6px}
-.readpaper{position:relative;padding:22px 18px 26px 54px;background-image:linear-gradient(transparent 31px, color-mix(in srgb,var(--blue) 28%,transparent) 31px);background-size:100% 32px;background-position:0 14px}
-.readpaper::before{content:'';position:absolute;top:0;bottom:0;left:38px;width:2px;background:color-mix(in srgb,var(--cherry) 55%,transparent)}
-.rphead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+.readpaper{position:relative;padding:18px 16px 20px 30px;background-image:linear-gradient(transparent 25px, color-mix(in srgb,var(--blue) 22%,transparent) 25px);background-size:100% 26px;background-position:0 10px}
+.readpaper::before{content:'';position:absolute;top:0;bottom:0;left:18px;width:2px;background:color-mix(in srgb,var(--cherry) 55%,transparent)}
+.rphead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px}
 .rptitle{font-family:var(--pixel);font-weight:700;font-size:26px;line-height:1.2;margin:0;word-break:break-word}
 .rpprog{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);margin-bottom:8px}
 .rplist,.rpsub{list-style:none;margin:0;padding:0}
 .rplist > li{margin:0}
-.rprow{display:flex;align-items:flex-start;gap:10px;line-height:32px;font-size:16px}
-.rpn{flex:none;font-family:var(--pixel);color:var(--muted);min-width:22px}
+.rprow{display:flex;align-items:flex-start;gap:8px;line-height:26px;font-size:15.5px}
+.rpn{flex:none;font-family:var(--pixel);color:var(--muted);min-width:18px}
 .rpt{flex:1;min-width:0;white-space:pre-wrap;word-break:break-word}
-.rpsub{padding-left:32px}
+.rpsub{padding-left:26px}
 .rpsub .rprow{font-size:15px}
 li.done > .rprow .rpt{text-decoration:line-through;text-decoration-thickness:2px;color:var(--muted)}
-.rpbox{flex:none;width:20px;height:20px;margin-top:6px;border:2px solid var(--ink);background:var(--paper);display:grid;place-items:center}
+.rpbox{flex:none;width:18px;height:18px;margin-top:4px;border:2px solid var(--ink);background:var(--paper);display:grid;place-items:center}
 .rpbox.on{background:var(--mint)}.rpbox.on::after{content:'';width:8px;height:8px;background:#1E2440}
-.rpbody{font-size:16px;line-height:32px}
-.rpbody p{margin:0 0 32px;white-space:normal;word-break:break-word}
+.rpbody{font-size:15.5px;line-height:26px}
+.rpbody p{margin:0;white-space:normal;word-break:break-word}
+.rpbody p + p{text-indent:1.4em}
 .rpbody p:last-child{margin-bottom:0}
-.rpmeta,.rpempty{font-size:13px;color:var(--muted);margin:16px 0 0;line-height:32px}
+.rpmeta,.rpempty{font-size:13px;color:var(--muted);margin:8px 0 0;line-height:26px}
+.wishhead{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:linear-gradient(135deg,color-mix(in srgb,var(--peach) 40%,var(--paper)),color-mix(in srgb,var(--yellow) 35%,var(--paper)))}
+.whtxt{flex:1;display:flex;flex-direction:column}.whtxt b{font-family:var(--pixel);font-size:22px}.whtxt span{font-size:13px;color:var(--muted)}
+.wbar{flex-basis:100%;height:12px;border:2px solid var(--ink);background:var(--paper)}.wbar i{display:block;height:100%;background:var(--peach);border-right:2px solid var(--ink)}
+.wlist .rprow{align-items:flex-start}
+.wstamp{flex:none;align-self:center;font-family:var(--pixel);font-size:10px;letter-spacing:1px;color:var(--mred);border:1.5px solid var(--mred);padding:0 5px;line-height:16px;transform:rotate(-4deg);white-space:nowrap}
+.wedit{list-style:none;margin:0;padding:0}
+.wedit li{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-bottom:1.5px dashed var(--line)}
+.wedit .rpn{padding-top:5px}
+.wefields{flex:1;min-width:0}
+.wemeta{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:4px}
+.wedate{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.wedate .field{width:auto;padding:4px 6px}
 .dreamsky{position:relative;overflow:hidden;display:flex;flex-wrap:wrap;align-items:center;gap:14px;background:linear-gradient(135deg,color-mix(in srgb,var(--g1,var(--lilac)) 45%,var(--paper)),color-mix(in srgb,var(--g2,var(--blue)) 40%,var(--paper)))}
 .dic svg{width:100%;height:100%}
 .lgroup{font-family:var(--pixel);font-size:14px;color:var(--muted);letter-spacing:1px;margin:4px 0 8px}
@@ -1551,13 +1564,17 @@ function dreamSheet(){
 }
 const drSync = () => { if (!DRF) return; ['date','title','text'].forEach(k => { const el = $('dr_'+k); if (el) DRF.v[k] = el.value; }); };
 function renderWish(){
-  const done = S.wish.filter(w => w.done).length;
-  return `<section class="paper"><h2>Before I die <small>${S.wish.length ? done+' of '+S.wish.length+' done' : ''}</small></h2>
-    ${S.wish.length ? `<div class="bar" style="margin-bottom:10px">${S.wish.map(w => `<i class="${w.done?'on':''}" style="--c:var(--peach)"></i>`).join('')}</div>` : ''}
-    <ul class="list">${S.wish.length ? S.wish.map(w => `<li class="task ${w.done?'done':''}"><button class="box ${w.done?'on':''}" data-act="wishToggle" data-id="${w.id}" aria-label="Done"></button>
-      <span class="ttext">${esc(w.text)}${w.done && w.doneOn ? ` <span class="tag">${shortDay(w.doneOn)} ${w.doneOn.slice(0,4)}</span>` : ''}</span>
-      <button class="x" data-act="wishDel" data-id="${w.id}" aria-label="Delete">×</button></li>`).join('') : `<li class="empty">Things you want to do someday.</li>`}</ul>
-    <div class="addrow"><input class="field" id="wishIn" placeholder="Add a dream" maxlength="200"><button class="pbtn" data-act="wishAdd">Add</button></div></section>`;
+  const done = S.wish.filter(w => w.done).length, n = S.wish.length;
+  if (view.wishEdit) return `<section class="paper full"><h2>Edit wishlist <button class="pbtn small" data-act="wishEditOff">Done</button></h2>
+    <ol class="wedit">${S.wish.map((w,i) => `<li><span class="rpn">${i+1}.</span><div class="wefields">${growArea("wish.#"+w.id+".text", w.text, "A dream")}
+      <div class="wemeta"><button class="chip ${w.done?'on':''}" data-act="wishToggle" data-id="${w.id}">${w.done ? '✓ Done' : 'Not done yet'}</button>${w.done ? `<label class="wedate">on <input type="date" class="field" data-b="wish.#${w.id}.doneOn" value="${w.doneOn||''}" max="${todayKey()}"></label>` : ''}</div></div>
+      <button class="x" data-act="wishDel" data-id="${w.id}" aria-label="Delete">×</button></li>`).join('')}</ol>
+    <div class="addrow"><input class="field" id="wishIn" placeholder="Add a dream" maxlength="200"><button class="pbtn" data-act="wishAdd">Add</button></div>
+    <div class="row"><button class="pbtn" data-act="wishEditOff">Done</button></div></section>`;
+  const yr = k => k ? parse(k).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
+  return `<section class="paper full wishhead"><div class="whtxt"><b>Before I die</b><span>${n ? `${done} of ${n} done` : 'Things you want to do someday.'}</span></div><button class="pbtn small ghost" data-act="wishEditOn">${n ? 'Edit' : '+ Add'}</button>
+    ${n ? `<div class="wbar"><i style="width:${Math.round(done/n*100)}%"></i></div>` : ''}</section>
+    ${n ? `<section class="paper full readpaper"><ol class="rplist wlist">${S.wish.map((w,i) => `<li class="${w.done?'done':''}"><div class="rprow"><button class="rpbox ${w.done?'on':''}" data-act="wishToggle" data-id="${w.id}" aria-label="Done"></button><span class="rpn">${i+1}.</span><span class="rpt">${esc(w.text)}</span>${w.done && w.doneOn ? `<span class="wstamp">${yr(w.doneOn)}</span>` : ''}</div></li>`).join('')}</ol></section>` : ''}`;
 }
 /* ---- Logs: progress (rating) or amount per day, with any number of rivals ---- */
 const LOG_COL = ['accent','cherry','teal','peach','lilac','lime'];
@@ -2445,6 +2462,8 @@ const A = {
   jtab(b){ view.j = b.dataset.v; view.listId = null; view.logId = null; },
   jprev(){ view.jday = addDays(view.jday,-1); }, jnext(){ view.jday = addDays(view.jday,1); }, jToday(){ view.jday = todayKey(); },
   jrate(b){ setPath('daily.'+view.jday+'.rate', +b.dataset.v); save(); },
+  wishEditOn(){ view.wishEdit = true; },
+  wishEditOff(){ save(); view.wishEdit = false; window.scrollTo(0,0); toast('Saved'); },
   wishAdd(){ const v = $('wishIn').value.trim(); if (!v) return false; S.wish.push({id:uid(), text:v, done:false}); save(); render(); $('wishIn').focus(); return false; },
   wishToggle(b){ const w = S.wish.find(x => x.id === b.dataset.id); w.done = !w.done; w.doneOn = w.done ? todayKey() : null; save(); },
   wishDel(b){ S.wish = S.wish.filter(x => x.id !== b.dataset.id); save(); },
@@ -2845,7 +2864,7 @@ setInterval(() => { const t = todayKey(); if (t !== lastToday){ if (view.day ===
   const a = document.activeElement; if (!$('veil').classList.contains('open') && !(a && a.matches && a.matches('input,textarea'))) render(); } }, 20000);
 
 function applyTheme(){ if (S.theme === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', S.theme); }
-const NAV_KEYS = ['tab','room','j','logId','listId','listEdit','gpId','personId','moneyId','aboutEdit'];
+const NAV_KEYS = ['tab','room','j','logId','listId','listEdit','wishEdit','gpId','personId','moneyId','aboutEdit'];
 const navSnap = () => { const o = {}; NAV_KEYS.forEach(k => o[k] = view[k] == null ? null : view[k]); return o; };
 const navKey = o => JSON.stringify(o);
 try { const saved = JSON.parse(sessionStorage.getItem('mirobome.view') || 'null'); if (saved) Object.assign(view, saved); } catch(e){}
