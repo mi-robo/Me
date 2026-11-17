@@ -1614,7 +1614,7 @@ function dayTable(l, filter){
   days.forEach(k => { T[k] = {};
     ppl.forEach(p => {
       const today = all.filter(e => e.date === k).map(e => pVal(e, p.id)).filter(v => v != null); if (!today.length) return;
-      if (isAmount(l)) T[k][p.id] = {v: today.reduce((a,b) => a+b, 0), n: today.length};
+      if (isAmount(l)) T[k][p.id] = {v: Math.round(today.reduce((a,b) => a+b, 0)*100)/100, n: today.length};
       else { const before = all.filter(e => e.date < k).map(e => pVal(e, p.id)).filter(v => v != null), base = before.length ? before[before.length-1] : today[0];
         T[k][p.id] = {v: today[today.length-1] - base, n: today.length, end: today[today.length-1]}; }
     }); });
@@ -1708,16 +1708,16 @@ function compBoard(l){
 function renderLog(l){
   const t = todayKey(), cur = logWeek(l, t), ppl = logPeople(l), comp = (l.people||[]).length > 0, amt = isAmount(l), D = logDeltas(l);
   let h = roomHead(l.title, 'logBack');
-  const last = logLastVal(l), todayAmt = amt ? logSorted(l).filter(e => e.date === t).map(e => pVal(e,'me')).filter(v => v != null).reduce((a,b) => a+b, 0) : 0;
+  const last = logLastVal(l), todayAmt = amt ? logSorted(l).filter(e => e.date === t).map(e => pVal(e,'me')).filter(v => v != null).reduce((a,b) => a+b, 0) : 0, todayN = Math.round(todayAmt*100)/100;
   h += `<section class="paper full"><div class="wkhead"><div><b>Week ${cur}</b> <span class="muted">${shortDay(weekRange(l,cur)[0])} to ${shortDay(weekRange(l,cur)[1])}</span></div><span style="display:flex;gap:8px"><button class="pbtn small ghost" data-act="logEdit">Edit log</button><button class="pbtn small" data-act="saveNow">Save</button></span></div>
     ${!amt && last != null ? `<p style="margin:8px 0 0"><span class="muted">${esc(l.unit||'Now')}</span> <b style="font-family:var(--pixel);font-size:30px">${nf(last)}</b></p>` : ''}
-    ${amt ? `<p style="margin:8px 0 0"><span class="muted">Today</span> <b style="font-family:var(--pixel);font-size:30px">${nf(todayAmt)}</b> <span class="muted">${esc(l.unit||'')}</span></p>` : ''}
+    ${amt ? `<p style="margin:8px 0 0"><span class="muted">Today</span> <b style="font-family:var(--pixel);font-size:30px">${nf(todayN)}</b> <span class="muted">${esc(l.unit||'')}</span></p>` : ''}
     ${logChart(l)}
     <div class="lgpeople"><span class="muted">Competing with:</span>${(l.people||[]).map(p => `<button class="chip" data-act="logPerson" data-id="${p.id}"><i class="pdot" style="background:${pCol(l,p.id)}"></i>${esc(p.name)}</button>`).join('')}<button class="chip" data-act="logPersonAdd">+ Add person</button></div></section>`;
   if (comp) h += compBoard(l);
   h += `<section class="paper full"><h2>${comp ? (amt ? 'Log a day' : 'Log a game') : 'New update'}</h2>
     <div class="vsin" style="grid-template-columns:repeat(${Math.min(ppl.length, 3)},minmax(0,1fr))">${ppl.map(p => `<label><span>${comp ? esc(p.name) : esc(l.unit||'Number')}</span><input class="field" id="lgv_${p.id}" inputmode="decimal" placeholder="${esc(l.unit||'')}"></label>`).join('')}</div>
-    ${comp ? `<p class="muted" style="margin:6px 0 0">${amt ? 'Fill whoever you have now. Logging the same day again adds to it, so you can add theirs later.' : 'Rating after this game. Leave someone empty if they didn’t play.'}</p>` : ''}
+    ${comp ? `<p class="muted" style="margin:6px 0 0">${amt ? 'Log each time, like every bottle. Everything on the same day adds up. Fill only yourself, theirs can come later.' : 'Rating after this game. Leave someone empty if they didn’t play.'}</p>` : ''}
     <label class="lbl" for="lgDate">Day</label><input class="field" id="lgDate" type="date" value="${t}">
     <textarea class="field" id="lgText" rows="${comp ? 2 : 4}" style="margin-top:8px" placeholder="${amt ? 'Note (optional)' : 'What happened?'}"></textarea>
     <div class="row" style="margin-top:10px"><button class="pbtn" data-act="logAdd">${comp ? 'Save' : 'Add update'}</button></div></section>`;
@@ -1734,6 +1734,7 @@ function renderLog(l){
         let head = '';
         if (e.date !== lastDay){ lastDay = e.date; const row = T[e.date] || {}, dw = comp ? dayWinner(l, row) : null;
           head = `<div class="mday"><span>${parse(e.date).toLocaleDateString('en-GB',{weekday:'short'})} ${shortDay(e.date)}</span>${dw ? `<span class="dwin">${dw === 'tie' ? 'Tie' : '♛ '+esc(pName(l,dw))}</span>` : ''}</div>`;
+          if (amt && ppl.some(p => row[p.id] && row[p.id].n > 1)) head += `<div class="dgain">${ppl.filter(p => row[p.id]).map(p => `<span><i style="background:${pCol(l,p.id)}"></i>${comp ? esc(p.name)+' ' : 'Total '}<b>${nf(row[p.id].v)}</b> ${esc(l.unit||'')} from ${row[p.id].n} log${row[p.id].n>1?'s':''}</span>`).join('')}</div>`;
           if (comp && !amt) head += `<div class="dgain">${ppl.filter(p => row[p.id]).map(p => `<span><i style="background:${pCol(l,p.id)}"></i>${esc(p.name)} <b class="${row[p.id].v>0?'up':row[p.id].v<0?'down':''}">${sgn(row[p.id].v)}</b> in ${row[p.id].n} game${row[p.id].n>1?'s':''}</span>`).join('')}</div>`;
         }
         const long = (e.text||'').length > 170 || (e.text||'').split('\n').length > 3, open = EXP.has(e.id);
@@ -2648,8 +2649,6 @@ const A = {
     const text = $('lgText').value.trim(), date = $('lgDate').value || todayKey();
     if (!Object.keys(vals).length && !text){ toast('Write something first'); return false; }
     if (date < l.start) l.start = date;
-    if (comp && isAmount(l)){ const e = l.entries.find(x => x.date === date);
-      if (e){ Object.keys(vals).forEach(k => { if (k === 'me') e.val = vals.me; else (e.others = e.others || {})[k] = vals[k]; }); if (text) e.text = e.text ? e.text+'\n'+text : text; e.at = new Date().toISOString(); save(); toast('Day updated'); return; } }
     const others = {}; Object.keys(vals).filter(k => k !== 'me').forEach(k => others[k] = vals[k]);
     l.entries.push({id:uid(), date, val: vals.me != null ? vals.me : '', others, text, at:new Date().toISOString()}); save();
     if (comp){ const row = dayTable(l).T[date] || {}, w = dayWinner(l, row); toast(w === 'me' ? 'You’re winning the day!' : w && w !== 'tie' ? pName(l,w)+' is winning the day' : w === 'tie' ? 'Tied for now' : 'Saved'); } else toast('Update added'); },
