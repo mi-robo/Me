@@ -595,6 +595,29 @@ body.sharemode .wrap{padding-bottom:30px}
 .lglegend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin-top:6px}
 .barlbl{display:flex;font-family:var(--pixel);font-size:9px;color:var(--muted)}.barlbl span{flex:1;text-align:center}
 .lgpeople{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:12px;font-size:13px}
+.segm{display:inline-flex;flex-basis:100%;margin-bottom:4px}.segm .chip{cursor:pointer}.segm .chip+.chip{border-left:0}
+.amtiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:12px 0 6px}
+.amtile{border:2px solid var(--ink);background:var(--paper);padding:10px 12px 12px;box-shadow:4px 4px 0 var(--pc)}
+.amn{display:flex;justify-content:space-between;align-items:center;font-family:var(--pixel);font-size:12px;color:var(--muted)}
+.amok{background:var(--mint);color:#1E2440;border:1.5px solid var(--ink);padding:0 5px;font-size:11px}
+.amv{font-family:var(--pixel);font-size:36px;line-height:1.15}.amu{color:var(--muted);font-size:13px;margin-left:6px}
+.gbar{height:12px;border:2px solid var(--ink);background:var(--empty);margin-top:8px}.gbar i{display:block;height:100%;background:var(--pc)}
+.gtx{font-size:12px;color:var(--muted);margin-top:4px}
+.amq{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.amq button{font-family:var(--pixel);font-size:13px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);padding:3px 10px;box-shadow:2px 2px 0 var(--ink);cursor:pointer}
+.amq button:active{transform:translate(2px,2px);box-shadow:none}
+.wk7{position:relative;display:grid;grid-template-columns:repeat(7,1fr);gap:6px;height:112px;border-bottom:2px solid var(--ink);margin-top:16px}
+.wc{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;min-width:0}
+.wc em{font-style:normal;font-family:var(--pixel);font-size:10px;margin-bottom:3px;white-space:nowrap}
+.wbs{display:flex;align-items:flex-end;justify-content:center;gap:2px;width:100%}
+.wbs i{display:block;flex:0 1 20px;max-width:20px;border:2px solid var(--ink);border-bottom:0;background:var(--pc)}
+.wgoal{position:absolute;left:0;right:0;border-top:2px dashed var(--muted);pointer-events:none}
+.wgoal span{position:absolute;left:0;top:-15px;font-family:var(--pixel);font-size:9px;color:var(--muted);background:var(--paper);padding:0 3px}
+.wdl{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:4px;text-align:center;font-family:var(--pixel);font-size:9px;color:var(--muted);line-height:1.4}
+.wdl b{font-size:11px;font-weight:400}.wdl .on{color:var(--ink)}.wdl .on b{background:var(--accent);color:var(--accent-ink);padding:0 3px}
+.wstat{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12px;color:var(--muted);margin-top:10px}.wstat b{color:var(--ink);font-family:var(--pixel);font-weight:400}
+.mday .dtot{font-family:var(--pixel);color:var(--ink)}
+.ltime{font-size:11px;color:var(--muted);margin-right:auto}
 .lb{margin:10px 0 6px;text-align:left}
 .lbrow{display:grid;grid-template-columns:26px 1fr auto;grid-template-areas:"r n w" "r t t";gap:0 10px;padding:8px;border-bottom:1.5px dashed var(--line)}
 .lbrow.top{background:color-mix(in srgb,var(--yellow) 25%,var(--paper));border:2px solid var(--ink);box-shadow:3px 3px 0 var(--ink)}
@@ -1602,6 +1625,33 @@ const nf = n => Number(n).toLocaleString('en-IN');
 const sgn = n => (n > 0 ? '+' : n < 0 ? '−' : '±') + nf(Math.abs(n));
 function logToday(){ return todayKey(); }
 const isAmount = l => l.type === 'amount';
+const isVs = l => (l.people||[]).length > 0 && l.mode !== 'together';
+const r2 = n => Math.round(n*100)/100;
+const dayTot = (l, pid, k) => r2(l.entries.filter(e => e.date === k).map(e => pVal(e, pid)).filter(v => v != null).reduce((a,b) => a+b, 0));
+const logGoal = l => +l.goal > 0 ? +l.goal : 0;
+function quickVals(l, pid){ const c = {}; logSorted(l).slice(-40).forEach(e => { const v = pVal(e, pid); if (v != null && v > 0) c[v] = (c[v]||0) + 1; });
+  return Object.entries(c).sort((a,b) => b[1]-a[1] || a[0]-b[0]).slice(0,3).map(x => +x[0]).sort((a,b) => a-b); }
+function amtHero(l){
+  const t = todayKey(), ppl = logPeople(l), multi = ppl.length > 1, g = logGoal(l), u = esc(l.unit||'');
+  const tiles = ppl.map(p => { const v = dayTot(l, p.id, t), pct = g ? Math.min(100, Math.round(v/g*100)) : 0, q = quickVals(l, p.id);
+    return `<div class="amtile" style="--pc:${pCol(l,p.id)}"><span class="amn"><span>${multi ? esc(p.name) : 'Today'}</span>${g && v >= g ? '<span class="amok">✓ Goal</span>' : ''}</span>
+      <div><b class="amv">${nf(v)}</b><span class="amu">${u}</span></div>
+      ${g ? `<div class="gbar"><i style="width:${pct}%"></i></div><div class="gtx">${v >= g ? 'Goal done, '+nf(g)+' '+u : nf(r2(g - v))+' to go, goal '+nf(g)}</div>` : ''}
+      ${q.length ? `<div class="amq">${q.map(x => `<button data-act="logQuick" data-p="${p.id}" data-v="${x}">+${nf(x)}</button>`).join('')}</div>` : ''}</div>`; }).join('');
+  return `<div class="amtiles">${tiles}</div>${amtWeek(l)}`;
+}
+function amtWeek(l){
+  const ppl = logPeople(l), t = todayKey(), g = logGoal(l), ks = [...Array(7)].map((_,i) => addDays(t, i-6));
+  const V = ks.map(k => ppl.map(p => dayTot(l, p.id, k)));
+  if (!l.entries.length) return '';
+  const max = Math.max(g, ...V.flat(), 0.0001), H = 88, px = v => v > 0 ? Math.max(4, Math.round(v/max*H)) : 0, multi = ppl.length > 1;
+  const cols = ks.map((k,i) => `<div class="wc">${!multi && V[i][0] > 0 ? `<em>${nf(V[i][0])}</em>` : ''}<div class="wbs">${ppl.map((p,pi) => V[i][pi] > 0 ? `<i style="height:${px(V[i][pi])}px;--pc:${pCol(l,p.id)}"></i>` : '').join('')}</div></div>`).join('');
+  const lbl = ks.map(k => `<span class="${k===t?'on':''}">${parse(k).toLocaleDateString('en-GB',{weekday:'short'}).slice(0,2)}<br><b>${+k.slice(8)}</b></span>`).join('');
+  const mine = V.map(r => r[0]), logged = mine.filter(v => v > 0), avg = logged.length ? r2(logged.reduce((a,b) => a+b, 0)/logged.length) : 0;
+  const stat = multi ? ppl.map((p,pi) => { const s = r2(V.reduce((a,r) => a + r[pi], 0)); return `<span><i class="pdot" style="background:${pCol(l,p.id)}"></i>${esc(p.name)} <b>${nf(s)}</b></span>`; }).join('') + `<span>last 7 days</span>`
+    : `<span>Avg <b>${nf(avg)}</b> a day</span><span>Best <b>${nf(Math.max(0, ...mine))}</b></span>${g ? `<span>Goal hit <b>${mine.filter(v => v >= g).length}/7</b></span>` : ''}`;
+  return `<div class="wk7">${g ? `<i class="wgoal" style="bottom:${Math.round(g/max*H)}px"><span>Goal ${nf(g)}</span></i>` : ''}${cols}</div><div class="wdl">${lbl}</div><div class="wstat">${stat}</div>`;
+}
 const logPeople = l => [{id:'me', name:meName()}].concat(l.people || []);
 const pVal = (e, pid) => { const v = pid === 'me' ? e.val : (e.others || {})[pid]; return v === '' || v == null || isNaN(+v) ? null : +v; };
 const pName = (l, pid) => pid === 'me' ? meName() : ((l.people||[]).find(p => p.id === pid) || {}).name || '?';
@@ -1660,8 +1710,9 @@ function logChart(l){
 function weekRange(l, w){ const a = addDays(l.start, (w-1)*7); return [a, addDays(a, 6)]; }
 function weekLine(l, w){
   const inW = e => logWeek(l, e.date) === w, es = logSorted(l).filter(inW);
-  if ((l.people||[]).length){ const st = compStats(l, inW); return st.counted ? st.ppl.map(p => `${esc(p.name)} <b>${st.P[p.id].wins}</b>`).join(', ') + (st.ties ? `, ${st.ties} tie${st.ties>1?'s':''}` : '') + ` <span class="muted">days won</span>` : `${es.length} update${es.length===1?'':'s'}`; }
-  if (isAmount(l)){ const {days, T} = dayTable(l, inW), tot = days.reduce((a,k) => a + ((T[k].me||{}).v||0), 0); return `Week total <b>${nf(tot)}</b> ${esc(l.unit||'')}, ${days.length} day${days.length===1?'':'s'}`; }
+  if (isVs(l)){ const st = compStats(l, inW); return st.counted ? st.ppl.map(p => `${esc(p.name)} <b>${st.P[p.id].wins}</b>`).join(', ') + (st.ties ? `, ${st.ties} tie${st.ties>1?'s':''}` : '') + ` <span class="muted">days won</span>` : `${es.length} update${es.length===1?'':'s'}`; }
+  if (isAmount(l)){ const {days, T, ppl} = dayTable(l, inW), tot = id => r2(days.reduce((a,k) => a + ((T[k][id]||{}).v||0), 0)), u = esc(l.unit||'');
+    return (ppl.length > 1 ? 'Week total '+ppl.map(p => `${esc(p.name)} <b>${nf(tot(p.id))}</b>`).join(', ')+' '+u : `Week total <b>${nf(tot('me'))}</b> ${u}`) + `, ${days.length} day${days.length===1?'':'s'}`; }
   const vals = es.map(e => pVal(e,'me')).filter(v => v != null), prev = logSorted(l).filter(e => logWeek(l, e.date) < w).map(e => pVal(e,'me')).filter(v => v != null);
   const from = prev.length ? prev[prev.length-1] : vals[0], to = vals[vals.length-1];
   return `${es.length} update${es.length===1?'':'s'}${vals.length ? `, ${esc(l.unit||'value')} ${nf(from)} → ${nf(to)} <b style="color:${to-from>=0?'var(--up)':'var(--danger)'}">(${sgn(to-from)})</b>` : ''}`;
@@ -1706,21 +1757,20 @@ function compBoard(l){
     ${st.streak > 1 ? `<div class="vsstreak">${esc(pName(l, st.who))} won the last <b>${st.streak}</b> days in a row</div>` : ''}<div class="vshow">${how}</div></section>`;
 }
 function renderLog(l){
-  const t = todayKey(), cur = logWeek(l, t), ppl = logPeople(l), comp = (l.people||[]).length > 0, amt = isAmount(l), D = logDeltas(l);
+  const t = todayKey(), cur = logWeek(l, t), ppl = logPeople(l), comp = (l.people||[]).length > 0, vs = isVs(l), amt = isAmount(l), D = logDeltas(l), g = logGoal(l);
   let h = roomHead(l.title, 'logBack');
-  const last = logLastVal(l), todayAmt = amt ? logSorted(l).filter(e => e.date === t).map(e => pVal(e,'me')).filter(v => v != null).reduce((a,b) => a+b, 0) : 0, todayN = Math.round(todayAmt*100)/100;
+  const last = logLastVal(l);
   h += `<section class="paper full"><div class="wkhead"><div><b>Week ${cur}</b> <span class="muted">${shortDay(weekRange(l,cur)[0])} to ${shortDay(weekRange(l,cur)[1])}</span></div><span style="display:flex;gap:8px"><button class="pbtn small ghost" data-act="logEdit">Edit log</button><button class="pbtn small" data-act="saveNow">Save</button></span></div>
     ${!amt && last != null ? `<p style="margin:8px 0 0"><span class="muted">${esc(l.unit||'Now')}</span> <b style="font-family:var(--pixel);font-size:30px">${nf(last)}</b></p>` : ''}
-    ${amt ? `<p style="margin:8px 0 0"><span class="muted">Today</span> <b style="font-family:var(--pixel);font-size:30px">${nf(todayN)}</b> <span class="muted">${esc(l.unit||'')}</span></p>` : ''}
-    ${logChart(l)}
-    <div class="lgpeople"><span class="muted">Competing with:</span>${(l.people||[]).map(p => `<button class="chip" data-act="logPerson" data-id="${p.id}"><i class="pdot" style="background:${pCol(l,p.id)}"></i>${esc(p.name)}</button>`).join('')}<button class="chip" data-act="logPersonAdd">+ Add person</button></div></section>`;
-  if (comp) h += compBoard(l);
-  h += `<section class="paper full"><h2>${comp ? (amt ? 'Log a day' : 'Log a game') : 'New update'}</h2>
+    ${amt ? amtHero(l) : logChart(l)}
+    <div class="lgpeople">${comp ? `<span class="segm"><button class="chip ${vs?'':'on'}" data-act="logMode" data-v="together">Together</button><button class="chip ${vs?'on':''}" data-act="logMode" data-v="compete">Compete</button></span>` : ''}<span class="muted">${comp ? (vs ? 'Competing with:' : 'Logging with:') : 'Log for someone else too?'}</span>${(l.people||[]).map(p => `<button class="chip" data-act="logPerson" data-id="${p.id}"><i class="pdot" style="background:${pCol(l,p.id)}"></i>${esc(p.name)}</button>`).join('')}<button class="chip" data-act="logPersonAdd">+ Add person</button></div></section>`;
+  if (vs) h += compBoard(l);
+  h += `<section class="paper full"><h2>${amt ? 'Add an amount' : comp ? 'Log a game' : 'New update'}</h2>
     <div class="vsin" style="grid-template-columns:repeat(${Math.min(ppl.length, 3)},minmax(0,1fr))">${ppl.map(p => `<label><span>${comp ? esc(p.name) : esc(l.unit||'Number')}</span><input class="field" id="lgv_${p.id}" inputmode="decimal" placeholder="${esc(l.unit||'')}"></label>`).join('')}</div>
-    ${comp ? `<p class="muted" style="margin:6px 0 0">${amt ? 'Log each time, like every bottle. Everything on the same day adds up. Fill only yourself, theirs can come later.' : 'Rating after this game. Leave someone empty if they didn’t play.'}</p>` : ''}
+    ${amt ? `<p class="muted" style="margin:6px 0 0">Add each time, like every bottle. The same day adds up.${comp ? ' Fill only whoever you have now.' : ''}</p>` : comp ? `<p class="muted" style="margin:6px 0 0">Rating after this game. Leave someone empty if they didn’t play.</p>` : ''}
     <label class="lbl" for="lgDate">Day</label><input class="field" id="lgDate" type="date" value="${t}">
     <textarea class="field" id="lgText" rows="${comp ? 2 : 4}" style="margin-top:8px" placeholder="${amt ? 'Note (optional)' : 'What happened?'}"></textarea>
-    <div class="row" style="margin-top:10px"><button class="pbtn" data-act="logAdd">${comp ? 'Save' : 'Add update'}</button></div></section>`;
+    <div class="row" style="margin-top:10px"><button class="pbtn" data-act="logAdd">${amt ? 'Add' : comp ? 'Save' : 'Add update'}</button></div></section>`;
   const weeks = [...new Set(l.entries.map(e => logWeek(l, e.date)))].sort((a,b) => b-a), nStar = l.entries.filter(e => e.star).length;
   if (l.entries.length) h += `<div class="chips full" style="margin-bottom:14px"><button class="chip ${!view.logStar?'on':''}" data-act="logStarF" data-v="">All</button><button class="chip ${view.logStar?'on':''}" data-act="logStarF" data-v="1">★ Starred${nStar ? ' ('+nStar+')' : ''}</button></div>`;
   if (!weeks.length) h += `<section class="paper full"><div class="empty">No updates yet. Your first one starts Week 1.</div></section>`;
@@ -1732,9 +1782,9 @@ function renderLog(l){
       <p class="wkstat" style="margin:4px 0 6px">${weekLine(l, w)}</p>
       ${es.slice().reverse().map(e => {
         let head = '';
-        if (e.date !== lastDay){ lastDay = e.date; const row = T[e.date] || {}, dw = comp ? dayWinner(l, row) : null;
-          head = `<div class="mday"><span>${parse(e.date).toLocaleDateString('en-GB',{weekday:'short'})} ${shortDay(e.date)}</span>${dw ? `<span class="dwin">${dw === 'tie' ? 'Tie' : '♛ '+esc(pName(l,dw))}</span>` : ''}</div>`;
-          if (amt && ppl.some(p => row[p.id] && row[p.id].n > 1)) head += `<div class="dgain">${ppl.filter(p => row[p.id]).map(p => `<span><i style="background:${pCol(l,p.id)}"></i>${comp ? esc(p.name)+' ' : 'Total '}<b>${nf(row[p.id].v)}</b> ${esc(l.unit||'')} from ${row[p.id].n} log${row[p.id].n>1?'s':''}</span>`).join('')}</div>`;
+        if (e.date !== lastDay){ lastDay = e.date; const row = T[e.date] || {}, dw = vs ? dayWinner(l, row) : null, solo = amt && !comp && row.me;
+          head = `<div class="mday"><span>${parse(e.date).toLocaleDateString('en-GB',{weekday:'short'})} ${shortDay(e.date)}</span>${dw ? `<span class="dwin">${dw === 'tie' ? 'Tie' : '♛ '+esc(pName(l,dw))}</span>` : solo ? `<span class="dtot">${g && row.me.v >= g ? '✓ ' : ''}${nf(row.me.v)} ${esc(l.unit||'')}</span>` : ''}</div>`;
+          if (amt && comp) head += `<div class="dgain">${ppl.filter(p => row[p.id]).map(p => `<span><i style="background:${pCol(l,p.id)}"></i>${esc(p.name)} <b>${nf(row[p.id].v)}</b> ${esc(l.unit||'')}${g && row[p.id].v >= g ? ' ✓' : ''}</span>`).join('')}</div>`;
           if (comp && !amt) head += `<div class="dgain">${ppl.filter(p => row[p.id]).map(p => `<span><i style="background:${pCol(l,p.id)}"></i>${esc(p.name)} <b class="${row[p.id].v>0?'up':row[p.id].v<0?'down':''}">${sgn(row[p.id].v)}</b> in ${row[p.id].n} game${row[p.id].n>1?'s':''}</span>`).join('')}</div>`;
         }
         const long = (e.text||'').length > 170 || (e.text||'').split('\n').length > 3, open = EXP.has(e.id);
@@ -1742,7 +1792,7 @@ function renderLog(l){
           : pVal(e,'me') != null ? `<span class="vcol"><span class="vtag">${nf(pVal(e,'me'))}</span>${!amt && D[e.id].me != null ? `<em class="dlt ${D[e.id].me>0?'up':D[e.id].me<0?'down':''}">${sgn(D[e.id].me)}</em>` : ''}</span>` : '';
         return head + `<div class="lentry ${e.star ? 'starred' : ''} ${comp ? 'compe' : ''}">${comp ? '' : nums}
           <div class="lbody">${comp ? nums : ''}${e.text ? `<span class="tx ${long && !open ? 'clamp' : ''}">${esc(e.text)}</span>` : ''}
-            <div class="lacts">${long ? `<button class="link" data-act="logMore" data-id="${e.id}">${open ? 'See less' : 'See more'}</button>` : ''}<button class="link" data-act="logEntry" data-id="${e.id}">Edit</button></div></div>
+            <div class="lacts">${amt && e.at ? `<span class="ltime">${new Date(e.at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}</span>` : ''}${long ? `<button class="link" data-act="logMore" data-id="${e.id}">${open ? 'See less' : 'See more'}</button>` : ''}<button class="link" data-act="logEntry" data-id="${e.id}">Edit</button></div></div>
           <button class="starbtn ${e.star ? 'on' : ''}" data-act="logStar" data-id="${e.id}" aria-label="${e.star ? 'Unstar' : 'Star for video'}">${e.star ? '★' : '☆'}</button></div>`; }).join('')}</section>`; });
   return h;
 }
@@ -1805,13 +1855,14 @@ function renderLists(){
 }
 
 const LOG_THEMES = {dream:['lilac','blue','Night sky'], sun:['yellow','peach','Sunny'], mint:['mint','teal','Fresh'], rose:['pink','peach','Rosy']};
-function logIcon(l){ if (l.type !== 'diary') return (l.people||[]).length ? '⚔' : isAmount(l) ? '▤' : '≡'; return l.theme === 'dream' ? '☾' : l.theme === 'sun' ? '☀' : l.theme === 'rose' ? '♥' : '✎'; }
+function logIcon(l){ if (l.type !== 'diary') return isVs(l) ? '⚔' : (l.people||[]).length ? '⚇' : isAmount(l) ? '▤' : '≡'; return l.theme === 'dream' ? '☾' : l.theme === 'sun' ? '☀' : l.theme === 'rose' ? '♥' : '✎'; }
 function renderLogsHome(){
   if (view.logId){ const l = S.logs.find(x => x.id === view.logId); if (l) return l.type === 'diary' ? renderDiary(l) : renderLog(l); view.logId = null; }
   const folder = (id, title, sub, ico) => `<button class="folder" style="--c:var(--${FOLDER_C[hash(id) % FOLDER_C.length]})" data-act="logOpen" data-id="${id}"><span class="fi">${ico}</span><b>${esc(title || 'Untitled')}</b><span>${sub}</span></button>`;
   const group = (title, arr, sub) => arr.length ? `<div class="lgroup full">${title}</div><section class="paper full"><div class="folders">${arr.map(l => folder(l.id, l.title, sub(l), logIcon(l))).join('')}</div></section>` : '';
   const prog = S.logs.filter(l => l.type === 'progress' || !l.type), amt = S.logs.filter(l => l.type === 'amount'), dia = S.logs.filter(l => l.type === 'diary');
-  const numSub = l => { if ((l.people||[]).length){ const v = compStats(l); return 'vs '+esc(l.people.map(p => p.name).join(', '))+'<br>'+(v.counted ? 'You won '+v.P.me.wins+' of '+v.counted : 'No days yet'); } const last = logLastVal(l); return 'Week '+logWeek(l, todayKey())+(last != null ? ', '+esc(l.unit||'')+' '+nf(last) : '')+'<br>'+l.entries.length+' update'+(l.entries.length===1?'':'s'); };
+  const numSub = l => { if (isAmount(l)) return (l.people||[]).length ? (isVs(l) ? 'vs ' : 'with ')+esc(l.people.map(p => p.name).join(', '))+'<br>Today '+nf(dayTot(l,'me',todayKey()))+' '+esc(l.unit||'') : 'Today '+nf(dayTot(l,'me',todayKey()))+' '+esc(l.unit||'')+(logGoal(l) ? ' of '+nf(logGoal(l)) : '')+'<br>'+l.entries.length+' log'+(l.entries.length===1?'':'s');
+    if ((l.people||[]).length){ const v = compStats(l); return 'vs '+esc(l.people.map(p => p.name).join(', '))+'<br>'+(v.counted ? 'You won '+v.P.me.wins+' of '+v.counted : 'No days yet'); } const last = logLastVal(l); return 'Week '+logWeek(l, todayKey())+(last != null ? ', '+esc(l.unit||'')+' '+nf(last) : '')+'<br>'+l.entries.length+' update'+(l.entries.length===1?'':'s'); };
   const diaSub = l => { const last = l.entries.map(e => e.date).sort().pop(); return l.entries.length+' entr'+(l.entries.length===1?'y':'ies')+(last ? '<br>last '+shortDay(last) : ''); };
   let h = `<section class="paper full"><h2>Logs <button class="pbtn small" data-act="logNew">+ Log</button></h2><p class="muted" style="margin:0">Progress for levels like a rating, Amount for how much each day, Diary for dated writing like dreams.</p></section>`;
   h += group('Diary', dia, diaSub) + group('Progress', prog, numSub) + group('Amount', amt, numSub);
@@ -2620,8 +2671,8 @@ const A = {
         S.logs.push(l); view.logId = l.id; }}); return false; },
   logEdit(){ const l = S.logs.find(x => x.id === view.logId), diary = l.type === 'diary';
     openForm({title:'Edit log', fields: diary ? [{k:'title',label:'Name',value:l.title},{k:'theme',label:'Look',type:'select',options:Object.entries(LOG_THEMES).map(([k,v]) => ({v:k, n:v[2]})),value:l.theme||'dream'},{k:'tags',label:'Tags (comma separated)',value:(l.tags||[]).join(', ')}]
-      : [{k:'title',label:'Name',value:l.title},{k:'type',label:'What kind of number?',type:'select',options:[{v:'progress',n:'Progress: a level that goes up and down (rating)'},{v:'amount',n:'Amount: how much each day (pages, points)'}],value:l.type||'progress'},{k:'unit',label:'Name of the number',value:l.unit},{k:'start',label:'Started on',type:'date',value:l.start}],
-    onSave:v => { if (!v.title) return false; l.title = v.title; if (diary){ l.theme = v.theme; l.tags = (v.tags||'').split(',').map(t => t.trim()).filter(Boolean); } else { l.type = v.type; l.unit = v.unit; l.start = v.start || l.start; } },
+      : [{k:'title',label:'Name',value:l.title},{k:'type',label:'What kind of number?',type:'select',options:[{v:'progress',n:'Progress: a level that goes up and down (rating)'},{v:'amount',n:'Amount: how much each day (pages, points)'}],value:l.type||'progress'},{k:'unit',label:'Name of the number',value:l.unit},{k:'start',label:'Started on',type:'date',value:l.start}].concat(isAmount(l) ? [{k:'goal',label:'Daily goal (optional)',ph:'e.g. 3',value:l.goal||''}] : [], (l.people||[]).length ? [{k:'mode',label:'With others',type:'select',options:[{v:'together',n:'Together: just log side by side'},{v:'compete',n:'Compete: who wins each day'}],value:isVs(l)?'compete':'together'}] : []),
+    onSave:v => { if (!v.title) return false; l.title = v.title; if (diary){ l.theme = v.theme; l.tags = (v.tags||'').split(',').map(t => t.trim()).filter(Boolean); } else { l.type = v.type; l.unit = v.unit; l.start = v.start || l.start; if ('goal' in v){ if (v.goal && isNaN(+v.goal)){ toast('Goal must be a number'); return false; } l.goal = v.goal ? +v.goal : ''; } if (v.mode) l.mode = v.mode; } },
     onDelete:() => { S.logs = S.logs.filter(x => x.id !== l.id); view.logId = null; }}); return false; },
   diaryNew(){ const l = S.logs.find(x => x.id === view.logId), hr = new Date().getHours(); DRF = {l, x:null, v:{date: l.theme === 'dream' && hr < 15 ? addDays(todayKey(),-1) : todayKey(), tags:[]}}; diarySheet(); setTimeout(() => $('dr_text') && $('dr_text').focus(), 60); return false; },
   diaryEdit(b){ const l = S.logs.find(x => x.id === view.logId), x = l.entries.find(e => e.id === b.dataset.id); if (!x) return false; DRF = {l, x, v:JSON.parse(JSON.stringify(x))}; diarySheet(); return false; },
@@ -2633,8 +2684,12 @@ const A = {
   diaryDel(){ const l = DRF.l, x = DRF.x; ask('Delete this entry?', () => { l.entries = l.entries.filter(e => e !== x); DRF = null; }); return false; },
   diaryStar(b){ const l = S.logs.find(x => x.id === view.logId), d = l && l.entries.find(x => x.id === b.dataset.id); if (d){ d.star = !d.star; save(); } },
   logGo(b){ view.tab = 'journal'; view.j = 'logs'; view.logId = b.dataset.id; view.listId = null; window.scrollTo(0,0); },
-  logPersonAdd(){ const l = S.logs.find(x => x.id === view.logId); openForm({title:'Add someone to compete with', fields:[{k:'name',label:'Name',ph:'e.g. A friend'}],
-    onSave:v => { if (!v.name) return false; (l.people = l.people || []).push({id:'p'+uid(), name:v.name}); }}); return false; },
+  logPersonAdd(){ const l = S.logs.find(x => x.id === view.logId), first = !(l.people||[]).length; openForm({title:'Add someone', fields:[{k:'name',label:'Name',ph:'e.g. A friend'}].concat(first ? [{k:'mode',label:'How?',type:'select',options:[{v:'together',n:'Together: just log side by side'},{v:'compete',n:'Compete: who wins each day'}],value:isAmount(l)?'together':'compete'}] : []),
+    onSave:v => { if (!v.name) return false; (l.people = l.people || []).push({id:'p'+uid(), name:v.name}); if (v.mode) l.mode = v.mode; }}); return false; },
+  logMode(b){ const l = S.logs.find(x => x.id === view.logId); l.mode = b.dataset.v; save(); },
+  logQuick(b){ const l = S.logs.find(x => x.id === view.logId), pid = b.dataset.p, v = b.dataset.v;
+    l.entries.push({id:uid(), date:todayKey(), val: pid === 'me' ? v : '', others: pid === 'me' ? {} : {[pid]: v}, text:'', at:new Date().toISOString()}); if (todayKey() < l.start) l.start = todayKey(); save();
+    const tot = dayTot(l, pid, todayKey()), g = logGoal(l); toast(`+${nf(v)} ${l.unit||''}, ${(l.people||[]).length ? pName(l,pid)+' ' : ''}today ${nf(tot)}${g && tot >= g ? ' ✓' : ''}`); },
   logPerson(b){ const l = S.logs.find(x => x.id === view.logId), p = (l.people||[]).find(x => x.id === b.dataset.id); if (!p) return false;
     openForm({title:'Edit '+p.name, fields:[{k:'name',label:'Name',value:p.name}], onSave:v => { if (!v.name) return false; p.name = v.name; },
       onDelete:() => { l.people = l.people.filter(x => x.id !== p.id); l.entries.forEach(e => { if (e.others) delete e.others[p.id]; }); }}); return false; },
@@ -2651,7 +2706,8 @@ const A = {
     if (date < l.start) l.start = date;
     const others = {}; Object.keys(vals).filter(k => k !== 'me').forEach(k => others[k] = vals[k]);
     l.entries.push({id:uid(), date, val: vals.me != null ? vals.me : '', others, text, at:new Date().toISOString()}); save();
-    if (comp){ const row = dayTable(l).T[date] || {}, w = dayWinner(l, row); toast(w === 'me' ? 'You’re winning the day!' : w && w !== 'tie' ? pName(l,w)+' is winning the day' : w === 'tie' ? 'Tied for now' : 'Saved'); } else toast('Update added'); },
+    if (isAmount(l)){ const g = logGoal(l), tot = dayTot(l, 'me', date); toast(vals.me != null ? `Added. ${date === todayKey() ? 'Today' : 'That day'} ${nf(tot)} ${l.unit||''}${g && tot >= g ? ' ✓ goal' : ''}` : 'Added'); }
+    else if (isVs(l)){ const row = dayTable(l).T[date] || {}, w = dayWinner(l, row); toast(w === 'me' ? 'You’re winning the day!' : w && w !== 'tie' ? pName(l,w)+' is winning the day' : w === 'tie' ? 'Tied for now' : 'Saved'); } else toast('Update added'); },
   logEntry(b){ const l = S.logs.find(x => x.id === view.logId), e = l.entries.find(x => x.id === b.dataset.id), comp = (l.people||[]).length > 0;
     openForm({title:'Edit update', fields:[...logPeople(l).map(p => ({k:'p_'+p.id, label:(comp ? p.name+' ' : '')+(l.unit||'Number'), value: p.id === 'me' ? e.val : (e.others||{})[p.id]})),{k:'date',label:'Date',type:'date',value:e.date},{k:'text',label:'Note',type:'textarea',rows:5,value:e.text}],
       onSave:v => { logPeople(l).forEach(p => { const x = v['p_'+p.id]; if (p.id === 'me') e.val = x; else { e.others = e.others || {}; if (x === '') delete e.others[p.id]; else e.others[p.id] = x; } }); e.date = v.date || e.date; e.text = v.text; },
