@@ -491,6 +491,7 @@ li.done > .rprow .rpt{text-decoration:line-through;text-decoration-thickness:2px
 .rpbody{font-size:15.5px;line-height:26px}
 .rpbody p{margin:0;white-space:normal;word-break:break-word}
 .rpbody p + p{text-indent:1.4em}
+.rpbody p.gap{margin-top:calc(var(--g) * 26px);text-indent:0}
 .rpbody p:last-child{margin-bottom:0}
 .rpmeta,.rpempty{font-size:13px;color:var(--muted);margin:8px 0 0;line-height:26px}
 .wishhead{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:linear-gradient(135deg,color-mix(in srgb,var(--peach) 40%,var(--paper)),color-mix(in srgb,var(--yellow) 35%,var(--paper)))}
@@ -536,6 +537,7 @@ li.done > .rprow .rpt .wdone{text-decoration:none}
 .dtags span{font-size:11px;font-family:var(--pixel);background:var(--c);color:#1E2440;border:1.5px solid var(--ink);padding:0 7px}
 .dtext{font-size:15px;line-height:1.65}
 .dtext p{margin:0 0 10px}
+.dtext p.gap{margin-top:calc((var(--g) - 1) * 1.65em)}
 .dtext.clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
 body.sharemode nav.tabs,body.sharemode .iconbtn,body.sharemode .instbtn{display:none!important}
 body.sharemode{padding-left:0!important}
@@ -1799,7 +1801,12 @@ function renderLog(l){
 const FOLDER_C = ['yellow','peach','mint','blue','lilac','pink','lime','teal'];
 const growArea = (path, val, ph, cls) => `<textarea class="inline grow ${cls||''}" rows="1" data-b="${path}" placeholder="${esc(ph||'')}">${esc(val)}</textarea>`;
 function listCounts(l){ let n = 0, d = 0; (l.items||[]).forEach(it => { n++; if (it.done) d++; (it.subs||[]).forEach(s => { n++; if (s.done) d++; }); }); return {n, d}; }
-function readText(t){ return String(t||'').trim().split(/\n\s*\n/).map(p => `<p>${esc(p).replace(/\n/g,'<br>')}</p>`).join(''); }
+function readText(t){
+  const out = []; let buf = [], gap = 0;
+  const flush = () => { if (buf.length){ out.push(`<p${gap && out.length ? ` class="gap" style="--g:${Math.min(gap, 6)}"` : ''}>${esc(buf.join('\n')).replace(/\n/g,'<br>')}</p>`); buf = []; gap = 0; } };
+  String(t||'').replace(/\r/g,'').trim().split('\n').forEach(ln => { if (ln.trim() === ''){ if (buf.length) flush(); gap++; } else buf.push(ln); });
+  flush(); return out.join('');
+}
 function renderRead(l){
   const isList = l.type === 'list', c = isList ? listCounts(l) : null, letter = j => String.fromCharCode(97 + (j % 26));
   const box = (on, act, id, p) => l.checks ? `<button class="rpbox ${on?'on':''}" data-act="${act}" data-id="${id}" ${p?`data-p="${p}"`:''} aria-label="Tick"></button>` : '';
