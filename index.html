@@ -484,7 +484,9 @@ nav.tabs button.on svg .f{fill:var(--accent)}
 .skind button span{display:grid;place-items:center;width:16px;height:16px;background:var(--kc);color:#1E2440;border:1.5px solid var(--ink);font-size:10px}
 .skind button.on{background:var(--kc);color:#1E2440;box-shadow:3px 3px 0 var(--ink);transform:translate(-1px,-1px)}
 .scomp{border-top:6px solid var(--kc)}
-.scomp textarea{min-height:64px}
+.scomp textarea{min-height:64px;margin-top:8px}
+.stitle{font-family:var(--pixel);font-size:15px}
+.sttl{font-family:var(--pixel);font-size:15px;line-height:1.3;margin:2px 0 4px;word-break:break-word}
 .scrow{display:flex;gap:8px;margin-top:8px}.scrow .field{flex:1;min-width:0}.scrow .pbtn{flex:none;padding-left:22px;padding-right:22px}
 .cheat{position:relative;background:color-mix(in srgb,var(--yellow) 30%,var(--paper))}
 .cheat::before{content:'';position:absolute;top:-9px;left:50%;width:70px;height:18px;margin-left:-35px;background:color-mix(in srgb,var(--paper) 55%,transparent);border:1px solid color-mix(in srgb,var(--ink) 25%,transparent);transform:rotate(-3deg)}
@@ -1601,23 +1603,24 @@ function renderPerson(p){
 function scrItem(x){
   const [n, ic, c] = SCR[x.k] || SCR.note, t = x.t || '', long = t.length > 260 || t.split('\n').length > 6, open = EXP.has(x.id);
   const body = x.k === 'said' ? `<div class="stx said">${esc(t).replace(/\n/g,'<br>')}</div>` : `<div class="stx">${readText(t)}</div>`;
-  return `<div class="scr k-${x.k} ${x.v ? 'v-'+x.v : ''}" style="--kc:var(--${c})" data-s="${esc(t.toLowerCase())}">
+  return `<div class="scr k-${x.k} ${x.v ? 'v-'+x.v : ''}" style="--kc:var(--${c})" data-s="${esc(((x.title||'')+' '+t).toLowerCase())}">
     <div class="stag"><span class="skt">${ic} ${n}</span>${x.v === 'yes' ? '<span class="sver yes">CALLED IT</span>' : x.v === 'no' ? '<span class="sver no">NOPE</span>' : ''}<button class="sstar ${x.star?'on':''}" data-act="scrStar" data-id="${x.id}" aria-label="Pin">${x.star ? '★' : '☆'}</button></div>
-    <div class="${long && !open ? 'sclamp' : ''}">${body}</div>
+    ${x.title ? `<div class="sttl">${esc(x.title)}</div>` : ''}<div class="${long && !open ? 'sclamp' : ''}">${body}</div>
     <div class="sacts">${long ? `<button class="link" data-act="logMore" data-id="${x.id}">${open ? 'See less' : 'See more'}</button>` : ''}${x.k === 'hunch' ? `<span class="shv">Was I right?<button class="${x.v==='yes'?'on':''}" data-act="scrV" data-id="${x.id}" data-v="yes">Yes</button><button class="${x.v==='no'?'on':''}" data-act="scrV" data-id="${x.id}" data-v="no">No</button></span>` : ''}<button class="link" data-act="scrEdit" data-id="${x.id}">Edit</button></div></div>`;
 }
 function renderScribbles(p){
-  const k = view.scrK || 'note', L = p.log || [], f = view.scrF || '', nm = esc(((p.name||'').trim().split(/\s+/)[0]) || 'them');
+  const k = view.scrK || 'note', L = p.log || [], f = view.scrF || '';
   let h = `<section class="paper full scomp" style="--kc:var(--${SCR[k][2]})"><div class="skind">${Object.entries(SCR).map(([id,[n,ic,c]]) => `<button class="${id===k?'on':''}" style="--kc:var(--${c})" data-act="scrKind" data-v="${id}"><span>${ic}</span>${n}</button>`).join('')}</div>
-    <textarea class="field grow" id="scrIn" rows="2" placeholder="${SCR[k][3].replace('them', nm)}">${esc(view.scrDraft||'')}</textarea>
+    <input class="field stitle" id="scrTitle" placeholder="Title (optional)" value="${esc(view.scrTitle||'')}" autocomplete="off">
+    <textarea class="field grow" id="scrIn" rows="2" placeholder="${SCR[k][3]}">${esc(view.scrDraft||'')}</textarea>
     <div class="scrow"><input type="date" class="field" id="scrDate" value="${view.scrDate || todayKey()}"><button class="pbtn" data-act="scrAdd">Add</button></div></section>`;
   const known = L.filter(x => x.k === 'fact' || (x.k === 'hunch' && x.v === 'yes')).sort((a,b) => (b.date+(b.at||'')).localeCompare(a.date+(a.at||'')));
   if (known.length){ const all = view.cheatAll, show = all ? known : known.slice(0, 6);
-    h += `<section class="paper full cheat"><h2>Things I know <span class="muted">${known.length}</span></h2><ul>${show.map(x => `<li><button data-act="scrEdit" data-id="${x.id}">${esc(x.t)}</button>${x.k === 'hunch' ? '<em>called it</em>' : ''}</li>`).join('')}</ul>
+    h += `<section class="paper full cheat"><h2>Things I know <span class="muted">${known.length}</span></h2><ul>${show.map(x => `<li><button data-act="scrEdit" data-id="${x.id}">${x.title ? `<b>${esc(x.title)}</b>${x.t ? ': ' : ''}` : ''}${esc(x.t)}</button>${x.k === 'hunch' ? '<em>called it</em>' : ''}</li>`).join('')}</ul>
       ${known.length > 6 ? `<button class="link" data-act="cheatAll">${all ? 'Show less' : 'Show all '+known.length}</button>` : ''}</section>`; }
-  if (!L.length) return h + `<section class="paper full"><div class="empty">Nothing here yet. Scribble anything: a fact, a funny line ${nm} said, a story, or what you think about ${nm}. Each one keeps its date.</div></section>`;
+  if (!L.length) return h + `<section class="paper full"><div class="empty">Nothing here yet. Scribble anything: a fact, a funny line they said, a story, or what you think about them. Each one keeps its date.</div></section>`;
   const cnt = {}; L.forEach(x => cnt[x.k] = (cnt[x.k]||0) + 1); const nStar = L.filter(x => x.star).length;
-  h += `<div class="stools full">${L.length > 6 ? `<input class="field" id="scrQ" placeholder="Search ${nm}’s file…" autocomplete="off" enterkeyhint="search">` : ''}
+  h += `<div class="stools full">${L.length > 6 ? `<input class="field" id="scrQ" placeholder="Search this file…" autocomplete="off" enterkeyhint="search">` : ''}
     <div class="chips"><button class="chip ${!f?'on':''}" data-act="scrF" data-v="">All ${L.length}</button>${nStar ? `<button class="chip ${f==='star'?'on':''}" data-act="scrF" data-v="star">★ ${nStar}</button>` : ''}${Object.keys(SCR).filter(id => cnt[id]).map(id => `<button class="chip ${f===id?'on':''}" data-act="scrF" data-v="${id}">${SCR[id][1]} ${SCR[id][0]} ${cnt[id]}</button>`).join('')}</div></div>`;
   const list = L.filter(x => !f || (f === 'star' ? x.star : x.k === f)).sort((a,b) => (b.date+(b.at||'')).localeCompare(a.date+(a.at||'')));
   if (!list.length) return h + `<section class="paper full"><div class="empty">Nothing in this filter.</div></section>`;
@@ -2685,19 +2688,19 @@ const A = {
   pLock(){ pLock(); },
   pLockSet(b){ S.personaLock = +b.dataset.v; save(); },
   pNew(){ const p = {id:uid(), name:'', qa:[], log:[], updated:todayKey()}; P.list.push(p); view.personId = p.id; view.pTab = 'profile'; window.scrollTo(0,0); },
-  pOpen(b){ view.personId = b.dataset.id; view.pTab = null; view.scrF = ''; view.scrDraft = ''; view.scrDate = null; view.cheatAll = false; window.scrollTo(0,0); },
+  pOpen(b){ view.personId = b.dataset.id; view.pTab = null; view.scrF = ''; view.scrDraft = ''; view.scrTitle = ''; view.scrDate = null; view.cheatAll = false; window.scrollTo(0,0); },
   pTab(b){ view.pTab = b.dataset.v; },
-  scrKind(b){ view.scrK = b.dataset.v; const ta = $('scrIn'); if (ta) view.scrDraft = ta.value; },
-  scrAdd(){ const p = P.list.find(x => x.id === view.personId), t = ($('scrIn').value || '').trim(); if (!t){ toast('Write something first'); return false; }
-    (p.log = p.log || []).push({id:uid(), date: $('scrDate').value || todayKey(), k: view.scrK || 'note', t, star:false, at:new Date().toISOString()});
-    p.updated = todayKey(); view.scrDraft = ''; view.scrDate = null; pSaveSoon(0); toast('Scribbled'); },
+  scrKind(b){ view.scrK = b.dataset.v; const ta = $('scrIn'), tt = $('scrTitle'); if (ta) view.scrDraft = ta.value; if (tt) view.scrTitle = tt.value; },
+  scrAdd(){ const p = P.list.find(x => x.id === view.personId), t = ($('scrIn').value || '').trim(), title = ($('scrTitle').value || '').trim(); if (!t && !title){ toast('Write something first'); return false; }
+    (p.log = p.log || []).push({id:uid(), date: $('scrDate').value || todayKey(), k: view.scrK || 'note', title, t, star:false, at:new Date().toISOString()});
+    p.updated = todayKey(); view.scrDraft = ''; view.scrTitle = ''; view.scrDate = null; pSaveSoon(0); toast('Scribbled'); },
   scrStar(b){ const p = P.list.find(x => x.id === view.personId), x = (p.log||[]).find(e => e.id === b.dataset.id); if (!x) return false; x.star = !x.star; pSaveSoon(0); },
   scrV(b){ const p = P.list.find(x => x.id === view.personId), x = (p.log||[]).find(e => e.id === b.dataset.id); if (!x) return false; x.v = x.v === b.dataset.v ? '' : b.dataset.v; p.updated = todayKey(); pSaveSoon(0); },
   scrF(b){ view.scrF = b.dataset.v; },
   cheatAll(){ view.cheatAll = !view.cheatAll; },
   scrEdit(b){ const p = P.list.find(x => x.id === view.personId), x = (p.log||[]).find(e => e.id === b.dataset.id); if (!x) return false;
-    openForm({title:'Edit scribble', fields:[{k:'k',label:'Kind',type:'select',options:Object.entries(SCR).map(([v,a]) => ({v, n:a[0]})),value:x.k},{k:'date',label:'Date',type:'date',value:x.date},{k:'t',label:'Text',type:'textarea',rows:7,value:x.t}],
-      onSave:v => { if (!v.t) return false; x.k = v.k; x.date = v.date || x.date; x.t = v.t; if (x.k !== 'hunch') delete x.v; p.updated = todayKey(); pSaveSoon(0); },
+    openForm({title:'Edit scribble', fields:[{k:'k',label:'Kind',type:'select',options:Object.entries(SCR).map(([v,a]) => ({v, n:a[0]})),value:x.k},{k:'date',label:'Date',type:'date',value:x.date},{k:'title',label:'Title (optional)',value:x.title||''},{k:'t',label:'Text',type:'textarea',rows:7,value:x.t}],
+      onSave:v => { if (!v.t && !v.title) return false; x.k = v.k; x.date = v.date || x.date; x.title = v.title; x.t = v.t; if (x.k !== 'hunch') delete x.v; p.updated = todayKey(); pSaveSoon(0); },
       onDelete:() => { p.log = p.log.filter(e => e !== x); pSaveSoon(0); }}); return false; },
   pBack(){ P.list = P.list.filter(p => (p.name||'').trim() || (p.extra||'').trim() || (p.first||'').trim() || (p.log||[]).length); view.pTab = null; pSaveSoon(0); view.personId = null; },
   pFactAdd(b){ const p = P.list.find(x => x.id === view.personId); const def = PFACTS.find(f => f[0] === b.dataset.v);
@@ -3015,6 +3018,7 @@ document.addEventListener('click', e => {
 document.addEventListener('input', e => {
   if (e.target.id === 'q'){ renderSearchResults(); return; }
   if (e.target.id === 'scrIn'){ view.scrDraft = e.target.value; }
+  if (e.target.id === 'scrTitle'){ view.scrTitle = e.target.value; return; }
   if (e.target.id === 'scrDate'){ view.scrDate = e.target.value; return; }
   if (e.target.id === 'scrQ'){ const q = e.target.value.trim().toLowerCase(); document.querySelectorAll('#scrList .scr').forEach(el => el.hidden = !!q && !el.dataset.s.includes(q));
     document.querySelectorAll('#scrList .pday').forEach(el => el.hidden = !el.querySelector('.scr:not([hidden])')); document.querySelectorAll('#scrList .smg').forEach(el => el.hidden = !el.querySelector('.pday:not([hidden])')); return; }
