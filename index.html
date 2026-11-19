@@ -602,21 +602,25 @@ body.sharemode .wrap{padding-bottom:30px}
 .amtile{border:2px solid var(--ink);background:var(--paper);padding:10px 12px 12px;box-shadow:4px 4px 0 var(--pc)}
 .amn{display:flex;justify-content:space-between;align-items:center;font-family:var(--pixel);font-size:12px;color:var(--muted)}
 .amok{background:var(--mint);color:#1E2440;border:1.5px solid var(--ink);padding:0 5px;font-size:11px}
-.amv{font-family:var(--pixel);font-size:36px;line-height:1.15}.amu{color:var(--muted);font-size:13px;margin-left:6px}
+.amv{font-family:var(--pixel);font-size:36px;line-height:1.15}.amtile{min-width:0}.amu{color:var(--muted);font-size:13px;margin-left:6px}
 .gbar{height:12px;border:2px solid var(--ink);background:var(--empty);margin-top:8px}.gbar i{display:block;height:100%;background:var(--pc)}
 .gtx{font-size:12px;color:var(--muted);margin-top:4px}
 .amq{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .amq button{font-family:var(--pixel);font-size:13px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);padding:3px 10px;box-shadow:2px 2px 0 var(--ink);cursor:pointer}
 .amq button:active{transform:translate(2px,2px);box-shadow:none}
-.wk7{position:relative;display:grid;grid-template-columns:repeat(7,1fr);gap:6px;height:112px;border-bottom:2px solid var(--ink);margin-top:16px}
-.wc{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;min-width:0}
+.amrng{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:16px;font-size:12px}.amrng .chip{cursor:pointer}.amrng .muted{margin-left:auto}
+.wkscroll{overflow-x:auto;margin-top:8px;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.wkin{position:relative;display:grid;gap:0 6px}
+.wc{display:flex;flex-direction:column;min-width:0}
+.wcb{height:112px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;border-bottom:2px solid var(--ink);margin:0 -3px;padding:0 3px}
 .wc em{font-style:normal;font-family:var(--pixel);font-size:10px;margin-bottom:3px;white-space:nowrap}
 .wbs{display:flex;align-items:flex-end;justify-content:center;gap:2px;width:100%}
 .wbs i{display:block;flex:0 1 20px;max-width:20px;border:2px solid var(--ink);border-bottom:0;background:var(--pc)}
-.wgoal{position:absolute;left:0;right:0;border-top:2px dashed var(--muted);pointer-events:none}
-.wgoal span{position:absolute;left:0;top:-15px;font-family:var(--pixel);font-size:9px;color:var(--muted);background:var(--paper);padding:0 3px}
-.wdl{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:4px;text-align:center;font-family:var(--pixel);font-size:9px;color:var(--muted);line-height:1.4}
-.wdl b{font-size:11px;font-weight:400}.wdl .on{color:var(--ink)}.wdl .on b{background:var(--accent);color:var(--accent-ink);padding:0 3px}
+.wgoal{position:absolute;left:0;right:0;border-top:2px dashed var(--muted);pointer-events:none;z-index:1}
+.wgoal span{position:sticky;left:0;display:inline-block;transform:translateY(-17px);font-family:var(--pixel);font-size:9px;color:var(--muted);background:var(--paper);padding:0 3px}
+.wl{text-align:center;font-family:var(--pixel);font-size:9px;color:var(--muted);line-height:1.4;margin-top:4px}
+.wl b{font-size:11px;font-weight:400}.wl.mk{color:var(--accent)}.wc.on .wl{color:var(--ink)}.wc.on .wl b{background:var(--accent);color:var(--accent-ink);padding:0 3px}
+.amvw{min-width:0;overflow-wrap:anywhere}.amvw.stack .amu{display:block;margin:2px 0 0}
 .wstat{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12px;color:var(--muted);margin-top:10px}.wstat b{color:var(--ink);font-family:var(--pixel);font-weight:400}
 .mday .dtot{font-family:var(--pixel);color:var(--ink)}
 .ltime{font-size:11px;color:var(--muted);margin-right:auto}
@@ -1637,22 +1641,28 @@ function amtHero(l){
   const t = todayKey(), ppl = logPeople(l), multi = ppl.length > 1, g = logGoal(l), u = esc(l.unit||'');
   const tiles = ppl.map(p => { const v = dayTot(l, p.id, t), pct = g ? Math.min(100, Math.round(v/g*100)) : 0, q = quickVals(l, p.id);
     return `<div class="amtile" style="--pc:${pCol(l,p.id)}"><span class="amn"><span>${multi ? esc(p.name) : 'Today'}</span>${g && v >= g ? '<span class="amok">✓ Goal</span>' : ''}</span>
-      <div><b class="amv">${nf(v)}</b><span class="amu">${u}</span></div>
+      <div class="amvw ${multi?'stack':''}"><b class="amv" style="font-size:${(L => L <= 3 ? 36 : L <= 5 ? 28 : L <= 7 ? 22 : 18)(nf(v).length)}px">${nf(v)}</b><span class="amu">${u}</span></div>
       ${g ? `<div class="gbar"><i style="width:${pct}%"></i></div><div class="gtx">${v >= g ? 'Goal done, '+nf(g)+' '+u : nf(r2(g - v))+' to go, goal '+nf(g)}</div>` : ''}
       ${q.length ? `<div class="amq">${q.map(x => `<button data-act="logQuick" data-p="${p.id}" data-v="${x}">+${nf(x)}</button>`).join('')}</div>` : ''}</div>`; }).join('');
   return `<div class="amtiles">${tiles}</div>${amtWeek(l)}`;
 }
+const cnum = v => v >= 1e5 ? nf(Math.round(v/1e3))+'k' : v >= 1e4 ? nf(Math.round(v/100)/10)+'k' : nf(v);
 function amtWeek(l){
-  const ppl = logPeople(l), t = todayKey(), g = logGoal(l), ks = [...Array(7)].map((_,i) => addDays(t, i-6));
-  const V = ks.map(k => ppl.map(p => dayTot(l, p.id, k)));
   if (!l.entries.length) return '';
-  const max = Math.max(g, ...V.flat(), 0.0001), H = 88, px = v => v > 0 ? Math.max(4, Math.round(v/max*H)) : 0, multi = ppl.length > 1;
-  const cols = ks.map((k,i) => `<div class="wc">${!multi && V[i][0] > 0 ? `<em>${nf(V[i][0])}</em>` : ''}<div class="wbs">${ppl.map((p,pi) => V[i][pi] > 0 ? `<i style="height:${px(V[i][pi])}px;--pc:${pCol(l,p.id)}"></i>` : '').join('')}</div></div>`).join('');
-  const lbl = ks.map(k => `<span class="${k===t?'on':''}">${parse(k).toLocaleDateString('en-GB',{weekday:'short'}).slice(0,2)}<br><b>${+k.slice(8)}</b></span>`).join('');
-  const mine = V.map(r => r[0]), logged = mine.filter(v => v > 0), avg = logged.length ? r2(logged.reduce((a,b) => a+b, 0)/logged.length) : 0;
-  const stat = multi ? ppl.map((p,pi) => { const s = r2(V.reduce((a,r) => a + r[pi], 0)); return `<span><i class="pdot" style="background:${pCol(l,p.id)}"></i>${esc(p.name)} <b>${nf(s)}</b></span>`; }).join('') + `<span>last 7 days</span>`
-    : `<span>Avg <b>${nf(avg)}</b> a day</span><span>Best <b>${nf(Math.max(0, ...mine))}</b></span>${g ? `<span>Goal hit <b>${mine.filter(v => v >= g).length}/7</b></span>` : ''}`;
-  return `<div class="wk7">${g ? `<i class="wgoal" style="bottom:${Math.round(g/max*H)}px"><span>Goal ${nf(g)}</span></i>` : ''}${cols}</div><div class="wdl">${lbl}</div><div class="wstat">${stat}</div>`;
+  const ppl = logPeople(l), t = todayKey(), g = logGoal(l), all = view.amtR !== '7', multi = ppl.length > 1;
+  const first = l.entries.map(e => e.date).sort()[0], from = all ? (first < t ? first : t) : addDays(t, -6);
+  const n = Math.min(730, dayDiff(t, from) + 1), ks = [...Array(n)].map((_,i) => addDays(t, i-n+1));
+  const V = ks.map(k => ppl.map(p => dayTot(l, p.id, k)));
+  const max = Math.max(g, ...V.flat(), 0.0001), H = 88, px = v => v > 0 ? Math.max(4, Math.round(v/max*H)) : 0, colW = multi ? Math.max(40, ppl.length*16 + 10) : 40;
+  const cols = ks.map((k,i) => { const d = parse(k), mk = i === 0 || d.getDate() === 1;
+    return `<div class="wc ${k===t?'on':''}"><div class="wcb">${!multi && V[i][0] > 0 ? `<em>${cnum(V[i][0])}</em>` : ''}<div class="wbs">${ppl.map((p,pi) => V[i][pi] > 0 ? `<i style="height:${px(V[i][pi])}px;--pc:${pCol(l,p.id)}"></i>` : '').join('')}</div></div>
+      <span class="wl ${mk?'mk':''}">${mk ? d.toLocaleDateString('en-GB',{month:'short'}) : d.toLocaleDateString('en-GB',{weekday:'short'}).slice(0,2)}<br><b>${d.getDate()}</b></span></div>`; }).join('');
+  const mine = V.map(r => r[0]), logged = mine.filter(v => v > 0), avg = logged.length ? r2(logged.reduce((a,b) => a+b, 0)/logged.length) : 0, span = all ? 'all time' : 'last 7 days';
+  const stat = multi ? ppl.map((p,pi) => { const s = r2(V.reduce((a,r) => a + r[pi], 0)); return `<span><i class="pdot" style="background:${pCol(l,p.id)}"></i>${esc(p.name)} <b>${nf(s)}</b></span>`; }).join('') + `<span>${span}</span>`
+    : `<span>Avg <b>${nf(avg)}</b> a day</span><span>Best <b>${nf(Math.max(0, ...mine))}</b></span>${g ? `<span>Goal hit <b>${mine.filter(v => v >= g).length}/${n}</b></span>` : ''}<span>${span}</span>`;
+  return `<div class="amrng"><button class="chip ${all?'on':''}" data-act="amtR" data-v="all">All</button><button class="chip ${all?'':'on'}" data-act="amtR" data-v="7">7 days</button>${all && n > 8 ? '<span class="muted">swipe for older days</span>' : ''}</div>
+    <div class="wkscroll"><div class="wkin" style="min-width:${n*colW}px;grid-template-columns:repeat(${n},minmax(0,1fr))">${g ? `<i class="wgoal" style="top:${112 - Math.round(g/max*H)}px"><span>Goal ${nf(g)}</span></i>` : ''}${cols}</div></div>
+    <div class="wstat">${stat}</div>`;
 }
 const logPeople = l => [{id:'me', name:meName()}].concat(l.people || []);
 const pVal = (e, pid) => { const v = pid === 'me' ? e.val : (e.others || {})[pid]; return v === '' || v == null || isNaN(+v) ? null : +v; };
@@ -2468,6 +2478,7 @@ function render(){
   $('main').className = 't-'+view.tab + (view.tab==='more' && view.room ? ' r-'+view.room : '') + (view.tab==='journal' ? ' j-'+view.j : '');
   document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === view.tab));
   fillImgs(); growAll();
+  document.querySelectorAll('.wkscroll').forEach(x => x.scrollLeft = x.scrollWidth);
   $('srchBtn').hidden = view.tab !== 'journal';
 }
 
@@ -2693,6 +2704,7 @@ const A = {
   logGo(b){ view.tab = 'journal'; view.j = 'logs'; view.logId = b.dataset.id; view.listId = null; window.scrollTo(0,0); },
   logPersonAdd(){ const l = S.logs.find(x => x.id === view.logId), first = !(l.people||[]).length; openForm({title:'Add someone', fields:[{k:'name',label:'Name',ph:'e.g. A friend'}].concat(first ? [{k:'mode',label:'How?',type:'select',options:[{v:'together',n:'Together: just log side by side'},{v:'compete',n:'Compete: who wins each day'}],value:isAmount(l)?'together':'compete'}] : []),
     onSave:v => { if (!v.name) return false; (l.people = l.people || []).push({id:'p'+uid(), name:v.name}); if (v.mode) l.mode = v.mode; }}); return false; },
+  amtR(b){ view.amtR = b.dataset.v; },
   logMode(b){ const l = S.logs.find(x => x.id === view.logId); l.mode = b.dataset.v; save(); },
   logQuick(b){ const l = S.logs.find(x => x.id === view.logId), pid = b.dataset.p, v = b.dataset.v;
     l.entries.push({id:uid(), date:todayKey(), val: pid === 'me' ? v : '', others: pid === 'me' ? {} : {[pid]: v}, text:'', at:new Date().toISOString()}); if (todayKey() < l.start) l.start = todayKey(); save();
