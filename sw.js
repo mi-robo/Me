@@ -1,5 +1,5 @@
 // Mi Robo Me service worker: works offline, updates in the background.
-const CACHE = 'mirobome-v83';
+const CACHE = 'mirobome-v84';
 const SHELL = ['./', './index.html', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

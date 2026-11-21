@@ -522,6 +522,17 @@ nav.tabs button.on svg .f{fill:var(--accent)}
 .sacts{display:flex;align-items:center;gap:12px;margin-top:6px;font-size:12px}.sacts .link:last-child{margin-left:auto}
 .shv{display:flex;align-items:center;gap:5px;color:var(--muted)}
 .shv button{font-family:var(--pixel);font-size:11px;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);padding:1px 7px;cursor:pointer}.shv button.on{background:var(--ink);color:var(--paper)}
+.safe{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1.5px dashed var(--line)}
+.safe i{flex:none;width:22px;height:22px;display:grid;place-items:center;font-style:normal;font-family:var(--pixel);font-size:12px;border:2px solid var(--ink);color:#1E2440}
+.safe.ok i{background:var(--mint)}.safe.warn i{background:var(--yellow)}
+.safe b{display:block;font-family:var(--pixel);font-size:13px;font-weight:400}.safe span{font-size:13px;color:var(--muted);line-height:1.45}
+.hist{display:flex;flex-direction:column;gap:6px;max-height:55vh;overflow:auto}
+.hist button{display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;padding:9px 12px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);cursor:pointer}
+.hist b{font-family:var(--pixel);font-size:13px;font-weight:400}.hist span{font-size:12px;color:var(--muted)}
+.bknudge{display:flex;gap:12px;align-items:center;border-left:8px solid var(--yellow)}
+.bknudge>i{flex:none;width:26px;height:26px;display:grid;place-items:center;font-style:normal;font-family:var(--pixel);background:var(--yellow);color:#1E2440;border:2px solid var(--ink)}
+.bknudge>div:nth-child(2){flex:1;min-width:0}.bknudge b{display:block;font-family:var(--pixel);font-size:13px;font-weight:400}.bknudge span{font-size:13px;color:var(--muted)}
+.bkb{display:flex;flex-direction:column;align-items:center;gap:4px}
 .pstamp{position:absolute;top:14px;right:52px;font-family:var(--pixel);font-weight:700;font-size:11px;letter-spacing:2px;padding:2px 7px;border:2px solid var(--mred);color:var(--mred);transform:rotate(9deg);opacity:.85}
 .pfchips{display:flex;flex-wrap:wrap;gap:4px;margin:3px 0 2px}
 .pfchips i{font-style:normal;font-size:11px;border:1.5px solid var(--ink);background:color-mix(in srgb,var(--lilac) 25%,var(--paper));padding:0 6px}
@@ -937,7 +948,20 @@ let saveT; function saveSoon(){ clearTimeout(saveT); saveT = setTimeout(save, 35
 const SYNC_KEY = 'mirobome.sync', GIST_FILE = 'mirobome.json';
 let SY = {}; try { SY = JSON.parse(localStorage.getItem(SYNC_KEY) || '{}'); } catch(e){}
 const saveSy = () => { try { localStorage.setItem(SYNC_KEY, JSON.stringify(SY)); } catch(e){} };
-let syncReady = false, syncBusy = false, syncT = null, syncState = '';
+let syncReady = false, syncBusy = false, syncT = null, syncState = '', syncForce = false, STORE_OK = null;
+const LASTFILE = 'mirobome.lastfile', UNDO_KEY = 'mirobome.undo';
+const idCount = o => { let n = 0; const walk = v => { if (Array.isArray(v)) v.forEach(walk); else if (v && typeof v === 'object'){ if (v.id != null) n++; Object.values(v).forEach(walk); } }; walk(o); return n; };
+function replaceAll(d){ try { localStorage.setItem(UNDO_KEY, JSON.stringify(S)); } catch(e){}
+  d = JSON.parse(JSON.stringify(d)); d._ts = Date.now(); localStorage.setItem(KEY, JSON.stringify(d)); S = load(); saveBase(null); try { localStorage.removeItem(BASE_KEY); } catch(e){}
+  pLock(); applyTheme(); if (SY.token && SY.gist){ syncForce = true; setTimeout(() => syncNow(true), 300); } }
+async function dlBackup(){
+  const ids = [...new Set(JSON.stringify(S).match(/img_[a-z0-9]+/g) || [])], imgs = {};
+  for (const id of ids){ try { const d = await IMG.get(id); if (d) imgs[id] = d; } catch(e){} }
+  const blob = new Blob([JSON.stringify({app:'mirobome', v:1, at:new Date().toISOString(), data:S, imgs})], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'mirobome-backup-'+todayKey()+'.json'; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 3000);
+  localStorage.setItem(LASTFILE, String(Date.now())); toast('Backup saved'+(ids.length ? ', '+Object.keys(imgs).length+' photos inside' : '')); }
+const fileAgo = () => { const t = +localStorage.getItem(LASTFILE) || 0; return t ? Math.floor((Date.now()-t)/864e5) : null; };
 /* ---- Live About Me link (secret gist with only the About Me page) ---- */
 const SHARE_FILE = 'aboutme.json', SHARE_SIG = 'mirobome.sharesig';
 const SHARE_ID = new URLSearchParams(location.search).get('about');
@@ -1065,6 +1089,9 @@ async function syncNow(silent){
       if (!$('veil').classList.contains('open') && !(a && a.matches && a.matches('input,textarea,select'))) render();
       if (!silent) toast('Synced from your other device');
     } else if (push){ S._ts = Date.now(); merged._ts = S._ts; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
+    if (push && rem && !syncForce){ const rc = idCount(rem), mc = idCount(merged);
+      if (rc > 30 && mc < rc * 0.5){ syncState = 'Sync paused: this device would delete '+(rc-mc)+' items from your saved copy. Check Settings.'; syncBusy = false; if (!silent) toast('Sync paused, check Settings'); return; } }
+    syncForce = false;
     if (push){ merged._ts = merged._ts || Date.now(); await gh('/gists/'+SY.gist, {method:'PATCH', body:JSON.stringify({files:{[GIST_FILE]:{content:JSON.stringify(merged)}}})}); if (!silent && !apply) toast('Synced'); }
     else if (!silent && !apply) toast('Already up to date');
     saveBase(sStrip(merged)); SY.last = Date.now(); saveSy(); syncState = '';
@@ -1419,6 +1446,8 @@ function renderHome(){
     <div class="ddate">${parse(t).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}</div>${calLine(t)}</section>`;
 
   h += moonPrompts();
+  { const fa = fileAgo(), gap = SY.token ? 30 : 7, snooze = +localStorage.getItem('mirobome.nudge') || 0;
+    if ((fa == null || fa >= gap) && Date.now() - snooze > 3*864e5 && idCount(S) > 15) h += `<section class="paper full bknudge"><i>!</i><div><b>Backup check</b><span>${fa == null ? 'You haven’t downloaded a backup file yet.' : 'Last backup file was '+fa+' days ago.'} Takes 2 seconds.</span></div><div class="bkb"><button class="pbtn small" data-act="dlBackup">Download</button><button class="link" data-act="nudgeLater">Later</button></div></section>`; }
   h += `<section class="paper strip">
     <div class="srow"><span class="sl">Tasks</span><div class="bar">${tasks.length ? tasks.map(x=>`<i class="${x.done?'on':''}"></i>`).join('') : '<i></i>'}</div><span class="sn">${done}/${tasks.length}</span></div>
     <div class="srow"><span class="sl">Habits</span><div class="bar">${activeHabits().length ? activeHabits().map(x=>`<i class="${(S.checks[x.id]||{})[t]?'on':''}" style="--c:var(--${x.color})"></i>`).join('') : '<i></i>'}</div><span class="sn">${hDone}/${activeHabits().length}</span></div>
@@ -2069,7 +2098,7 @@ function renderMore(){
     ${roomTile('money','Money', (() => { const a = activeSessions(); return a.length === 1 ? taka(moneyLeft(a[0]))+' left' : a.length ? a.length+' sessions running' : 'Track a session'; })(), ['lime','mint','yellow'])}
     ${roomTile('save','Savings', S.savings.length ? S.savings.length+' challenge'+(S.savings.length>1?'s':'') : 'Save in circles', ['mint','lime'])}
     ${roomTile('board','Task Board', cur ? cur+' in progress' : 'Big long tasks', ['yellow','peach','lime'])}
-    ${roomTile('settings','Settings', 'Theme, backup', ['slate'])}
+    ${roomTile('settings','Settings', 'Backup, sync, theme', ['slate'])}
   </div><p class="muted" style="text-align:center;margin-top:22px">Built by Mi Robo</p>`;
 }
 
@@ -2555,13 +2584,26 @@ function syncCard(){
   return `<section class="paper"><h2>Sync across devices</h2>
     <p style="margin:0 0 4px">${syncState ? `<span style="color:var(--danger)">${esc(syncState)}</span>` : 'Connected. Changes upload a few seconds after you make them.'}</p>
     <p class="muted" style="margin:0">${ago == null ? 'Not synced yet' : ago < 1 ? 'Last synced just now' : 'Last synced '+(ago < 60 ? ago+' min' : Math.round(ago/60)+' h')+' ago'}</p>
+    ${syncState.startsWith('Sync paused') ? `<p class="muted" style="margin:8px 0 0">If you deleted those on purpose, sync anyway. If not, use Go back in time below.</p><div class="row"><button class="pbtn danger" data-act="syForce">I deleted them, sync anyway</button></div>` : ''}
     <div class="row"><button class="pbtn ghost" data-act="syDisconnect">Disconnect</button><button class="pbtn" data-act="syNow">Sync now</button></div></section>`;
 }
 function renderSettings(){
   return roomHead('Settings') + syncCard() + `<section class="paper"><h2>Your name</h2><input class="inline" data-b="profile.name" value="${esc(S.profile.name)}" placeholder="Shown on Home"></section>
     <section class="paper"><h2>Look</h2><div class="seg" style="margin:0">${['auto','light','dark'].map(v => `<button class="${S.theme===v?'on':''}" data-act="theme" data-v="${v}">${v[0].toUpperCase()+v.slice(1)}</button>`).join('')}</div></section>
-    <section class="paper"><h2>Backup</h2><p class="muted" style="margin:0 0 12px">Everything lives on this device for now. Copy a backup now and then. Photos stay on the device and are not in the backup.</p>
-    <div class="row" style="margin:0"><button class="pbtn ghost" data-act="backup">Copy backup</button><button class="pbtn ghost" data-act="restore">Restore</button></div></section>`;
+    ${safetyCard()}`;
+}
+function safetyCard(){
+  const fa = fileAgo(), ago = SY.last ? Math.round((Date.now()-SY.last)/60000) : null, undo = !!localStorage.getItem(UNDO_KEY);
+  const row = (ok, t, d) => `<div class="safe ${ok ? 'ok' : 'warn'}"><i>${ok ? '✓' : '!'}</i><div><b>${t}</b><span>${d}</span></div></div>`;
+  return `<section class="paper full"><h2>Keep my data safe</h2>
+    ${row(!!SY.token && !syncState, 'Cloud copy', SY.token ? (syncState ? esc(syncState) : 'On. A copy lives in your private GitHub Gist'+(ago != null ? ', synced '+(ago < 1 ? 'just now' : ago < 60 ? ago+' min ago' : Math.round(ago/60)+' h ago') : '')+'.') : 'Off. Turn on sync above so losing this phone doesn’t lose your data.')}
+    ${row(!!SY.token, 'Version history', SY.token ? 'Every change is kept as a version on GitHub. You can go back to any earlier day.' : 'Needs sync on.')}
+    ${row(STORE_OK === true, 'Phone storage', STORE_OK ? 'Protected. The browser won’t clear it on its own.' : 'Not protected yet. Add the app to your home screen and open it from there.')}
+    ${row(fa != null && fa <= 30, 'Backup file', fa == null ? 'Never downloaded. Keep one in Google Drive or your files.' : fa === 0 ? 'Downloaded today.' : 'Last one '+fa+' day'+(fa>1?'s':'')+' ago.')}
+    ${row(true, 'Persona password', 'Only you know it. If you forget it, nobody can open Persona, not even me. Write it on paper.')}
+    <div class="row" style="flex-wrap:wrap"><button class="pbtn" data-act="dlBackup">Download backup file</button><button class="pbtn ghost" data-act="pickBk">Restore from file</button>${SY.token ? `<button class="pbtn ghost" data-act="histOpen">Go back in time</button>` : ''}${undo ? `<button class="pbtn ghost" data-act="undoRestore">Undo last restore</button>` : ''}</div>
+    <input type="file" id="bkFile" accept="application/json,.json" hidden>
+    <p class="muted" style="margin:12px 0 0;font-size:12px">The file has everything, photos too. Old way: <button class="link" data-act="backup">copy as text</button> · <button class="link" data-act="restore">paste text</button></p></section>`;
 }
 
 /* ================= render ================= */
@@ -2580,7 +2622,7 @@ function render(){
 function openSheet(html){ $('sheet').innerHTML = html; $('veil').classList.add('open'); }
 function closeSheet(){ $('veil').classList.remove('open'); FORM = null; ASK = null; }
 let ASK = null;
-function ask(msg, fn, label){ openSheet(`<h3>${esc(msg)}</h3><p class="muted" style="margin:0">This can’t be undone.</p><div class="row"><button class="pbtn ghost" data-act="closeSheet">Cancel</button><button class="pbtn danger" data-act="askYes">${esc(label||'Delete')}</button></div>`); FORM = null; ASK = fn; }
+function ask(msg, fn, label, note){ openSheet(`<h3>${esc(msg)}</h3><p class="muted" style="margin:0">${esc(note || 'This can’t be undone.')}</p><div class="row"><button class="pbtn ghost" data-act="closeSheet">Cancel</button><button class="pbtn danger" data-act="askYes">${esc(label||'Delete')}</button></div>`); FORM = null; ASK = fn; }
 function toast(msg){ const t = $('toast'); t.textContent = msg; t.style.display = 'block'; clearTimeout(toast.t); toast.t = setTimeout(() => t.style.display = 'none', 1700); }
 let FORM = null;
 function fieldHTML(f){
@@ -2949,6 +2991,24 @@ const A = {
   facNew(){ facForm(null); return false; }, facEdit(b){ facForm(S.map.factions.find(x => x.id === b.dataset.id)); return false; },
 
   theme(b){ S.theme = b.dataset.v; save(); applyTheme(); },
+  dlBackup(){ dlBackup().then(() => render()); return false; },
+  nudgeLater(){ localStorage.setItem('mirobome.nudge', String(Date.now())); },
+  pickBk(){ $('bkFile').click(); return false; },
+  syForce(){ syncForce = true; syncState = ''; return syncNow(false); },
+  undoRestore(){ let d = null; try { d = JSON.parse(localStorage.getItem(UNDO_KEY)); } catch(e){} if (!d) return false;
+    ask('Put back what you had before the last restore?', () => { replaceAll(d); localStorage.removeItem(UNDO_KEY); toast('Put back'); }, 'Put back', 'Your current data is kept so you can switch back.'); return false; },
+  async histOpen(){ if (!SY.token || !SY.gist) return false;
+    openSheet(`<h3>Go back in time</h3><p class="muted" style="margin:0">Loading saved versions…</p>`);
+    try { let all = []; for (let pg = 1; pg <= 3; pg++){ const c = await gh('/gists/'+SY.gist+'/commits?per_page=100&page='+pg); all = all.concat(c); if (c.length < 100) break; }
+      const days = []; all.forEach(c => { const d = new Date(c.committed_at), k = d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); if (!days.length || days[days.length-1].k !== k) days.push({k, v:c.version, d}); });
+      openSheet(`<h3>Go back in time</h3><p class="muted" style="margin:0 0 10px">Pick a day. You get everything as it was at the end of that day. Your current data is kept so you can undo.</p>
+        <div class="hist">${days.map((x,i) => `<button data-act="histPick" data-v="${x.v}" data-n="${esc(x.d.toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}))}"><b>${i === 0 ? 'Latest' : esc(x.d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'}))}</b><span>saved ${esc(x.d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}))}</span></button>`).join('')}</div>
+        ${all.length >= 300 ? '<p class="muted" style="font-size:12px">Showing the most recent 300 saves.</p>' : ''}<div class="row"><button class="pbtn ghost" data-act="closeSheet">Close</button></div>`);
+    } catch(e){ openSheet(`<h3>Go back in time</h3><p class="muted">Couldn’t load versions: ${esc(e.message)}</p><div class="row"><button class="pbtn ghost" data-act="closeSheet">Close</button></div>`); }
+    return false; },
+  histPick(b){ const v = b.dataset.v, n = b.dataset.n;
+    ask('Go back to '+n+'?', async () => { try { const g = await gh('/gists/'+SY.gist+'/'+v), fl = g.files[GIST_FILE]; const txt = fl.truncated ? await (await fetch(fl.raw_url)).text() : fl.content, d = JSON.parse(txt);
+      if (!d || !d.tasks) throw new Error('That version looks empty'); replaceAll(d); render(); toast('Back to '+n); } catch(e){ toast(e.message || 'Could not restore'); } }, 'Go back', 'Your current data is kept. Undo last restore in Settings brings it back.'); return false; },
   backup(){ openSheet(`<h3>Your backup</h3><p class="muted" style="margin:0 0 8px">Keep this text somewhere safe. Persona stays encrypted inside it.</p><textarea class="field mono" id="bk" readonly>${esc(JSON.stringify(S))}</textarea>
     <div class="row"><button class="pbtn ghost" data-act="closeSheet">Close</button><button class="pbtn" data-act="copyBk">Copy</button></div>`); return false; },
   copyBk(){ const ta = $('bk'); ta.select();
@@ -2956,7 +3016,7 @@ const A = {
   restore(){ openSheet(`<h3>Restore</h3><p class="muted" style="margin:0 0 8px">Paste a backup. This replaces what is on this device.</p><textarea class="field mono" id="rs"></textarea>
     <div class="row"><button class="pbtn ghost" data-act="closeSheet">Cancel</button><button class="pbtn" data-act="doRestore">Restore</button></div>`); return false; },
   doRestore(){ try { const d = JSON.parse($('rs').value); if (!d || typeof d !== 'object' || !d.tasks) throw 0;
-      localStorage.setItem(KEY, JSON.stringify(d)); S = load(); save(); pLock(); applyTheme(); closeSheet(); toast('Restored'); } catch(e){ toast('That backup text is not valid'); return false; } },
+      replaceAll(d); closeSheet(); toast('Restored'); } catch(e){ toast('That backup text is not valid'); return false; } },
 
   swatch(b){ const box = b.parentElement; box.dataset.v = b.dataset.v; box.querySelectorAll('.sw').forEach(s => s.classList.toggle('on', s === b)); return false; },
   closeSheet(){ closeSheet(); return false; },
@@ -3031,6 +3091,12 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('change', async e => {
   const el = e.target;
+  if (el.id === 'bkFile' && el.files.length){ const fr = new FileReader(); fr.onload = () => { let o = null; try { o = JSON.parse(fr.result); } catch(e){}
+      const d = o && o.app === 'mirobome' ? o.data : o; el.value = '';
+      if (!d || !d.tasks){ toast('That file is not a Mi Robo Me backup'); return; }
+      ask('Replace everything on this device with the backup'+(o.at ? ' from '+new Date(o.at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '')+'?', async () => {
+        for (const [id, v] of Object.entries((o && o.imgs) || {})){ try { await IMG.put(id, v); } catch(e){} } replaceAll(d); render(); toast('Restored from file'); }, 'Restore', 'Your current data is kept. Undo last restore in Settings brings it back.'); render(); };
+    fr.readAsText(el.files[0]); return; }
   if (el.id === 'aCountry'){ S.about.country = el.value || null; save(); render(); return; }
   if (!el.dataset.up || !el.files.length) return;
   if (el.dataset.up === 'top'){ const t = S.tops.find(x => x.id === el.dataset.id), i = +el.dataset.i; if (!t) return;
@@ -3123,6 +3189,7 @@ if (SHARE_ID){ document.body.classList.add('sharemode'); shareLoad(); setInterva
 render();
 if (!SHARE_ID){ pRestore(); setTimeout(() => sharePush(false), 4000); }
 window.addEventListener('pagehide', () => { if (P.list) pTouch(); });
+if (navigator.storage && navigator.storage.persist) navigator.storage.persisted().then(p => p || navigator.storage.persist()).then(p => { STORE_OK = !!p; }).catch(() => {});
 if (SY.token) syncNow(true);
 setInterval(() => { if (SY.token && !document.hidden) syncNow(true); }, 20000);
 window.addEventListener('focus', () => { if (SY.token) syncNow(true); });
